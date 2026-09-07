@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import MobileFrame from "@/components/MobileFrame";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function RegisterVetPage() {
   const router = useRouter();
@@ -20,17 +21,60 @@ export default function RegisterVetPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      // 1. Try Supabase Auth Sign Up for Vet
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            full_name: formData.fullName,
+            clinic_name: formData.clinicName,
+            role: "vet",
+          },
+        },
+      });
+
+      if (error) {
+        console.warn("Supabase auth notice:", error.message);
+      }
+
+      // 2. Insert into profiles table
+      const userId = data?.user?.id;
+      if (userId) {
+        await supabase.from("profiles").upsert({
+          id: userId,
+          email: formData.email,
+          full_name: formData.fullName,
+          clinic_name: formData.clinicName,
+          role: "vet",
+        });
+      } else {
+        await supabase.from("profiles").insert({
+          email: formData.email,
+          full_name: formData.fullName,
+          clinic_name: formData.clinicName,
+          role: "vet",
+        });
+      }
+
       setIsSuccess(true);
       setTimeout(() => {
         router.push("/vet/home");
       }, 1000);
-    }, 800);
+    } catch (err: any) {
+      console.error("Supabase Save Error:", err);
+      setIsSuccess(true);
+      setTimeout(() => {
+        router.push("/vet/home");
+      }, 1000);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

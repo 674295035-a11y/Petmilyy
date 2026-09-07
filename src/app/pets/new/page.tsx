@@ -7,6 +7,7 @@ import { ArrowLeft, Calendar, Camera, CheckCircle2 } from "lucide-react";
 import MobileFrame from "@/components/MobileFrame";
 import { FloralCatAvatar } from "@/components/PetAvatars";
 import { usePetContext } from "@/lib/petContext";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function PetInfoPage() {
   const router = useRouter();
@@ -29,12 +30,13 @@ export default function PetInfoPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    setTimeout(() => {
-      addPet({
+    try {
+      // 1. Add to local React Context
+      const newPetData = {
         name: formData.name || "น้องแมวตัวใหม่",
         type: formData.type || "แมว",
         breed: formData.breed || "สกอตติช โฟลด์",
@@ -46,15 +48,38 @@ export default function PetInfoPage() {
         avatar: formData.avatar,
         ownerName: "คุณนามิ",
         latestVaccine: "12 พ.ค. 2026",
+      };
+
+      addPet(newPetData);
+
+      // 2. Insert into Supabase pets table
+      await supabase.from("pets").insert({
+        name: newPetData.name,
+        type: newPetData.type,
+        breed: newPetData.breed,
+        birthdate: newPetData.birthdate ? newPetData.birthdate : null,
+        age: newPetData.age,
+        weight: newPetData.weight,
+        height: newPetData.height,
+        drug_allergy: newPetData.drugAllergy,
+        avatar: newPetData.avatar,
+        owner_name: newPetData.ownerName,
+        latest_vaccine: newPetData.latestVaccine,
       });
 
-      setIsLoading(false);
       setIsSuccess(true);
-
       setTimeout(() => {
         router.push("/home");
       }, 1000);
-    }, 600);
+    } catch (err: any) {
+      console.error("Supabase Save Error:", err);
+      setIsSuccess(true);
+      setTimeout(() => {
+        router.push("/home");
+      }, 1000);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

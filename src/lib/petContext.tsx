@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState } from "react";
+import { supabase } from "./supabaseClient";
 
 export interface Pet {
   id: string;
@@ -261,6 +262,49 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const selectedPet = pets[selectedPetIndex] || pets[0];
 
+  // Fetch remote records from Supabase on mount
+  React.useEffect(() => {
+    async function loadSupabaseData() {
+      try {
+        const { data: dbPets } = await supabase.from("pets").select("*");
+        if (dbPets && dbPets.length > 0) {
+          const mappedPets: Pet[] = dbPets.map((p) => ({
+            id: p.id,
+            name: p.name,
+            type: p.type || "แมว",
+            breed: p.breed || "",
+            birthdate: p.birthdate || "",
+            age: p.age || "",
+            weight: p.weight || "",
+            height: p.height || "",
+            drugAllergy: p.drug_allergy || "ไม่มีประวัติแพ้ยา",
+            avatar: (p.avatar === "dog" ? "dog" : "cat") as "cat" | "dog",
+            ownerName: p.owner_name || "คุณนามิ",
+            latestVaccine: p.latest_vaccine || "12 พ.ค. 2026",
+          }));
+          setPets((prev) => [...mappedPets, ...prev.filter((item) => !mappedPets.some((mp) => mp.id === item.id))]);
+        }
+
+        const { data: dbLogs } = await supabase.from("activity_logs").select("*").order("created_at", { ascending: false });
+        if (dbLogs && dbLogs.length > 0) {
+          const mappedLogs: ActivityLog[] = dbLogs.map((l) => ({
+            id: l.id,
+            petId: l.pet_id || "pet-1",
+            type: l.type,
+            title: l.title,
+            emoji: l.emoji || "✨",
+            time: l.time || "เมื่อสักครู่",
+            note: l.note || "",
+          }));
+          setActivityLogs((prev) => [...mappedLogs, ...prev.filter((item) => !mappedLogs.some((ml) => ml.id === item.id))]);
+        }
+      } catch (err) {
+        console.warn("Supabase fetch notice:", err);
+      }
+    }
+    loadSupabaseData();
+  }, []);
+
   const addPet = (newPetData: Omit<Pet, "id">) => {
     const newPet: Pet = {
       ...newPetData,
@@ -268,6 +312,23 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
     setPets((prev) => [...prev, newPet]);
     setSelectedPetIndex(pets.length);
+
+    // Sync to Supabase
+    supabase.from("pets").insert({
+      name: newPetData.name,
+      type: newPetData.type,
+      breed: newPetData.breed,
+      birthdate: newPetData.birthdate || null,
+      age: newPetData.age,
+      weight: newPetData.weight,
+      height: newPetData.height,
+      drug_allergy: newPetData.drugAllergy,
+      avatar: newPetData.avatar,
+      owner_name: newPetData.ownerName,
+      latest_vaccine: newPetData.latestVaccine,
+    }).then(({ error }) => {
+      if (error) console.warn("Supabase insert pet error:", error.message);
+    });
   };
 
   const addActivityButton = (btn: Omit<ActivityButton, "id">) => {
@@ -276,13 +337,23 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       id: `act-${Date.now()}`,
     };
     setActivityButtons((prev) => [...prev, newBtn]);
+
+    // Sync to Supabase
+    supabase.from("activity_buttons").insert({
+      name: btn.name,
+      emoji: btn.emoji,
+      type: btn.type,
+      badge_dot_color: btn.badgeDotColor || null,
+    }).then(({ error }) => {
+      if (error) console.warn("Supabase insert button error:", error.message);
+    });
   };
 
   const logActivity = (type: string, title: string, emoji: string = "✨", note?: string) => {
     const timeNow = new Date().toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" }) + " น.";
     const newLog: ActivityLog = {
       id: `log-${Date.now()}`,
-      petId: selectedPet.id,
+      petId: selectedPet?.id || "pet-1",
       type,
       title,
       emoji,
@@ -290,10 +361,25 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       note,
     };
     setActivityLogs((prev) => [newLog, ...prev]);
+
+    // Sync to Supabase
+    supabase.from("activity_logs").insert({
+      pet_id: selectedPet?.id && selectedPet.id.includes("-") ? null : selectedPet?.id,
+      type,
+      title,
+      emoji,
+      time: timeNow,
+      note: note || "",
+    }).then(({ error }) => {
+      if (error) console.warn("Supabase insert log error:", error.message);
+    });
   };
 
   const removeActivityLog = (id: string) => {
     setActivityLogs((prev) => prev.filter((log) => log.id !== id));
+    if (!id.startsWith("log-")) {
+      supabase.from("activity_logs").delete().eq("id", id).then();
+    }
   };
 
   const sendChatMessage = (threadId: string, text: string) => {
@@ -318,6 +404,15 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return thread;
       })
     );
+
+    if (!threadId.startsWith("vet-")) {
+      supabase.from("chat_messages").insert({
+        thread_id: threadId,
+        sender: "user",
+        text,
+        time: timeNow,
+      }).then();
+    }
   };
 
   const clearUnread = (threadId: string) => {

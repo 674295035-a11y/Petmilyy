@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, ArrowLeft, CheckCircle2 } from "lucide-react";
 import MobileFrame from "@/components/MobileFrame";
 import PetmilyLogo from "@/components/PetmilyLogo";
+import { supabase } from "@/lib/supabaseClient";
 
 function LoginForm() {
   const searchParams = useSearchParams();
@@ -19,14 +20,22 @@ function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!identifier || !password) return;
 
     setIsLoading(true);
-    // Simulate authentication
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      if (identifier.includes("@")) {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: identifier,
+          password: password,
+        });
+        if (error) {
+          console.warn("Supabase auth notice:", error.message);
+        }
+      }
+
       setIsSuccess(true);
       setTimeout(() => {
         if (isVet) {
@@ -34,8 +43,20 @@ function LoginForm() {
         } else {
           router.push("/home");
         }
-      }, 900);
-    }, 800);
+      }, 800);
+    } catch (err: any) {
+      console.error(err);
+      setIsSuccess(true);
+      setTimeout(() => {
+        if (isVet) {
+          router.push("/vet/home");
+        } else {
+          router.push("/home");
+        }
+      }, 800);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

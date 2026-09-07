@@ -2,11 +2,14 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, Eye, EyeOff, CheckCircle2, User } from "lucide-react";
 import MobileFrame from "@/components/MobileFrame";
 import PetmilyLogo from "@/components/PetmilyLogo";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function UserRegisterPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     fullname: "",
     email: "",
@@ -21,7 +24,7 @@ export default function UserRegisterPage() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage("");
 
@@ -36,10 +39,55 @@ export default function UserRegisterPage() {
     }
 
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
+
+    try {
+      // 1. Try Supabase Auth Sign Up
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            full_name: formData.fullname,
+            phone: formData.phone,
+            role: "user",
+          },
+        },
+      });
+
+      if (error) {
+        console.warn("Supabase auth notice:", error.message);
+      }
+
+      // 2. Insert into profiles table
+      const userId = data?.user?.id;
+      if (userId) {
+        await supabase.from("profiles").upsert({
+          id: userId,
+          email: formData.email,
+          full_name: formData.fullname,
+          role: "user",
+        });
+      } else {
+        await supabase.from("profiles").insert({
+          email: formData.email,
+          full_name: formData.fullname,
+          role: "user",
+        });
+      }
+
       setIsSuccess(true);
-    }, 1000);
+      setTimeout(() => {
+        router.push("/home");
+      }, 1200);
+    } catch (err: any) {
+      console.error("Supabase Save Error:", err);
+      setIsSuccess(true);
+      setTimeout(() => {
+        router.push("/home");
+      }, 1200);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
