@@ -93,7 +93,7 @@ export interface ExpenseItem {
   id: string;
   title: string;
   amount: number;
-  category: string;
+  category: "อุปกรณ์" | "การแพทย์" | "อาหาร" | "อื่นๆ";
   date: string;
 }
 
@@ -110,6 +110,8 @@ interface PetContextType {
   setCurrentUser: (user: UserProfile) => void;
   userRole: "user" | "vet";
   setUserRole: (role: "user" | "vet") => void;
+  isPremium: boolean;
+  setIsPremium: (isPrem: boolean) => void;
   pets: Pet[];
   selectedPetIndex: number;
   setSelectedPetIndex: (index: number) => void;
@@ -129,6 +131,7 @@ interface PetContextType {
   addAppointment: (app: Omit<Appointment, "id">) => void;
   expenses: ExpenseItem[];
   addExpense: (exp: Omit<ExpenseItem, "id">) => void;
+  deleteExpense: (id: string) => void;
   notifications: NotificationItem[];
   clearNotifications: () => void;
   resetForNewUser: (user?: Partial<UserProfile>) => void;
@@ -206,6 +209,7 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const [userRole, setUserRole] = useState<"user" | "vet">("user");
+  const [isPremium, setIsPremium] = useState<boolean>(false);
   const [pets, setPets] = useState<Pet[]>([]);
   const [selectedPetIndex, setSelectedPetIndex] = useState<number>(0);
   const [activityButtons, setActivityButtons] = useState<ActivityButton[]>(defaultActivityButtons);
@@ -234,6 +238,11 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setUserRole(parsed.role || "user");
       }
 
+      const savedPremium = localStorage.getItem("petmily_is_premium");
+      if (savedPremium) {
+        setIsPremium(JSON.parse(savedPremium));
+      }
+
       const savedPets = localStorage.getItem("petmily_pets");
       if (savedPets) {
         const parsedPets = JSON.parse(savedPets);
@@ -251,6 +260,12 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const parsedApps = JSON.parse(savedAppointments);
         if (Array.isArray(parsedApps)) setAppointments(parsedApps);
       }
+
+      const savedExpenses = localStorage.getItem("petmily_expenses");
+      if (savedExpenses) {
+        const parsedExp = JSON.parse(savedExpenses);
+        if (Array.isArray(parsedExp)) setExpenses(parsedExp);
+      }
     } catch (e) {
       console.warn("Local storage restore error:", e);
     }
@@ -260,13 +275,15 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     try {
       localStorage.setItem("petmily_current_user", JSON.stringify(currentUser));
+      localStorage.setItem("petmily_is_premium", JSON.stringify(isPremium));
       localStorage.setItem("petmily_pets", JSON.stringify(pets));
       localStorage.setItem("petmily_activity_logs", JSON.stringify(activityLogs));
       localStorage.setItem("petmily_appointments", JSON.stringify(appointments));
+      localStorage.setItem("petmily_expenses", JSON.stringify(expenses));
     } catch (e) {
       console.warn("Local storage sync error:", e);
     }
-  }, [currentUser, pets, activityLogs, appointments]);
+  }, [currentUser, isPremium, pets, activityLogs, appointments, expenses]);
 
   const selectedPet: Pet = pets[selectedPetIndex] || pets[0] || {
     id: "pet-new",
@@ -280,7 +297,7 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     drugAllergy: "ไม่มีประวัติแพ้ยา",
     avatar: "cat",
     ownerName: currentUser.fullName || "ผู้ใช้งาน",
-    latestVaccine: "ยังไม่มีประวัติ",
+    latestVaccine: "",
   };
 
   const resetForNewUser = (user?: Partial<UserProfile>) => {
@@ -294,6 +311,7 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     setCurrentUser(newUser);
     setUserRole(newUser.role);
+    setIsPremium(false);
     setPets([]);
     setSelectedPetIndex(0);
     setActivityLogs([]);
@@ -312,9 +330,11 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     try {
       localStorage.setItem("petmily_current_user", JSON.stringify(newUser));
+      localStorage.setItem("petmily_is_premium", JSON.stringify(false));
       localStorage.setItem("petmily_pets", JSON.stringify([]));
       localStorage.setItem("petmily_activity_logs", JSON.stringify([]));
       localStorage.setItem("petmily_appointments", JSON.stringify([]));
+      localStorage.setItem("petmily_expenses", JSON.stringify([]));
     } catch (e) {}
   };
 
@@ -492,6 +512,10 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setExpenses((prev) => [newExp, ...prev]);
   };
 
+  const deleteExpense = (id: string) => {
+    setExpenses((prev) => prev.filter((exp) => exp.id !== id));
+  };
+
   const clearNotifications = () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
   };
@@ -503,6 +527,8 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setCurrentUser,
         userRole,
         setUserRole,
+        isPremium,
+        setIsPremium,
         pets,
         selectedPetIndex,
         setSelectedPetIndex,
@@ -522,6 +548,7 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         addAppointment,
         expenses,
         addExpense,
+        deleteExpense,
         notifications,
         clearNotifications,
         resetForNewUser,

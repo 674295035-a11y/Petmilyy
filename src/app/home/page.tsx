@@ -44,6 +44,7 @@ export default function HomePage() {
     activityLogs,
     logActivity,
     removeActivityLog,
+    appointments,
     notifications,
     clearNotifications,
   } = usePetContext();
@@ -164,52 +165,37 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {/* Urgent Appointment Alert Cards */}
-          <div className="space-y-2.5">
-            {/* Alert Card 1 */}
-            <Link
-              href="/clinic"
-              className="block bg-white rounded-2xl p-3.5 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md transition-all text-left"
-            >
-              <div className="flex items-start gap-3">
-                <div className="w-7 h-7 rounded-full bg-transparent flex items-center justify-center text-amber-500 shrink-0 mt-0.5">
-                  <div className="w-6 h-6 rounded-full border-2 border-amber-500 flex items-center justify-center text-amber-500 font-bold text-xs">
-                    !
+          {/* Urgent Appointment Alert Cards (Only show if there are actual appointments booked) */}
+          {appointments.length > 0 && (
+            <div className="space-y-2.5">
+              {appointments.slice(0, 3).map((app) => (
+                <Link
+                  key={app.id}
+                  href="/history"
+                  className="block bg-white rounded-2xl p-3.5 border border-amber-200/80 shadow-[0_2px_12px_rgba(245,158,11,0.08)] hover:shadow-md transition-all text-left"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-7 h-7 rounded-full bg-amber-50 flex items-center justify-center text-amber-500 shrink-0 mt-0.5">
+                      <div className="w-6 h-6 rounded-full border-2 border-amber-500 flex items-center justify-center text-amber-500 font-bold text-xs">
+                        !
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-[15px] font-bold text-red-600 leading-tight">
+                        นัดหมาย: {app.serviceType || "พบแพทย์"}
+                      </div>
+                      <div className="text-[13px] text-slate-700 mt-0.5">
+                        {app.date} เวลา {app.time} น. ที่ {app.clinicName}
+                      </div>
+                      <div className="text-[11px] text-slate-500 mt-0.5">
+                        สัตว์เลี้ยง: {app.petName}
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="flex-1">
-                  <div className="text-[15px] font-bold text-red-600 leading-tight">
-                    นัดหมายพบแพทย์
-                  </div>
-                  <div className="text-[13px] text-slate-700 mt-0.5">
-                    พรุ่งนี้ เวลา 10:00 น. ที่คลินิกสงขลา
-                  </div>
-                </div>
-              </div>
-            </Link>
-
-            {/* Alert Card 2 */}
-            <Link
-              href="/clinic"
-              className="block bg-white rounded-2xl p-3.5 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md transition-all text-left"
-            >
-              <div className="flex items-start gap-3">
-                <div className="w-7 h-7 rounded-full bg-transparent flex items-center justify-center text-amber-500 shrink-0 mt-0.5">
-                  <div className="w-6 h-6 rounded-full border-2 border-amber-500 flex items-center justify-center text-amber-500 font-bold text-xs">
-                    !
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <div className="text-[15px] font-bold text-red-600 leading-tight">
-                    นัดหมายพบแพทย์
-                  </div>
-                  <div className="text-[13px] text-slate-700 mt-0.5">
-                    22/07/69 เวลา 09:00 น. ที่คลินิกสงขลา
-                  </div>
-                </div>
-              </div>
-            </Link>
-          </div>
+                </Link>
+              ))}
+            </div>
+          )}
 
           {/* Quick Activity Logger Section */}
           <div className="space-y-2 text-left pt-1">
@@ -371,19 +357,27 @@ export default function HomePage() {
                 <span className="text-slate-700 font-normal">
                   วัคซีนรวม (เข็มล่าสุด)
                 </span>
-                <span className="font-semibold text-slate-900">
-                  {selectedPet.latestVaccine || "12 พ.ค. 2026"}
+                <span className={`font-semibold ${selectedPet.latestVaccine ? "text-slate-900" : "text-slate-400 text-[13px]"}`}>
+                  {selectedPet.latestVaccine || "ยังไม่มีข้อมูล (รอแพทย์บันทึก)"}
                 </span>
               </div>
               <div className="flex items-center justify-between pt-1">
                 <span className="text-slate-700 font-normal">
                   น้ำหนักล่าสุด
                 </span>
-                <span className="font-semibold text-slate-900">
-                  {selectedPet.weight} กก. ปกติ
+                <span className={`font-semibold ${selectedPet.weight && selectedPet.weight !== "-" ? "text-slate-900" : "text-slate-400 text-[13px]"}`}>
+                  {selectedPet.weight && selectedPet.weight !== "-"
+                    ? `${selectedPet.weight} กก. ปกติ`
+                    : "ยังไม่มีข้อมูล"}
                 </span>
               </div>
             </div>
+
+            {!selectedPet.latestVaccine && (
+              <div className="mt-2.5 pt-2 border-t border-slate-100 text-[11px] text-slate-400 text-center">
+                * ข้อมูลสุขภาพจะบันทึกโดยสัตวแพทย์เมื่อนำสัตว์เลี้ยงเข้ารับการตรวจ
+              </div>
+            )}
           </div>
 
           {/* PetCare Premium Banner Card */}

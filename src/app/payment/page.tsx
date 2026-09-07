@@ -18,9 +18,12 @@ import {
 import MobileFrame from "@/components/MobileFrame";
 import AppHeader from "@/components/AppHeader";
 
+import { usePetContext } from "@/lib/petContext";
+
 function PaymentContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { setIsPremium } = usePetContext();
   const plan = searchParams.get("plan") || "monthly";
   const isYearly = plan === "yearly";
 
@@ -35,6 +38,7 @@ function PaymentContent() {
   const handlePay = () => {
     setIsProcessing(true);
     setTimeout(() => {
+      setIsPremium(true);
       setIsProcessing(false);
       setIsSuccessModalOpen(true);
     }, 1200);
