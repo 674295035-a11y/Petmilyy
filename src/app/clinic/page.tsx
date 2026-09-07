@@ -95,10 +95,10 @@ const clinicData: ClinicItem[] = [
 
 export default function ClinicPage() {
   const { selectedPet, currentUser, addAppointment, notifications } = usePetContext();
-  const [activeView, setActiveView] = useState<"list" | "map">("map");
+  const [activeView, setActiveView] = useState<"list" | "map">("list");
   const [selectedClinic, setSelectedClinic] = useState<ClinicItem>(clinicData[1]); // โรงพยาบาลสัตว์ท่าสะอ้าน
-  const [searchQuery, setSearchQuery] = useState(clinicData[1].name);
-  const [mapSearchInput, setMapSearchInput] = useState(clinicData[1].name);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [mapSearchInput, setMapSearchInput] = useState("");
   const [zoomLevel, setZoomLevel] = useState<number>(1);
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
@@ -289,15 +289,25 @@ export default function ClinicPage() {
         {activeView === "list" && (
           <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
             {/* Search Bar */}
-            <div className="relative">
+            <div className="relative flex items-center">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="ค้นหาคลินิกใกล้คุณ..."
-                className="w-full pl-11 pr-4 py-2.5 bg-white rounded-full text-[14px] text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-400 border border-slate-200 shadow-[0_2px_10px_rgba(0,0,0,0.03)]"
+                className="w-full pl-11 pr-10 py-2.5 bg-white rounded-full text-[14px] text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-400 border border-slate-200 shadow-[0_2px_10px_rgba(0,0,0,0.03)]"
               />
               <Search className="w-5 h-5 text-slate-700 absolute left-4 top-1/2 -translate-y-1/2 stroke-[2.2]" />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="w-6 h-6 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-900 absolute right-3 top-1/2 -translate-y-1/2"
+                  title="ล้างคำค้นหา"
+                >
+                  <X className="w-4 h-4 stroke-[2.5]" />
+                </button>
+              )}
             </div>
 
             {/* Recommended Clinic Subtitle */}
