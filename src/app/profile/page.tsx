@@ -22,9 +22,12 @@ import { FloralCatAvatar } from "@/components/PetAvatars";
 import { usePetContext } from "@/lib/petContext";
 
 export default function ProfilePage() {
-  const { pets } = usePetContext();
+  const { currentUser, pets, expenses } = usePetContext();
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const totalExpense = expenses.reduce((sum, item) => sum + (item.amount || 0), 0);
+  const formattedExpense = totalExpense > 0 ? `฿${totalExpense.toLocaleString()}` : "฿0.00";
 
   const menuItems = [
     {
@@ -106,13 +109,13 @@ export default function ProfilePage() {
 
               {/* User Info */}
               <h2 className="text-[19px] font-bold text-slate-900 font-kanit">
-                คุณนามิ
+                {currentUser.fullName || "ผู้ใช้งานใหม่"}
               </h2>
               <p className="text-[13px] text-slate-500 mt-0.5">
-                maewemail@gmail.com
+                {currentUser.email || "user@petmily.app"}
               </p>
               <div className="text-[13px] font-medium text-emerald-600 mt-1">
-                สมาชิกทั่วไป
+                {currentUser.role === "vet" ? "สัตวแพทย์" : "สมาชิกทั่วไป"}
               </div>
 
               {/* Divider */}
@@ -130,7 +133,7 @@ export default function ProfilePage() {
                 </div>
                 <Link href="/expenses" className="block hover:bg-slate-50 rounded-xl transition-colors">
                   <div className="text-[20px] font-bold text-slate-900 font-kanit">
-                    ฿12.5k
+                    {formattedExpense}
                   </div>
                   <div className="text-[12px] text-slate-500">
                     ค่าใช้จ่ายในเดือนนี้

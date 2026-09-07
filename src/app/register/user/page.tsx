@@ -83,7 +83,12 @@ export default function UserRegisterPage() {
       }
 
       // 3. Reset data state for new user
-      resetForNewUser();
+      resetForNewUser({
+        fullName: formData.fullname,
+        email: formData.email,
+        phone: formData.phone,
+        role: "user",
+      });
 
       setIsSuccess(true);
       setTimeout(() => {

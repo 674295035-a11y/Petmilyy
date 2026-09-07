@@ -66,7 +66,13 @@ export default function RegisterVetPage() {
       }
 
       // 3. Reset data state
-      resetForNewUser();
+      resetForNewUser({
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: "",
+        role: "vet",
+        clinicName: formData.clinicName,
+      });
 
       setIsSuccess(true);
       setTimeout(() => {

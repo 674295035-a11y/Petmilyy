@@ -44,6 +44,8 @@ export default function HomePage() {
     activityLogs,
     logActivity,
     removeActivityLog,
+    notifications,
+    clearNotifications,
   } = usePetContext();
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -113,7 +115,7 @@ export default function HomePage() {
           backHref="/"
           showLogo={true}
           showBell={true}
-          bellCount={2}
+          bellCount={notifications.filter((n) => n.unread).length}
           onBellClick={() => setShowNotificationModal(true)}
         />
 
@@ -130,52 +132,24 @@ export default function HomePage() {
 
           {/* Horizontal Pet Selector Bar */}
           <div className="flex items-center gap-3.5 py-1 px-1 overflow-x-auto no-scrollbar">
-            {/* Pet 1: Scottish Fold (Nami / Milky) */}
-            <button
-              type="button"
-              onClick={() => setSelectedPetIndex(0)}
-              className={`relative rounded-full p-0.5 transition-all duration-200 ${
-                selectedPetIndex === 0
-                  ? "ring-2 ring-[#5CB8C1] ring-offset-2 scale-105"
-                  : "opacity-80 hover:opacity-100"
-              }`}
-              title="คุณนามิ (แมว)"
-            >
-              <div className="w-14 h-14 rounded-full overflow-hidden bg-white shadow-sm flex items-center justify-center border border-amber-100">
-                <FloralCatAvatar size={56} />
-              </div>
-            </button>
-
-            {/* Pet 2: Golden Retriever (Lucky) */}
-            <button
-              type="button"
-              onClick={() => setSelectedPetIndex(1)}
-              className={`relative rounded-full p-0.5 transition-all duration-200 ${
-                selectedPetIndex === 1
-                  ? "ring-2 ring-[#5CB8C1] ring-offset-2 scale-105"
-                  : "opacity-80 hover:opacity-100"
-              }`}
-              title="น้องลักกี้ (สุนัข)"
-            >
-              <div className="w-14 h-14 rounded-full overflow-hidden bg-white shadow-sm flex items-center justify-center border border-teal-100">
-                <GoldenRetrieverAvatar size={56} />
-              </div>
-            </button>
-
-            {/* Additional dynamic pets if added */}
-            {pets.slice(2).map((pet, idx) => (
+            {pets.map((pet, idx) => (
               <button
                 key={pet.id}
                 type="button"
-                onClick={() => setSelectedPetIndex(2 + idx)}
-                className={`relative rounded-full p-0.5 transition-all duration-200 ${
-                  selectedPetIndex === 2 + idx
+                onClick={() => setSelectedPetIndex(idx)}
+                className={`relative rounded-full p-0.5 transition-all duration-200 shrink-0 ${
+                  selectedPetIndex === idx
                     ? "ring-2 ring-[#5CB8C1] ring-offset-2 scale-105"
                     : "opacity-80 hover:opacity-100"
                 }`}
+                title={pet.name}
               >
-                <div className="w-14 h-14 rounded-full overflow-hidden bg-amber-50 shadow-sm flex items-center justify-center border border-slate-200 font-bold text-slate-700 text-sm">
-                  {pet.avatar === "dog" ? <GoldenRetrieverAvatar size={56} /> : <FloralCatAvatar size={56} />}
+                <div className="w-14 h-14 rounded-full overflow-hidden bg-white shadow-sm flex items-center justify-center border border-amber-100">
+                  {pet.avatar === "dog" ? (
+                    <GoldenRetrieverAvatar size={56} />
+                  ) : (
+                    <FloralCatAvatar size={56} />
+                  )}
                 </div>
               </button>
             ))}
@@ -631,7 +605,7 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="bg-white w-full max-w-xs rounded-3xl p-5 text-left space-y-3 shadow-2xl animate-fade-in">
               <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                <h3 className="text-base font-bold text-slate-900">การแจ้งเตือน</h3>
+                <h3 className="text-base font-bold text-slate-900 font-kanit">การแจ้งเตือน</h3>
                 <button
                   type="button"
                   onClick={() => setShowNotificationModal(false)}
@@ -641,21 +615,29 @@ export default function HomePage() {
                 </button>
               </div>
               <div className="space-y-2.5 max-h-60 overflow-y-auto">
-                <div className="p-2.5 bg-orange-50 rounded-xl border border-orange-200 text-xs">
-                  <div className="font-bold text-orange-700">⏰ นัดหมายฉีดวัคซีน</div>
-                  <div className="text-slate-600 mt-0.5">พรุ่งนี้ 10:00 น. ที่คลินิกสงขลา</div>
-                </div>
-                <div className="p-2.5 bg-teal-50 rounded-xl border border-teal-200 text-xs">
-                  <div className="font-bold text-teal-700">💬 ข้อความใหม่จากแพทย์หญิงด้า</div>
-                  <div className="text-slate-600 mt-0.5">"วันนี้มีนัดพบหมอนะค่ะ"</div>
-                </div>
+                {notifications.length === 0 ? (
+                  <div className="text-center py-6 text-xs text-slate-400">
+                    ไม่มีการแจ้งเตือนใหม่
+                  </div>
+                ) : (
+                  notifications.map((notif) => (
+                    <div key={notif.id} className="p-2.5 bg-teal-50/80 rounded-2xl border border-teal-100 text-xs space-y-0.5">
+                      <div className="font-bold text-teal-800">{notif.title}</div>
+                      <div className="text-slate-600 leading-relaxed">{notif.message}</div>
+                      <div className="text-[10px] text-slate-400 pt-0.5">{notif.time}</div>
+                    </div>
+                  ))
+                )}
               </div>
               <button
                 type="button"
-                onClick={() => setShowNotificationModal(false)}
-                className="w-full py-2 bg-slate-100 hover:bg-slate-200 rounded-full text-xs text-slate-700 font-medium"
+                onClick={() => {
+                  clearNotifications();
+                  setShowNotificationModal(false);
+                }}
+                className="w-full py-2 bg-[#00A877] hover:bg-[#009166] text-white rounded-full text-xs font-medium transition-all font-kanit"
               >
-                ปิด
+                ทำเครื่องหมายว่าอ่านแล้ว
               </button>
             </div>
           </div>

@@ -10,8 +10,10 @@ import { FloralCatAvatar, VetDoctorAvatar } from "@/components/PetAvatars";
 import { usePetContext } from "@/lib/petContext";
 
 export default function ChatListPage() {
-  const { chatThreads, clearUnread } = usePetContext();
+  const { currentUser, chatThreads, clearUnread, notifications } = usePetContext();
   const [searchQuery, setSearchQuery] = useState("");
+
+  const unreadNotifs = notifications.filter((n) => n.unread).length;
 
   const filteredThreads = chatThreads.filter(
     (thread) =>
@@ -29,13 +31,13 @@ export default function ChatListPage() {
           backHref="/home"
           showLogo={true}
           showBell={true}
-          bellCount={15}
+          bellCount={unreadNotifs}
         />
 
         {/* Content View */}
         <div className="flex-1 flex flex-col overflow-y-auto">
           
-          {/* User Profile Bar (คุณนามิ) */}
+          {/* User Profile Bar */}
           <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100 bg-[#FCFDFC]">
             <div className="flex items-center gap-3">
               {/* Profile Avatar */}
@@ -43,7 +45,7 @@ export default function ChatListPage() {
                 <FloralCatAvatar size={44} />
               </div>
               <span className="text-[17px] font-semibold text-slate-800">
-                คุณนามิ
+                {currentUser.fullName || "คุณผู้ใช้งาน"}
               </span>
             </div>
 

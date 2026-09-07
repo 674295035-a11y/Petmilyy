@@ -79,7 +79,7 @@ const clinicData: ClinicItem[] = [
 ];
 
 export default function ClinicPage() {
-  const { selectedPet } = usePetContext();
+  const { selectedPet, currentUser, addAppointment, notifications } = usePetContext();
   const [activeView, setActiveView] = useState<"list" | "map">("list");
   const [selectedClinic, setSelectedClinic] = useState<ClinicItem>(clinicData[1]); // โรงพยาบาลสัตว์ท่าสะอ้าน by default
   const [searchQuery, setSearchQuery] = useState("");
@@ -87,6 +87,12 @@ export default function ClinicPage() {
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [savedClinics, setSavedClinics] = useState<number[]>([]);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const [bookingDate, setBookingDate] = useState("2026-09-08");
+  const [bookingTime, setBookingTime] = useState("10:00 - 11:00 น.");
+  const [bookingNote, setBookingNote] = useState("ฉีดวัคซีนรวมประจำปี");
+
+  const unreadNotifs = notifications.filter((n) => n.unread).length;
 
   const filteredClinics = clinicData.filter((c) =>
     c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -117,6 +123,22 @@ export default function ClinicPage() {
   const handleBookingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setBookingSuccess(true);
+
+    addAppointment({
+      petName: selectedPet.name,
+      petType: selectedPet.type,
+      ownerName: currentUser.fullName || "ผู้ใช้งาน",
+      phone: currentUser.phone || "08X-XXX-XXXX",
+      clinicName: selectedClinic.name,
+      doctorName: "สัตวแพทย์ประจำเวร",
+      serviceType: bookingNote || "ตรวจสุขภาพและฉีดวัคซีน",
+      date: bookingDate,
+      time: bookingTime,
+      status: "ยืนยันแล้ว",
+      notes: bookingNote,
+      fee: "฿450.00",
+    });
+
     setTimeout(() => {
       setBookingSuccess(false);
       setBookingModalOpen(false);
@@ -483,17 +505,22 @@ export default function ClinicPage() {
                   <input
                     type="date"
                     required
-                    defaultValue="2026-09-08"
+                    value={bookingDate}
+                    onChange={(e) => setBookingDate(e.target.value)}
                     className="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800"
                   />
                 </div>
 
                 <div>
                   <label className="block font-medium text-slate-700 mb-1">ช่วงเวลา</label>
-                  <select className="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800">
-                    <option>เช้า: 10:00 - 11:00 น.</option>
-                    <option>บ่าย: 14:00 - 15:00 น.</option>
-                    <option>เย็น: 17:00 - 18:00 น.</option>
+                  <select
+                    value={bookingTime}
+                    onChange={(e) => setBookingTime(e.target.value)}
+                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800"
+                  >
+                    <option value="10:00 - 11:00 น.">เช้า: 10:00 - 11:00 น.</option>
+                    <option value="14:00 - 15:00 น.">บ่าย: 14:00 - 15:00 น.</option>
+                    <option value="17:00 - 18:00 น.">เย็น: 17:00 - 18:00 น.</option>
                   </select>
                 </div>
 
@@ -502,7 +529,8 @@ export default function ClinicPage() {
                   <input
                     type="text"
                     placeholder="เช่น ตรวจสุขภาพประจำปี, ฉีดวัคซีน"
-                    defaultValue="ฉีดวัคซีนรวมประจำปี"
+                    value={bookingNote}
+                    onChange={(e) => setBookingNote(e.target.value)}
                     className="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800"
                   />
                 </div>

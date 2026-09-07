@@ -7,75 +7,13 @@ import MobileFrame from "@/components/MobileFrame";
 import AppHeader from "@/components/AppHeader";
 import BottomNav from "@/components/BottomNav";
 
-interface HistoryItem {
-  id: string;
-  type: "booking" | "treatment";
-  date: string;
-  time: string;
-  title: string;
-  doctor: string;
-  status: string;
-  hospital: string;
-  notes?: string;
-  fee?: string;
-}
-
-const historyData: HistoryItem[] = [
-  {
-    id: "h1",
-    type: "booking",
-    date: "15 ก.ค. 2568",
-    time: "15:30 น.",
-    title: "จองคิวที่โรงพยาบาลสงขลา",
-    doctor: "แพทย์หญิงด้า",
-    status: "สำเร็จ",
-    hospital: "โรงพยาบาลสัตว์สงขลา",
-    notes: "ตรวจสุขภาพประจำปีและฉีดวัคซีนรวม",
-    fee: "฿850.00",
-  },
-  {
-    id: "h2",
-    type: "booking",
-    date: "25 ม.ค. 2568",
-    time: "10:30 น.",
-    title: "จองคิวที่โรงพยาบาลสตูล",
-    doctor: "แพทย์หญิงโดนัท",
-    status: "สำเร็จ",
-    hospital: "โรงพยาบาลสัตว์สตูล",
-    notes: "ขูดหินปูนและตรวจสุขภาพฟัน",
-    fee: "฿1,200.00",
-  },
-  {
-    id: "h3",
-    type: "treatment",
-    date: "25 ม.ค. 2568",
-    time: "09:00 น.",
-    title: "ฉีดวัคซีนป้องกันโรคพิษสุนัขบ้า",
-    doctor: "นายแพทย์วีพล ภูมิ",
-    status: "สำเร็จ",
-    hospital: "โรงพยาบาลสัตว์ท่าสะอ้าน",
-    notes: "ฉีดวัคซีนป้องกันพิษสุนัขบ้าและถ่ายพยาธิ สุขภาพแข็งแรงดี",
-    fee: "฿450.00",
-  },
-  {
-    id: "h4",
-    type: "treatment",
-    date: "25 ม.ค. 2568",
-    time: "13:30 น.",
-    title: "ตรวจรักษาอาการทั่วไป",
-    doctor: "นายแพทย์สมชาย ลำดวน",
-    status: "สำเร็จ",
-    hospital: "นีเน่แคร์เซ็นเตอร์",
-    notes: "ตรวจรักษาแผลที่อุ้งเท้า ให้ยาปฏิชีวนะและยาลดอักเสบ",
-    fee: "฿650.00",
-  },
-];
+import { usePetContext, Appointment } from "@/lib/petContext";
 
 export default function HistoryPage() {
-  const [selectedItem, setSelectedItem] = useState<HistoryItem | null>(null);
+  const { appointments, notifications } = usePetContext();
+  const [selectedItem, setSelectedItem] = useState<Appointment | null>(null);
 
-  const bookings = historyData.filter((item) => item.type === "booking");
-  const treatments = historyData.filter((item) => item.type === "treatment");
+  const unreadNotifs = notifications.filter((n) => n.unread).length;
 
   return (
     <MobileFrame>
@@ -86,7 +24,7 @@ export default function HistoryPage() {
           backHref="/profile"
           showLogo={true}
           showBell={true}
-          bellCount={2}
+          bellCount={unreadNotifs}
         />
 
         {/* Content Container */}
@@ -99,94 +37,72 @@ export default function HistoryPage() {
             </div>
           </div>
 
-          {/* Section 1: การจองคิว */}
+          {/* Section: รายการการจองคิว & การรักษา */}
           <div className="space-y-2.5 text-left">
             <div className="flex items-center gap-1.5 text-slate-800">
               <Clock className="w-5 h-5 text-slate-900 stroke-[2.2]" />
               <h2 className="text-[16px] font-bold text-slate-900 font-kanit">
-                การจองคิว
+                รายการนัดหมาย & การรักษา
               </h2>
             </div>
 
-            <div className="space-y-3">
-              {bookings.map((item) => (
-                <div
-                  key={item.id}
-                  className="bg-white rounded-3xl p-4 border border-slate-100 shadow-[0_4px_16px_rgba(0,0,0,0.03)] space-y-2.5"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-[16px] font-bold text-slate-900 font-kanit">
-                      {item.date}
-                    </span>
-                    <span className="text-[13px] font-semibold text-[#539E18]">
-                      {item.status}
-                    </span>
-                  </div>
-
-                  <div className="text-[13px] text-slate-700">
-                    {item.time} | {item.title}
-                  </div>
-                  <div className="text-[13px] text-slate-600 font-medium">
-                    {item.doctor}
-                  </div>
-
-                  <div className="pt-1">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedItem(item)}
-                      className="w-full py-2 bg-[#00A877] hover:bg-[#009166] active:scale-[0.98] text-white font-medium text-[14px] rounded-full shadow-[0_4px_12px_rgba(0,168,119,0.3)] transition-all font-kanit text-center"
-                    >
-                      ดูรายละเอียด
-                    </button>
-                  </div>
+            {appointments.length === 0 ? (
+              <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_4px_16px_rgba(0,0,0,0.03)] text-center space-y-3">
+                <div className="w-12 h-12 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center mx-auto">
+                  <Calendar className="w-6 h-6" />
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Section 2: การรักษา */}
-          <div className="space-y-2.5 text-left pt-1">
-            <div className="flex items-center gap-1.5 text-slate-800">
-              <Heart className="w-5 h-5 text-slate-900 stroke-[2.2]" />
-              <h2 className="text-[16px] font-bold text-slate-900 font-kanit">
-                การรักษา
-              </h2>
-            </div>
-
-            <div className="space-y-3">
-              {treatments.map((item) => (
-                <div
-                  key={item.id}
-                  className="bg-white rounded-3xl p-4 border border-slate-100 shadow-[0_4px_16px_rgba(0,0,0,0.03)] space-y-2.5"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-[16px] font-bold text-slate-900 font-kanit">
-                      {item.date}
-                    </span>
-                    <span className="text-[13px] font-semibold text-[#539E18]">
-                      {item.status}
-                    </span>
-                  </div>
-
-                  <div className="text-[13px] text-slate-700">
-                    {item.time} | {item.title}
-                  </div>
-                  <div className="text-[13px] text-slate-600 font-medium">
-                    {item.doctor}
-                  </div>
-
-                  <div className="pt-1">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedItem(item)}
-                      className="w-full py-2 bg-[#00A877] hover:bg-[#009166] active:scale-[0.98] text-white font-medium text-[14px] rounded-full shadow-[0_4px_12px_rgba(0,168,119,0.3)] transition-all font-kanit text-center"
-                    >
-                      ดูรายละเอียด
-                    </button>
-                  </div>
+                <div className="text-sm font-semibold text-slate-800">
+                  ยังไม่มีประวัติการจองคิวหรือการรักษา
                 </div>
-              ))}
-            </div>
+                <p className="text-xs text-slate-500">
+                  คุณสามารถค้นหาคลินิกและนัดหมายพบคุณหมอได้ทันที
+                </p>
+                <Link
+                  href="/clinic"
+                  className="inline-block py-2 px-6 bg-[#00A877] text-white font-medium text-xs rounded-full shadow-md hover:bg-[#009166] active:scale-95 transition-all"
+                >
+                  ค้นหาคลินิก & จองคิว
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {appointments.map((item) => (
+                  <div
+                    key={item.id}
+                    className="bg-white rounded-3xl p-4 border border-slate-100 shadow-[0_4px_16px_rgba(0,0,0,0.03)] space-y-2.5"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-[16px] font-bold text-slate-900 font-kanit">
+                        {item.date}
+                      </span>
+                      <span className="text-[13px] font-semibold text-[#539E18]">
+                        {item.status || "ยืนยันแล้ว"}
+                      </span>
+                    </div>
+
+                    <div className="text-[13px] text-slate-700">
+                      {item.time} | {item.serviceType}
+                    </div>
+                    <div className="text-[13px] text-slate-600 font-medium">
+                      {item.clinicName} {item.doctorName ? `(${item.doctorName})` : ""}
+                    </div>
+                    <div className="text-[12px] text-slate-500">
+                      สัตว์เลี้ยง: {item.petName} | ผู้จอง: {item.ownerName}
+                    </div>
+
+                    <div className="pt-1">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedItem(item)}
+                        className="w-full py-2 bg-[#00A877] hover:bg-[#009166] active:scale-[0.98] text-white font-medium text-[14px] rounded-full shadow-[0_4px_12px_rgba(0,168,119,0.3)] transition-all font-kanit text-center"
+                      >
+                        ดูรายละเอียด
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
         </div>
@@ -216,9 +132,9 @@ export default function HistoryPage() {
 
               <div className="space-y-2 text-xs text-slate-700">
                 <div className="bg-teal-50/60 p-3 rounded-2xl space-y-1">
-                  <div className="font-bold text-slate-900 text-sm">{selectedItem.title}</div>
-                  <div className="text-slate-600">สถานพยาบาล: {selectedItem.hospital}</div>
-                  <div className="text-slate-600">แพทย์ผู้ตรวจ: {selectedItem.doctor}</div>
+                  <div className="font-bold text-slate-900 text-sm">{selectedItem.serviceType}</div>
+                  <div className="text-slate-600">สถานพยาบาล: {selectedItem.clinicName}</div>
+                  <div className="text-slate-600">แพทย์ผู้ตรวจ: {selectedItem.doctorName || "สัตวแพทย์ประจำเวร"}</div>
                 </div>
 
                 <div className="space-y-1.5 pt-1">
@@ -227,19 +143,25 @@ export default function HistoryPage() {
                     <span className="font-medium text-slate-800">{selectedItem.date} {selectedItem.time}</span>
                   </div>
                   <div className="flex justify-between py-1 border-b border-slate-100">
-                    <span className="text-slate-500">สถานะ</span>
-                    <span className="font-bold text-emerald-600">{selectedItem.status}</span>
+                    <span className="text-slate-500">สัตว์เลี้ยง</span>
+                    <span className="font-medium text-slate-800">{selectedItem.petName}</span>
                   </div>
                   <div className="flex justify-between py-1 border-b border-slate-100">
-                    <span className="text-slate-500">ค่าบริการ/ค่ายา</span>
-                    <span className="font-bold text-slate-900">{selectedItem.fee}</span>
+                    <span className="text-slate-500">ผู้จอง/เจ้าของ</span>
+                    <span className="font-medium text-slate-800">{selectedItem.ownerName} ({selectedItem.phone})</span>
                   </div>
-                  <div className="pt-1">
-                    <span className="text-slate-500 block mb-0.5">บันทึกการรักษา:</span>
-                    <p className="bg-slate-50 p-2 rounded-xl text-slate-700 leading-relaxed">
-                      {selectedItem.notes}
-                    </p>
+                  <div className="flex justify-between py-1 border-b border-slate-100">
+                    <span className="text-slate-500">สถานะ</span>
+                    <span className="font-bold text-emerald-600">{selectedItem.status || "ยืนยันแล้ว"}</span>
                   </div>
+                  {selectedItem.notes && (
+                    <div className="pt-1">
+                      <span className="text-slate-500 block mb-0.5">หมายเหตุ/อาการ:</span>
+                      <p className="bg-slate-50 p-2 rounded-xl text-slate-700 leading-relaxed">
+                        {selectedItem.notes}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
