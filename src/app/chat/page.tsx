@@ -2,7 +2,20 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { MessageSquare, SquarePen, Search, Crown, Sparkles, Lock, ShieldCheck } from "lucide-react";
+import { useRouter } from "next/navigation";
+import {
+  MessageSquare,
+  SquarePen,
+  Search,
+  Crown,
+  Sparkles,
+  Lock,
+  ShieldCheck,
+  X,
+  Send,
+  CheckCircle2,
+  Filter,
+} from "lucide-react";
 import MobileFrame from "@/components/MobileFrame";
 import AppHeader from "@/components/AppHeader";
 import BottomNav from "@/components/BottomNav";
@@ -10,21 +23,52 @@ import { FloralCatAvatar, VetDoctorAvatar } from "@/components/PetAvatars";
 import { usePetContext } from "@/lib/petContext";
 
 export default function ChatListPage() {
-  const { currentUser, isPremium, chatThreads, clearUnread, notifications } = usePetContext();
+  const router = useRouter();
+  const { currentUser, isPremium, chatThreads, clearUnread, sendChatMessage, notifications } =
+    usePetContext();
+
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterMode, setFilterMode] = useState<"all" | "unread">("all");
+  const [showMessageFilterModal, setShowMessageFilterModal] = useState(false);
+  const [showComposeModal, setShowComposeModal] = useState(false);
+  const [selectedDoctorId, setSelectedDoctorId] = useState("vet-1");
+  const [composeText, setComposeText] = useState("");
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const unreadNotifs = notifications.filter((n) => n.unread).length;
 
-  const filteredThreads = chatThreads.filter(
-    (thread) =>
-      thread.doctorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      thread.lastMessage.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      thread.clinicName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredThreads = chatThreads
+    .filter((thread) => {
+      if (filterMode === "unread") return thread.unreadCount > 0;
+      return true;
+    })
+    .filter(
+      (thread) =>
+        thread.doctorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        thread.lastMessage.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        thread.clinicName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+  const handleComposeSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!composeText.trim()) return;
+
+    if (!isPremium && currentUser.role !== "vet") {
+      setShowComposeModal(false);
+      router.push("/premium");
+      return;
+    }
+
+    sendChatMessage(selectedDoctorId, composeText.trim());
+    clearUnread(selectedDoctorId);
+    setShowComposeModal(false);
+    setComposeText("");
+    router.push(`/chat/${selectedDoctorId}`);
+  };
 
   return (
     <MobileFrame>
-      <div className="flex-1 flex flex-col justify-between bg-white min-h-full select-none">
+      <div className="flex-1 flex flex-col justify-between bg-white min-h-full select-none relative">
         
         {/* Top Header */}
         <AppHeader
@@ -33,6 +77,14 @@ export default function ChatListPage() {
           showBell={true}
           bellCount={unreadNotifs}
         />
+
+        {/* Toast Feedback */}
+        {toastMessage && (
+          <div className="absolute top-16 left-4 right-4 z-50 p-3 bg-slate-900/90 text-white rounded-2xl text-xs flex items-center gap-2 shadow-xl animate-fade-in border border-slate-700">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span className="font-medium">{toastMessage}</span>
+          </div>
+        )}
 
         {/* Content View */}
         <div className="flex-1 flex flex-col overflow-y-auto">
@@ -48,27 +100,33 @@ export default function ChatListPage() {
                 <span className="text-[17px] font-semibold text-slate-800 block">
                   {currentUser.fullName || "คุณผู้ใช้งาน"}
                 </span>
-                <span className={`text-[11px] font-medium ${isPremium ? "text-amber-600 font-bold" : "text-slate-400"}`}>
+                <span
+                  className={`text-[11px] font-medium ${
+                    isPremium ? "text-amber-600 font-bold" : "text-slate-400"
+                  }`}
+                >
                   {isPremium ? "⭐ PetCare Premium" : "สมาชิกทั่วไป"}
                 </span>
               </div>
             </div>
 
-            {/* Top Action Icons (Chat & Compose) */}
-            <div className="flex items-center gap-3 text-slate-800">
+            {/* Top Action Icons (Message Filter & Compose) */}
+            <div className="flex items-center gap-2 text-slate-800">
               <button
                 type="button"
-                className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-slate-100 active:scale-95 transition-all"
-                title="ข้อความทั้งหมด"
+                onClick={() => setShowMessageFilterModal(true)}
+                className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-slate-100 active:scale-90 transition-all cursor-pointer"
+                title="ตัวกรองข้อความ"
               >
-                <MessageSquare className="w-6 h-6 stroke-[1.8]" />
+                <MessageSquare className="w-5 h-5 stroke-[1.8] text-slate-700" />
               </button>
               <button
                 type="button"
-                className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-slate-100 active:scale-95 transition-all"
-                title="เขียนข้อความใหม่"
+                onClick={() => setShowComposeModal(true)}
+                className="w-9 h-9 rounded-full flex items-center justify-center bg-teal-50 hover:bg-teal-100 text-teal-700 active:scale-90 transition-all cursor-pointer shadow-xs border border-teal-200"
+                title="เขียนข้อความใหม่ / ปรึกษาแพทย์"
               >
-                <SquarePen className="w-6 h-6 stroke-[1.8]" />
+                <SquarePen className="w-5 h-5 stroke-[2]" />
               </button>
             </div>
           </div>
@@ -116,7 +174,7 @@ export default function ChatListPage() {
               <div className="w-full max-w-xs pt-2">
                 <Link
                   href="/premium"
-                  className="block w-full py-3 bg-[#00A877] hover:bg-[#009166] active:scale-[0.98] text-white font-semibold text-[15px] rounded-full shadow-[0_6px_16px_rgba(0,168,119,0.35)] transition-all font-kanit"
+                  className="block w-full py-3 bg-[#00A877] hover:bg-[#009166] active:scale-[0.98] text-white font-semibold text-[15px] rounded-full shadow-[0_6px_16px_rgba(0,168,119,0.35)] transition-all font-kanit text-center"
                 >
                   สมัครสมาชิกพรีเมียม (฿499/เดือน)
                 </Link>
@@ -125,18 +183,31 @@ export default function ChatListPage() {
           ) : (
             /* If Premium: Show Doctor Chat Threads */
             <>
-              {/* Search Bar */}
-              <div className="px-5 py-3.5 bg-white">
+              {/* Search Bar & Active Filter Pill */}
+              <div className="px-5 py-3 bg-white space-y-2">
                 <div className="relative">
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="ค้นหาแชทหรือคุณหมอ"
-                    className="w-full pl-11 pr-4 py-2.5 bg-[#F4F6F8] rounded-full text-[14px] text-slate-800 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400 border border-transparent focus:bg-white transition-all shadow-inner"
+                    className="w-full pl-11 pr-4 py-2 bg-[#F4F6F8] rounded-full text-[14px] text-slate-800 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400 border border-transparent focus:bg-white transition-all shadow-inner"
                   />
                   <Search className="w-5 h-5 text-slate-700 absolute left-4 top-1/2 -translate-y-1/2 stroke-[2.2]" />
                 </div>
+
+                {filterMode === "unread" && (
+                  <div className="flex items-center justify-between bg-emerald-50 px-3 py-1 rounded-xl text-xs text-emerald-800 font-medium">
+                    <span>แสดงเฉพาะข้อความที่ยังไม่ได้อ่าน</span>
+                    <button
+                      type="button"
+                      onClick={() => setFilterMode("all")}
+                      className="underline font-bold text-emerald-900"
+                    >
+                      ดูทั้งหมด
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Chat List Items */}
@@ -196,6 +267,155 @@ export default function ChatListPage() {
 
         {/* Bottom Navigation Bar */}
         <BottomNav />
+
+        {/* Message Filter Modal */}
+        {showMessageFilterModal && (
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white w-full max-w-xs rounded-3xl p-5 text-left space-y-3.5 shadow-2xl animate-fade-in border border-slate-200">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <Filter className="w-5 h-5 text-teal-600" />
+                  <h3 className="text-base font-bold text-slate-900 font-kanit">
+                    ตัวกรองกล่องข้อความ
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowMessageFilterModal(false)}
+                  className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="space-y-2 text-xs">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFilterMode("all");
+                    setShowMessageFilterModal(false);
+                  }}
+                  className={`w-full p-2.5 rounded-xl border flex items-center justify-between transition-all ${
+                    filterMode === "all"
+                      ? "bg-teal-50 border-teal-500 font-bold text-teal-900"
+                      : "bg-slate-50 border-slate-200 text-slate-700"
+                  }`}
+                >
+                  <span>แชททั้งหมด</span>
+                  <span className="font-mono font-bold">{chatThreads.length}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFilterMode("unread");
+                    setShowMessageFilterModal(false);
+                  }}
+                  className={`w-full p-2.5 rounded-xl border flex items-center justify-between transition-all ${
+                    filterMode === "unread"
+                      ? "bg-teal-50 border-teal-500 font-bold text-teal-900"
+                      : "bg-slate-50 border-slate-200 text-slate-700"
+                  }`}
+                >
+                  <span>ข้อความที่ยังไม่ได้อ่าน</span>
+                  <span className="font-mono font-bold text-emerald-600">
+                    {chatThreads.filter((t) => t.unreadCount > 0).length}
+                  </span>
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowMessageFilterModal(false)}
+                className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-full text-xs font-medium"
+              >
+                ปิด
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Compose / New Consultation Modal */}
+        {showComposeModal && (
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white w-full max-w-xs rounded-3xl p-5 text-left space-y-3.5 shadow-2xl animate-fade-in border border-teal-200">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <SquarePen className="w-5 h-5 text-teal-600" />
+                  <h3 className="text-base font-bold text-slate-900 font-kanit">
+                    เริ่มการปรึกษาใหม่
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowComposeModal(false)}
+                  className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <form onSubmit={handleComposeSubmit} className="space-y-3 text-xs">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    เลือกสัตวแพทย์ที่ต้องการปรึกษา:
+                  </label>
+                  <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+                    {chatThreads.map((thread) => (
+                      <div
+                        key={thread.id}
+                        onClick={() => setSelectedDoctorId(thread.id)}
+                        className={`p-2 rounded-xl border flex items-center gap-2 cursor-pointer transition-all ${
+                          selectedDoctorId === thread.id
+                            ? "bg-teal-50 border-teal-500 ring-1 ring-teal-500 font-bold"
+                            : "bg-slate-50 border-slate-200 hover:bg-slate-100"
+                        }`}
+                      >
+                        <VetDoctorAvatar type={thread.avatarType} size={32} />
+                        <div className="min-w-0 flex-1">
+                          <div className="text-slate-800 truncate">{thread.doctorName}</div>
+                          <div className="text-[10px] text-slate-500 truncate">{thread.clinicName}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    พิมพ์ข้อความหรือคำถาม:
+                  </label>
+                  <textarea
+                    rows={3}
+                    required
+                    value={composeText}
+                    onChange={(e) => setComposeText(e.target.value)}
+                    placeholder="เช่น น้องแมวมีอาการซึม ไม่ยอมทานอาหาร..."
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-teal-400"
+                  />
+                </div>
+
+                <div className="pt-2 space-y-1.5">
+                  <button
+                    type="submit"
+                    className="w-full py-2.5 bg-[#00A877] hover:bg-[#009166] text-white font-medium rounded-full text-xs shadow-md active:scale-95 transition-transform flex items-center justify-center gap-1.5"
+                  >
+                    <Send className="w-3.5 h-3.5" />
+                    <span>ส่งข้อความ</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowComposeModal(false)}
+                    className="w-full py-1.5 text-slate-500 text-xs text-center"
+                  >
+                    ยกเลิก
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
       </div>
     </MobileFrame>
   );

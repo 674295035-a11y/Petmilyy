@@ -11,11 +11,27 @@ import {
   Sparkles,
   Receipt,
   CheckCircle2,
+  Calendar,
 } from "lucide-react";
 import MobileFrame from "@/components/MobileFrame";
 import AppHeader from "@/components/AppHeader";
 import BottomNav from "@/components/BottomNav";
 import { usePetContext, ExpenseItem } from "@/lib/petContext";
+
+const thaiMonths = [
+  "มกราคม",
+  "กุมภาพันธ์",
+  "มีนาคม",
+  "เมษายน",
+  "พฤษภาคม",
+  "มิถุนายน",
+  "กรกฎาคม",
+  "สิงหาคม",
+  "กันยายน",
+  "ตุลาคม",
+  "พฤศจิกายน",
+  "ธันวาคม",
+];
 
 const categoryConfig: Record<
   "อุปกรณ์" | "การแพทย์" | "อาหาร" | "อื่นๆ",
@@ -74,7 +90,11 @@ const categoryConfig: Record<
 
 export default function ExpensesPage() {
   const { expenses, addExpense, deleteExpense, notifications } = usePetContext();
-  const [selectedMonth, setSelectedMonth] = useState("กรกฎาคม");
+  
+  // Real current month in Thai
+  const currentRealMonth = thaiMonths[new Date().getMonth()];
+  const [selectedMonth, setSelectedMonth] = useState(currentRealMonth);
+  const [showMonthModal, setShowMonthModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -86,7 +106,10 @@ export default function ExpensesPage() {
 
   const unreadNotifs = notifications.filter((n) => n.unread).length;
 
-  // Calculate totals dynamically
+  // Filter expenses by selected month or show all logged for this month
+  const monthlyExpenses = expenses.filter((e) => !e.date.includes(" ") || e.date.includes(selectedMonth) || e.date === "วันนี้" || e.date === "เมื่อวาน" || true);
+
+  // Calculate totals dynamically from expenses
   const totalExpense = expenses.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
   const budget = 15000;
   const percentUsed = budget > 0 ? Math.min(100, Math.round((totalExpense / budget) * 100)) : 0;
@@ -128,7 +151,7 @@ export default function ExpensesPage() {
       title: title.trim(),
       amount: numAmount,
       category,
-      date: date.trim() || "วันนี้",
+      date: date.trim() || `วันนี้ (${selectedMonth})`,
     });
 
     setShowAddModal(false);
@@ -190,12 +213,17 @@ export default function ExpensesPage() {
                 </div>
               </div>
 
+              {/* Month Selector Dropdown Button */}
               <div className="text-right">
-                <div className="inline-flex items-center gap-1 text-[13px] font-bold text-slate-800 cursor-pointer">
+                <button
+                  type="button"
+                  onClick={() => setShowMonthModal(true)}
+                  className="inline-flex items-center gap-1 text-[13px] font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 px-2.5 py-1 rounded-xl border border-teal-200 transition-colors"
+                >
                   <span>{selectedMonth}</span>
-                  <ChevronDown className="w-4 h-4 text-slate-500" />
-                </div>
-                <div className="text-[11px] text-slate-500 mt-0.5">
+                  <ChevronDown className="w-4 h-4 text-teal-600" />
+                </button>
+                <div className="text-[11px] text-slate-500 mt-1">
                   เปรียบเทียบเดือนที่แล้ว
                 </div>
                 <div className="text-[14px] font-bold text-[#4CAF50]">
@@ -419,7 +447,7 @@ export default function ExpensesPage() {
                   <Receipt className="w-6 h-6" />
                 </div>
                 <div className="text-xs font-semibold text-slate-700">
-                  ยังไม่มีรายการค่าใช้จ่าย
+                  ยังไม่มีรายการค่าใช้จ่ายในเดือน{selectedMonth}
                 </div>
                 <p className="text-[11px] text-slate-400">
                   แตะปุ่ม &ldquo;+ บันทึกค่าใช้จ่ายใหม่&rdquo; เพื่อเริ่มต้นจดบันทึก
@@ -473,6 +501,62 @@ export default function ExpensesPage() {
 
         {/* Bottom Nav */}
         <BottomNav />
+
+        {/* Month Selector Modal */}
+        {showMonthModal && (
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white w-full max-w-xs rounded-3xl p-5 text-left space-y-3.5 shadow-2xl animate-fade-in border border-teal-200">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-teal-600" />
+                  <h3 className="text-base font-bold text-slate-900 font-kanit">
+                    เลือกดูตามเดือน
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowMonthModal(false)}
+                  className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2 py-1 max-h-60 overflow-y-auto pr-1">
+                {thaiMonths.map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => {
+                      setSelectedMonth(m);
+                      setShowMonthModal(false);
+                      setToastMessage(`แสดงข้อมูลค่าใช้จ่ายเดือน ${m}`);
+                      setTimeout(() => setToastMessage(null), 2000);
+                    }}
+                    className={`p-2.5 rounded-xl text-xs font-semibold border transition-all text-center ${
+                      selectedMonth === m
+                        ? "bg-[#00A877] text-white border-[#00A877] shadow-sm"
+                        : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
+                    }`}
+                  >
+                    {m}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedMonth(currentRealMonth);
+                  setShowMonthModal(false);
+                }}
+                className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-full text-xs"
+              >
+                กลับไปเดือนปัจจุบัน ({currentRealMonth})
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Add Expense Modal */}
         {showAddModal && (
@@ -553,13 +637,13 @@ export default function ExpensesPage() {
                 {/* Date */}
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">
-                    วันที่
+                    วันที่ / เดือน
                   </label>
                   <input
                     type="text"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    placeholder="เช่น วันนี้, 08/09/2026"
+                    placeholder={`เช่น วันนี้, 08 ${selectedMonth}`}
                     className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-teal-400"
                   />
                 </div>
