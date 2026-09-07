@@ -41,6 +41,11 @@ export default function UserRegisterPage() {
     setIsLoading(true);
 
     try {
+      // Check if Supabase URL is placeholder
+      if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+        console.warn("NEXT_PUBLIC_SUPABASE_URL is missing in environment variables.");
+      }
+
       // 1. Try Supabase Auth Sign Up
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
@@ -55,24 +60,24 @@ export default function UserRegisterPage() {
       });
 
       if (error) {
-        console.warn("Supabase auth notice:", error.message);
+        setErrorMessage(`Supabase Auth Error: ${error.message}`);
+        setIsLoading(false);
+        return;
       }
 
       // 2. Insert into profiles table
       const userId = data?.user?.id;
       if (userId) {
-        await supabase.from("profiles").upsert({
+        const { error: profileErr } = await supabase.from("profiles").upsert({
           id: userId,
           email: formData.email,
           full_name: formData.fullname,
           role: "user",
         });
-      } else {
-        await supabase.from("profiles").insert({
-          email: formData.email,
-          full_name: formData.fullname,
-          role: "user",
-        });
+
+        if (profileErr) {
+          console.warn("Profile save error:", profileErr.message);
+        }
       }
 
       setIsSuccess(true);
@@ -81,10 +86,7 @@ export default function UserRegisterPage() {
       }, 1200);
     } catch (err: any) {
       console.error("Supabase Save Error:", err);
-      setIsSuccess(true);
-      setTimeout(() => {
-        router.push("/home");
-      }, 1200);
+      setErrorMessage(err.message || "เกิดข้อผิดพลาดในการเชื่อมต่อ Supabase");
     } finally {
       setIsLoading(false);
     }

@@ -20,9 +20,11 @@ export default function RegisterVetPage() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage("");
     setIsLoading(true);
 
     try {
@@ -40,26 +42,25 @@ export default function RegisterVetPage() {
       });
 
       if (error) {
-        console.warn("Supabase auth notice:", error.message);
+        setErrorMessage(`Supabase Auth Error: ${error.message}`);
+        setIsLoading(false);
+        return;
       }
 
       // 2. Insert into profiles table
       const userId = data?.user?.id;
       if (userId) {
-        await supabase.from("profiles").upsert({
+        const { error: profileErr } = await supabase.from("profiles").upsert({
           id: userId,
           email: formData.email,
           full_name: formData.fullName,
           clinic_name: formData.clinicName,
           role: "vet",
         });
-      } else {
-        await supabase.from("profiles").insert({
-          email: formData.email,
-          full_name: formData.fullName,
-          clinic_name: formData.clinicName,
-          role: "vet",
-        });
+
+        if (profileErr) {
+          console.warn("Vet Profile Save Error:", profileErr.message);
+        }
       }
 
       setIsSuccess(true);
@@ -68,10 +69,7 @@ export default function RegisterVetPage() {
       }, 1000);
     } catch (err: any) {
       console.error("Supabase Save Error:", err);
-      setIsSuccess(true);
-      setTimeout(() => {
-        router.push("/vet/home");
-      }, 1000);
+      setErrorMessage(err.message || "เกิดข้อผิดพลาดในการเชื่อมต่อ Supabase");
     } finally {
       setIsLoading(false);
     }
@@ -192,6 +190,13 @@ export default function RegisterVetPage() {
               className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-[15px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-400 shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
             />
           </div>
+
+          {/* Error Message */}
+          {errorMessage && (
+            <div className="p-2.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs text-left">
+              {errorMessage}
+            </div>
+          )}
 
           {/* Success Message */}
           {isSuccess && (
