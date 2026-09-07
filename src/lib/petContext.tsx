@@ -83,6 +83,7 @@ interface PetContextType {
   clearUnread: (threadId: string) => void;
   vetPatients: VetPatient[];
   updateVetPatient: (id: string, updates: Partial<VetPatient>) => void;
+  resetForNewUser: () => void;
 }
 
 const defaultActivityButtons: ActivityButton[] = [
@@ -260,8 +261,6 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [chatThreads, setChatThreads] = useState<ChatThread[]>(defaultChats);
   const [vetPatients, setVetPatients] = useState<VetPatient[]>(defaultVetPatients);
 
-  const selectedPet = pets[selectedPetIndex] || pets[0];
-
   // Fetch remote records from Supabase on mount
   React.useEffect(() => {
     async function loadSupabaseData() {
@@ -305,13 +304,37 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     loadSupabaseData();
   }, []);
 
+   const selectedPet = pets[selectedPetIndex] || pets[0] || {
+    id: "pet-new",
+    name: "สัตว์เลี้ยงของฉัน",
+    type: "แมว",
+    breed: "-",
+    birthdate: "",
+    age: "-",
+    weight: "-",
+    height: "-",
+    drugAllergy: "ไม่มีประวัติแพ้ยา",
+    avatar: "cat",
+    ownerName: "คุณนามิ",
+    latestVaccine: "-",
+  };
+
+  const resetForNewUser = () => {
+    setPets([]);
+    setSelectedPetIndex(0);
+    setActivityLogs([]);
+  };
+
   const addPet = (newPetData: Omit<Pet, "id">) => {
     const newPet: Pet = {
       ...newPetData,
       id: `pet-${Date.now()}`,
     };
-    setPets((prev) => [...prev, newPet]);
-    setSelectedPetIndex(pets.length);
+    setPets((prev) => {
+      const updated = [...prev, newPet];
+      setSelectedPetIndex(updated.length - 1);
+      return updated;
+    });
 
     // Sync to Supabase
     supabase.from("pets").insert({
@@ -447,6 +470,7 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         clearUnread,
         vetPatients,
         updateVetPatient,
+        resetForNewUser,
       }}
     >
       {children}

@@ -7,9 +7,11 @@ import { ArrowLeft, Eye, EyeOff, CheckCircle2, User } from "lucide-react";
 import MobileFrame from "@/components/MobileFrame";
 import PetmilyLogo from "@/components/PetmilyLogo";
 import { supabase } from "@/lib/supabaseClient";
+import { usePetContext } from "@/lib/petContext";
 
 export default function UserRegisterPage() {
   const router = useRouter();
+  const { resetForNewUser } = usePetContext();
   const [formData, setFormData] = useState({
     fullname: "",
     email: "",
@@ -80,10 +82,13 @@ export default function UserRegisterPage() {
         }
       }
 
+      // 3. Reset data state for new user
+      resetForNewUser();
+
       setIsSuccess(true);
       setTimeout(() => {
-        router.push("/home");
-      }, 1200);
+        router.push("/login?role=user&registered=true");
+      }, 1000);
     } catch (err: any) {
       console.error("Supabase Save Error:", err);
       setErrorMessage(err.message || "เกิดข้อผิดพลาดในการเชื่อมต่อ Supabase");

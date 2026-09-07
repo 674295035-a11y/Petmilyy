@@ -6,9 +6,11 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import MobileFrame from "@/components/MobileFrame";
 import { supabase } from "@/lib/supabaseClient";
+import { usePetContext } from "@/lib/petContext";
 
 export default function RegisterVetPage() {
   const router = useRouter();
+  const { resetForNewUser } = usePetContext();
   const [formData, setFormData] = useState({
     clinicName: "",
     fullName: "",
@@ -63,9 +65,12 @@ export default function RegisterVetPage() {
         }
       }
 
+      // 3. Reset data state
+      resetForNewUser();
+
       setIsSuccess(true);
       setTimeout(() => {
-        router.push("/vet/home");
+        router.push("/login?role=vet&registered=true");
       }, 1000);
     } catch (err: any) {
       console.error("Supabase Save Error:", err);

@@ -8,12 +8,16 @@ import MobileFrame from "@/components/MobileFrame";
 import PetmilyLogo from "@/components/PetmilyLogo";
 import { supabase } from "@/lib/supabaseClient";
 
+import { usePetContext } from "@/lib/petContext";
+
 function LoginForm() {
   const searchParams = useSearchParams();
   const role = searchParams.get("role") || "user";
+  const isRegistered = searchParams.get("registered") === "true";
   const isVet = role === "vet";
 
   const router = useRouter();
+  const { setUserRole } = usePetContext();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -25,6 +29,8 @@ function LoginForm() {
     if (!identifier || !password) return;
 
     setIsLoading(true);
+    setUserRole(isVet ? "vet" : "user");
+
     try {
       if (identifier.includes("@")) {
         const { error } = await supabase.auth.signInWithPassword({
@@ -41,7 +47,7 @@ function LoginForm() {
         if (isVet) {
           router.push("/vet/home");
         } else {
-          router.push("/home");
+          router.push("/pets/new");
         }
       }, 800);
     } catch (err: any) {
@@ -51,7 +57,7 @@ function LoginForm() {
         if (isVet) {
           router.push("/vet/home");
         } else {
-          router.push("/home");
+          router.push("/pets/new");
         }
       }, 800);
     } finally {
@@ -83,6 +89,14 @@ function LoginForm() {
             <PetmilyLogo size={185} />
           </Link>
         </div>
+
+        {/* Registered Success Banner */}
+        {isRegistered && (
+          <div className="w-full max-w-sm mx-auto mb-3 p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-xs flex items-center gap-2 shadow-sm animate-fade-in">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>สมัครสมาชิกสำเร็จเรียบร้อย! กรุณาเข้าสู่ระบบเพื่อเริ่มใช้งาน</span>
+          </div>
+        )}
 
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="w-full max-w-sm mx-auto space-y-4">
