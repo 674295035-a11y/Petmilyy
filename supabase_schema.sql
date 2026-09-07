@@ -118,6 +118,26 @@ CREATE TABLE IF NOT EXISTS public.expenses (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- 9. APPOINTMENTS TABLE (ตารางการจอง / นัดหมายหมอ)
+CREATE TABLE IF NOT EXISTS public.appointments (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+    pet_id UUID REFERENCES public.pets(id) ON DELETE SET NULL,
+    vet_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+    clinic_name TEXT NOT NULL,
+    doctor_name TEXT,
+    service_type TEXT NOT NULL, -- e.g. 'ฉีดวัคซีน', 'ตรวจสุขภาพ', 'อาบน้ำตัดขน', 'ผ่าตัด/ทำหมัน'
+    appointment_date DATE NOT NULL,
+    appointment_time TEXT NOT NULL,
+    owner_name TEXT NOT NULL,
+    pet_name TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    note TEXT,
+    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'completed', 'cancelled')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Enable Row Level Security (RLS) & Add Basic Public Access Policies (For Development)
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.pets ENABLE ROW LEVEL SECURITY;
@@ -127,6 +147,7 @@ ALTER TABLE public.chat_threads ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.chat_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.vet_patients ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.expenses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.appointments ENABLE ROW LEVEL SECURITY;
 
 -- Allow all actions for dev testing
 CREATE POLICY "Allow public read/write access to profiles" ON public.profiles FOR ALL USING (true);
@@ -137,6 +158,7 @@ CREATE POLICY "Allow public read/write access to chat_threads" ON public.chat_th
 CREATE POLICY "Allow public read/write access to chat_messages" ON public.chat_messages FOR ALL USING (true);
 CREATE POLICY "Allow public read/write access to vet_patients" ON public.vet_patients FOR ALL USING (true);
 CREATE POLICY "Allow public read/write access to expenses" ON public.expenses FOR ALL USING (true);
+CREATE POLICY "Allow public read/write access to appointments" ON public.appointments FOR ALL USING (true);
 
 -- Insert Sample Initial Data (Presets)
 INSERT INTO public.activity_buttons (name, emoji, type, badge_dot_color, is_preset) VALUES
@@ -144,3 +166,4 @@ INSERT INTO public.activity_buttons (name, emoji, type, badge_dot_color, is_pres
 ('ขับถ่าย', '💩', 'poop', NULL, TRUE),
 ('เดินเล่น', '🐕', 'walk', NULL, TRUE),
 ('อาบน้ำ', '🛁', 'bath', NULL, TRUE);
+
