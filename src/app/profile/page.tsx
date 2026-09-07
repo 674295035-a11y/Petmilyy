@@ -407,14 +407,46 @@ export default function ProfilePage() {
 
                 {/* HELP MODAL */}
                 {activeModal === "help" && (
-                  <div className="space-y-2">
-                    <p className="text-[12px] leading-relaxed">
+                  <div className="space-y-2.5">
+                    <p className="text-[12px] leading-relaxed text-slate-600 dark:text-slate-300">
                       หากมีข้อสงสัยหรือต้องการความช่วยเหลือ สามารถติดต่อทีมงาน Petmily ได้ผ่านช่องทางดังนี้:
                     </p>
-                    <div className="p-3 bg-teal-50 dark:bg-slate-700/50 rounded-2xl space-y-1 text-[12px]">
-                      <div>📞 Call Center: <strong className="text-teal-700 dark:text-teal-300">02-123-4567</strong> (24 ชม.)</div>
-                      <div>💬 LINE Official: <strong className="text-teal-700 dark:text-teal-300">@petmily_th</strong></div>
-                      <div>📧 Email: <strong className="text-teal-700 dark:text-teal-300">support@petmily.app</strong></div>
+                    <div className="p-3.5 bg-[#EDF8F8] dark:bg-slate-700/60 rounded-2xl space-y-2 text-[12px] border border-teal-100/80 dark:border-slate-600">
+                      <div className="flex items-center gap-2">
+                        <span>📞</span>
+                        <span className="text-slate-700 dark:text-slate-200">Call Center:</span>
+                        <a
+                          href="tel:0656324781"
+                          className="font-bold text-[#0D6E6E] dark:text-teal-300 underline hover:opacity-80 transition-opacity"
+                        >
+                          0656324781
+                        </a>
+                        <span className="text-slate-500 dark:text-slate-400 text-[11px]">(24 ชม.)</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <span>💬</span>
+                        <span className="text-slate-700 dark:text-slate-200">Facebook:</span>
+                        <a
+                          href="https://www.facebook.com/search/top?q=Petmily"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-bold text-[#0D6E6E] dark:text-teal-300 underline hover:opacity-80 transition-opacity"
+                        >
+                          เพจ Petmily
+                        </a>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span>📧</span>
+                        <span className="text-slate-700 dark:text-slate-200">Email:</span>
+                        <a
+                          href="mailto:petmily@gmail.com"
+                          className="font-bold text-[#0D6E6E] dark:text-teal-300 underline hover:opacity-80 transition-opacity"
+                        >
+                          petmily@gmail.com
+                        </a>
+                      </div>
                     </div>
                   </div>
                 )}

@@ -214,7 +214,48 @@ export default function VetProfilePage() {
                   <p>ระบบบันทึกเวชระเบียนสัตว์เลี้ยงปลอดภัยตามมาตรฐานสัตวแพทยสภา</p>
                 )}
                 {activeModal === "help" && (
-                  <p>ฝ่ายสนับสนุนระบบคลินิก: 02-999-8888 (ตลอด 24 ชั่วโมง)</p>
+                  <div className="space-y-2.5">
+                    <p className="text-[12px] leading-relaxed text-slate-600">
+                      หากมีข้อสงสัยหรือต้องการความช่วยเหลือ สามารถติดต่อทีมงาน Petmily ได้ผ่านช่องทางดังนี้:
+                    </p>
+                    <div className="p-3.5 bg-[#EDF8F8] rounded-2xl space-y-2 text-[12px] border border-teal-100/80">
+                      <div className="flex items-center gap-2">
+                        <span>📞</span>
+                        <span className="text-slate-700">Call Center:</span>
+                        <a
+                          href="tel:0656324781"
+                          className="font-bold text-[#0D6E6E] underline hover:opacity-80 transition-opacity"
+                        >
+                          0656324781
+                        </a>
+                        <span className="text-slate-500 text-[11px]">(24 ชม.)</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <span>💬</span>
+                        <span className="text-slate-700">Facebook:</span>
+                        <a
+                          href="https://www.facebook.com/search/top?q=Petmily"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-bold text-[#0D6E6E] underline hover:opacity-80 transition-opacity"
+                        >
+                          เพจ Petmily
+                        </a>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span>📧</span>
+                        <span className="text-slate-700">Email:</span>
+                        <a
+                          href="mailto:petmily@gmail.com"
+                          className="font-bold text-[#0D6E6E] underline hover:opacity-80 transition-opacity"
+                        >
+                          petmily@gmail.com
+                        </a>
+                      </div>
+                    </div>
+                  </div>
                 )}
                 {activeModal === "settings" && (
                   <p>ตั้งค่าโปรไฟล์สัตวแพทย์และเวลาเปิดรับเคสออนไลน์</p>
