@@ -185,7 +185,7 @@ export default function PetInfoPage() {
             className="relative group cursor-pointer"
             title="แตะเพื่อเพิ่มหรือเปลี่ยนรูปภาพสัตว์เลี้ยง"
           >
-            <div className="w-32 h-32 rounded-full overflow-hidden flex items-center justify-center relative border-2 border-teal-300 shadow-md bg-white">
+            <div className="w-32 h-32 rounded-full overflow-hidden flex items-center justify-center relative border-2 border-teal-300 shadow-md bg-slate-50">
               {formData.customPhotoUrl ? (
                 <img
                   src={formData.customPhotoUrl}
@@ -194,8 +194,13 @@ export default function PetInfoPage() {
                 />
               ) : formData.avatar === "dog" ? (
                 <GoldenRetrieverAvatar size={128} />
-              ) : (
+              ) : formData.avatar === "cat" ? (
                 <FloralCatAvatar size={128} />
+              ) : (
+                <div className="flex flex-col items-center justify-center text-slate-400 p-2 text-center">
+                  <Camera className="w-9 h-9 text-teal-600 mb-1" />
+                  <span className="text-[11px] font-medium leading-tight text-slate-500">ใส่รูปสัตว์เลี้ยง</span>
+                </div>
               )}
             </div>
 
@@ -208,15 +213,15 @@ export default function PetInfoPage() {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="text-[13px] font-bold text-[#00A877] hover:text-[#009166] mt-2 flex items-center gap-1.5 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200"
+            className="text-[13px] font-bold text-[#00A877] hover:text-[#009166] mt-2 flex items-center gap-1.5 bg-emerald-50 px-4 py-1.5 rounded-full border border-emerald-200 active:scale-95 transition-all shadow-xs"
           >
             <Upload className="w-4 h-4" />
-            <span>{formData.customPhotoUrl ? "เปลี่ยนรูปภาพสัตว์เลี้ยง" : "อัปโหลดรูปภาพสัตว์เลี้ยงของคุณ"}</span>
+            <span>{formData.customPhotoUrl ? "เปลี่ยนรูปภาพสัตว์เลี้ยง" : "📷 แตะเพื่ออัปโหลดรูปภาพสัตว์เลี้ยง"}</span>
           </button>
 
           {/* Recommended Preset Avatars (แนะนำรูปได้) */}
-          <div className="mt-2.5 flex items-center gap-2">
-            <span className="text-[11px] text-slate-400 font-medium">หรือเลือกรูปแนะนำ:</span>
+          <div className="mt-3 flex items-center gap-2.5 bg-slate-50 px-3 py-1.5 rounded-2xl border border-slate-200">
+            <span className="text-[12px] text-slate-500 font-medium">รูปแนะนำ:</span>
             <button
               type="button"
               onClick={() => setFormData((prev) => ({ ...prev, avatar: "cat", customPhotoUrl: "" }))}
@@ -225,7 +230,7 @@ export default function PetInfoPage() {
                   ? "border-[#5CB8C1] scale-110 shadow-sm ring-2 ring-teal-200"
                   : "border-slate-200 opacity-70 hover:opacity-100"
               }`}
-              title="รูปแนะนำ: แมว"
+              title="รูปแนะนำ: น้องแมว"
             >
               <FloralCatAvatar size={36} />
             </button>
@@ -237,7 +242,7 @@ export default function PetInfoPage() {
                   ? "border-[#5CB8C1] scale-110 shadow-sm ring-2 ring-teal-200"
                   : "border-slate-200 opacity-70 hover:opacity-100"
               }`}
-              title="รูปแนะนำ: สุนัข"
+              title="รูปแนะนำ: น้องสุนัข"
             >
               <GoldenRetrieverAvatar size={36} />
             </button>

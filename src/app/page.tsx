@@ -74,31 +74,8 @@ export default function GuestLandingPage() {
             </div>
           )}
 
-          {/* Horizontal Pet Selector Bar */}
+          {/* Horizontal Pet Selector Bar (สำหรับหน้าแรกของผู้เยี่ยมชม ไม่แสดงข้อมูลสัตว์ จะมีเฉพาะปุ่ม +) */}
           <div className="flex items-center gap-3.5 py-1 px-1 overflow-x-auto no-scrollbar">
-            {pets.map((pet, idx) => (
-              <button
-                key={pet.id}
-                type="button"
-                onClick={() => setSelectedPetIndex(idx)}
-                className={`relative rounded-full p-0.5 transition-all duration-200 shrink-0 ${
-                  selectedPetIndex === idx
-                    ? "ring-2 ring-[#5CB8C1] ring-offset-2 scale-105"
-                    : "opacity-80 hover:opacity-100"
-                }`}
-                title={pet.name}
-              >
-                <div className="w-14 h-14 rounded-full overflow-hidden bg-white shadow-sm flex items-center justify-center border border-amber-100">
-                  <PetAvatarDisplay
-                    avatar={pet.avatar}
-                    photoUrl={pet.photoUrl}
-                    name={pet.name}
-                    size={56}
-                  />
-                </div>
-              </button>
-            ))}
-
             {/* Add Pet Button */}
             <Link
               href="/login"
