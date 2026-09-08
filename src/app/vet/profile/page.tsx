@@ -248,10 +248,10 @@ export default function VetProfilePage() {
                         <span>📧</span>
                         <span className="text-slate-700">Email:</span>
                         <a
-                          href="mailto:petmily@gmail.com"
+                          href="mailto:patmily3@gmail.com"
                           className="font-bold text-[#0D6E6E] underline hover:opacity-80 transition-opacity"
                         >
-                          petmily@gmail.com
+                          patmily3@gmail.com
                         </a>
                       </div>
                     </div>

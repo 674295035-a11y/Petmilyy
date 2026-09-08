@@ -449,10 +449,10 @@ export default function ProfilePage() {
                         <span>📧</span>
                         <span className="text-slate-700 dark:text-slate-200">Email:</span>
                         <a
-                          href="mailto:petmily@gmail.com"
+                          href="mailto:patmily3@gmail.com"
                           className="font-bold text-[#0D6E6E] dark:text-teal-300 underline hover:opacity-80 transition-opacity"
                         >
-                          petmily@gmail.com
+                          patmily3@gmail.com
                         </a>
                       </div>
                     </div>
