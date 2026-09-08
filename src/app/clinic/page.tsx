@@ -232,7 +232,7 @@ export default function ClinicPage() {
 
   return (
     <MobileFrame>
-      <div className="flex-1 flex flex-col justify-between bg-[#F8FAFB] min-h-full select-none relative">
+      <div className="flex-1 flex flex-col justify-between bg-[#F8FAFB] dark:bg-[#0B0F17] min-h-full select-none relative transition-colors duration-300">
         
         {/* Top Header */}
         <AppHeader
@@ -243,20 +243,20 @@ export default function ClinicPage() {
         />
 
         {/* View Switcher / Tab Header */}
-        <div className="px-5 pt-3 pb-2 text-left shrink-0 bg-white border-b border-slate-100 flex items-center justify-between">
-          <h1 className="text-[19px] font-bold text-slate-900 tracking-tight font-kanit">
+        <div className="px-5 pt-3 pb-2 text-left shrink-0 bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+          <h1 className="text-[19px] font-bold text-slate-900 dark:text-white tracking-tight font-kanit">
             คลินิกและโรงพยาบาลสัตว์
           </h1>
 
           {/* Quick View Toggle Pills */}
-          <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-full text-xs">
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-700 p-0.5 rounded-full text-xs">
             <button
               type="button"
               onClick={() => setActiveView("list")}
               className={`px-3 py-1 rounded-full font-medium transition-all ${
                 activeView === "list"
-                  ? "bg-white text-slate-900 shadow-xs"
-                  : "text-slate-500 hover:text-slate-800"
+                  ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-teal-300 shadow-xs"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
               }`}
             >
               รายการ
@@ -266,8 +266,8 @@ export default function ClinicPage() {
               onClick={() => setActiveView("map")}
               className={`px-3 py-1 rounded-full font-medium transition-all ${
                 activeView === "map"
-                  ? "bg-white text-slate-900 shadow-xs"
-                  : "text-slate-500 hover:text-slate-800"
+                  ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-teal-300 shadow-xs"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
               }`}
             >
               แผนที่
@@ -277,7 +277,7 @@ export default function ClinicPage() {
 
         {/* Toast Feedback Notification */}
         {toastMessage && (
-          <div className="absolute top-16 left-4 right-4 z-50 p-3 bg-slate-900/90 backdrop-blur-sm text-white rounded-2xl text-xs flex items-center gap-2 shadow-xl animate-fade-in border border-slate-700">
+          <div className="absolute top-16 left-4 right-4 z-50 p-3 bg-slate-900/90 dark:bg-slate-800 text-white rounded-2xl text-xs flex items-center gap-2 shadow-xl animate-fade-in border border-slate-700">
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
             <span className="font-medium">{toastMessage}</span>
           </div>
@@ -295,14 +295,14 @@ export default function ClinicPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="ค้นหาคลินิกใกล้คุณ..."
-                className="w-full pl-11 pr-10 py-2.5 bg-white rounded-full text-[14px] text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-400 border border-slate-200 shadow-[0_2px_10px_rgba(0,0,0,0.03)]"
+                className="w-full pl-11 pr-10 py-2.5 bg-white dark:bg-slate-800 rounded-full text-[14px] text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400 border border-slate-200 dark:border-slate-700 shadow-[0_2px_10px_rgba(0,0,0,0.03)]"
               />
-              <Search className="w-5 h-5 text-slate-700 absolute left-4 top-1/2 -translate-y-1/2 stroke-[2.2]" />
+              <Search className="w-5 h-5 text-slate-700 dark:text-slate-300 absolute left-4 top-1/2 -translate-y-1/2 stroke-[2.2]" />
               {searchQuery && (
                 <button
                   type="button"
                   onClick={() => setSearchQuery("")}
-                  className="w-6 h-6 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-900 absolute right-3 top-1/2 -translate-y-1/2"
+                  className="w-6 h-6 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white absolute right-3 top-1/2 -translate-y-1/2"
                   title="ล้างคำค้นหา"
                 >
                   <X className="w-4 h-4 stroke-[2.5]" />
@@ -311,9 +311,9 @@ export default function ClinicPage() {
             </div>
 
             {/* Recommended Clinic Subtitle */}
-            <div className="flex items-center gap-1.5 text-slate-800 text-left pt-1">
+            <div className="flex items-center gap-1.5 text-slate-800 dark:text-slate-100 text-left pt-1">
               <span className="text-[16px]">⭐</span>
-              <h2 className="text-[16px] font-bold text-slate-800 font-kanit">
+              <h2 className="text-[16px] font-bold text-slate-800 dark:text-white font-kanit">
                 คลินิกแนะนำ
               </h2>
             </div>
@@ -323,12 +323,12 @@ export default function ClinicPage() {
               {filteredClinics.map((clinic) => (
                 <div
                   key={clinic.id}
-                  className="bg-white rounded-3xl p-3 border border-slate-100 shadow-[0_4px_16px_rgba(0,0,0,0.04)] flex gap-3 text-left hover:shadow-md transition-shadow"
+                  className="bg-white dark:bg-slate-800 rounded-3xl p-3 border border-slate-100 dark:border-slate-700 shadow-[0_4px_16px_rgba(0,0,0,0.04)] flex gap-3 text-left hover:shadow-md transition-all hover:scale-[1.01]"
                 >
                   {/* Left: Clinic Photo Container */}
                   <div
                     onClick={() => openMapForClinic(clinic)}
-                    className="w-28 h-28 rounded-2xl overflow-hidden shrink-0 cursor-pointer shadow-xs border border-slate-100 relative group"
+                    className="w-28 h-28 rounded-2xl overflow-hidden shrink-0 cursor-pointer shadow-xs border border-slate-100 dark:border-slate-700 relative group"
                   >
                     <ClinicImage type={clinic.imageType} />
                     <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -342,30 +342,30 @@ export default function ClinicPage() {
                   <div className="flex-1 flex flex-col justify-between min-w-0 py-0.5">
                     <div>
                       {/* Distance */}
-                      <div className="text-[12px] text-slate-500 font-normal">
+                      <div className="text-[12px] text-slate-500 dark:text-slate-400 font-normal">
                         ห่างจากคุณ {clinic.distance}
                       </div>
 
                       {/* Name */}
                       <h3
                         onClick={() => openMapForClinic(clinic)}
-                        className="text-[16px] font-bold text-slate-900 truncate font-kanit hover:text-teal-600 cursor-pointer"
+                        className="text-[16px] font-bold text-slate-900 dark:text-white truncate font-kanit hover:text-teal-600 dark:hover:text-teal-400 cursor-pointer"
                       >
                         {clinic.name}
                       </h3>
 
                       {/* Location */}
-                      <div className="text-[12px] text-slate-600 truncate">
+                      <div className="text-[12px] text-slate-600 dark:text-slate-300 truncate">
                         {clinic.location}
                       </div>
 
                       {/* Star Rating */}
-                      <div className="flex items-center gap-0.5 text-slate-900 mt-1">
+                      <div className="flex items-center gap-0.5 text-slate-900 dark:text-amber-400 mt-1">
                         {[...Array(5)].map((_, i) => (
                           <span
                             key={i}
                             className={`text-sm ${
-                              i < clinic.starCount ? "text-slate-900" : "text-slate-300"
+                              i < clinic.starCount ? "text-slate-900 dark:text-amber-400" : "text-slate-300 dark:text-slate-600"
                             }`}
                           >
                             ★
@@ -382,7 +382,7 @@ export default function ClinicPage() {
                           setSelectedClinic(clinic);
                           setBookingModalOpen(true);
                         }}
-                        className="w-full py-1.5 px-3 bg-white hover:bg-slate-50 border border-slate-800 rounded-xl text-[12px] font-semibold text-slate-800 text-center active:scale-95 transition-all shadow-xs"
+                        className="w-full py-1.5 px-3 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 border border-slate-800 dark:border-slate-600 rounded-xl text-[12px] font-semibold text-slate-800 dark:text-slate-100 text-center active:scale-95 transition-all shadow-xs"
                       >
                         ดูรายละเอียด / จองคิว
                       </button>
@@ -454,23 +454,23 @@ export default function ClinicPage() {
             </div>
 
             {/* Bottom Floating Info Sheet */}
-            <div className="bg-white rounded-t-3xl border-t border-slate-200 shadow-[0_-8px_24px_rgba(0,0,0,0.1)] p-4 text-left space-y-3 z-20 shrink-0">
+            <div className="bg-white dark:bg-slate-800 rounded-t-3xl border-t border-slate-200 dark:border-slate-700 shadow-[0_-8px_24px_rgba(0,0,0,0.1)] p-4 text-left space-y-3 z-20 shrink-0">
               {/* Sheet Drag Pill */}
-              <div className="w-12 h-1 bg-slate-300 rounded-full mx-auto -mt-1 mb-2" />
+              <div className="w-12 h-1 bg-slate-300 dark:bg-slate-600 rounded-full mx-auto -mt-1 mb-2" />
 
               {/* Title & Ratings */}
               <div>
-                <h2 className="text-[18px] font-bold text-slate-900 font-kanit">
+                <h2 className="text-[18px] font-bold text-slate-900 dark:text-white font-kanit">
                   {selectedClinic.name}
                 </h2>
                 
-                <div className="flex items-center gap-2 mt-1 text-[13px] text-slate-700">
+                <div className="flex items-center gap-2 mt-1 text-[13px] text-slate-700 dark:text-slate-300">
                   <div className="flex items-center gap-0.5">
                     {[...Array(5)].map((_, i) => (
                       <span
                         key={i}
                         className={`text-sm ${
-                          i < selectedClinic.starCount ? "text-slate-900" : "text-slate-300"
+                          i < selectedClinic.starCount ? "text-slate-900 dark:text-amber-400" : "text-slate-300 dark:text-slate-600"
                         }`}
                       >
                         ★
@@ -479,19 +479,19 @@ export default function ClinicPage() {
                     <span className="font-bold ml-1">{selectedClinic.starCount}</span>
                   </div>
                   <span>•</span>
-                  <div className="flex items-center gap-1 font-medium text-slate-800">
-                    <Car className="w-4 h-4 text-slate-700" />
+                  <div className="flex items-center gap-1 font-medium text-slate-800 dark:text-slate-200">
+                    <Car className="w-4 h-4 text-slate-700 dark:text-slate-300" />
                     <span>{selectedClinic.travelTime}</span>
                   </div>
                 </div>
 
-                <div className="text-[12px] text-slate-500 mt-0.5">
+                <div className="text-[12px] text-slate-500 dark:text-slate-400 mt-0.5">
                   {selectedClinic.category}
                 </div>
 
                 <div className="flex items-center gap-2 mt-1 text-[12px]">
-                  <span className="font-bold text-emerald-600">เปิด</span>
-                  <span className="text-slate-600">ปิด 20:00</span>
+                  <span className="font-bold text-emerald-600 dark:text-emerald-400">เปิด</span>
+                  <span className="text-slate-600 dark:text-slate-300">ปิด 20:00</span>
                 </div>
               </div>
 
@@ -501,9 +501,9 @@ export default function ClinicPage() {
                 <button
                   type="button"
                   onClick={handleDirections}
-                  className="flex flex-col items-center gap-1 px-2.5 py-1.5 rounded-2xl bg-slate-50 hover:bg-teal-50 text-slate-800 active:scale-95 transition-all text-center flex-1 border border-slate-100"
+                  className="flex flex-col items-center gap-1 px-2.5 py-1.5 rounded-2xl bg-slate-50 dark:bg-slate-700 hover:bg-teal-50 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 active:scale-95 transition-all text-center flex-1 border border-slate-100 dark:border-slate-600"
                 >
-                  <CornerUpRight className="w-4 h-4 stroke-[2.2] text-teal-600" />
+                  <CornerUpRight className="w-4 h-4 stroke-[2.2] text-teal-600 dark:text-teal-400" />
                   <span className="text-[11px] font-medium">เส้นทาง</span>
                 </button>
 
@@ -511,9 +511,9 @@ export default function ClinicPage() {
                 <button
                   type="button"
                   onClick={handleStartNav}
-                  className="flex flex-col items-center gap-1 px-2.5 py-1.5 rounded-2xl bg-slate-50 hover:bg-emerald-50 text-slate-800 active:scale-95 transition-all text-center flex-1 border border-slate-100"
+                  className="flex flex-col items-center gap-1 px-2.5 py-1.5 rounded-2xl bg-slate-50 dark:bg-slate-700 hover:bg-emerald-50 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 active:scale-95 transition-all text-center flex-1 border border-slate-100 dark:border-slate-600"
                 >
-                  <Navigation className="w-4 h-4 stroke-[2.2] text-emerald-600" />
+                  <Navigation className="w-4 h-4 stroke-[2.2] text-emerald-600 dark:text-emerald-400" />
                   <span className="text-[11px] font-medium">เริ่ม</span>
                 </button>
 
@@ -521,9 +521,9 @@ export default function ClinicPage() {
                 <button
                   type="button"
                   onClick={() => setShowPhoneModal(true)}
-                  className="flex flex-col items-center gap-1 px-2.5 py-1.5 rounded-2xl bg-slate-50 hover:bg-blue-50 text-slate-800 active:scale-95 transition-all text-center flex-1 border border-slate-100"
+                  className="flex flex-col items-center gap-1 px-2.5 py-1.5 rounded-2xl bg-slate-50 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 active:scale-95 transition-all text-center flex-1 border border-slate-100 dark:border-slate-600"
                 >
-                  <Phone className="w-4 h-4 stroke-[2.2] text-blue-600" />
+                  <Phone className="w-4 h-4 stroke-[2.2] text-blue-600 dark:text-blue-400" />
                   <span className="text-[11px] font-medium">โทร</span>
                 </button>
 
@@ -533,15 +533,15 @@ export default function ClinicPage() {
                   onClick={() => toggleBookmark(selectedClinic.id)}
                   className={`flex flex-col items-center gap-1 px-2.5 py-1.5 rounded-2xl active:scale-95 transition-all text-center flex-1 border ${
                     savedClinics.includes(selectedClinic.id)
-                      ? "bg-amber-50 text-amber-700 border-amber-200"
-                      : "bg-slate-50 text-slate-800 border-slate-100 hover:bg-amber-50"
+                      ? "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-700"
+                      : "bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-200 border-slate-100 dark:border-slate-600 hover:bg-amber-50"
                   }`}
                 >
                   <Bookmark
                     className={`w-4 h-4 stroke-[2.2] ${
                       savedClinics.includes(selectedClinic.id)
                         ? "fill-amber-500 text-amber-500"
-                        : "text-slate-700"
+                        : "text-slate-700 dark:text-slate-300"
                     }`}
                   />
                   <span className="text-[11px] font-medium">บันทึก</span>
@@ -551,9 +551,9 @@ export default function ClinicPage() {
                 <button
                   type="button"
                   onClick={handleShare}
-                  className="flex flex-col items-center gap-1 px-2.5 py-1.5 rounded-2xl bg-slate-50 hover:bg-purple-50 text-slate-800 active:scale-95 transition-all text-center flex-1 border border-slate-100"
+                  className="flex flex-col items-center gap-1 px-2.5 py-1.5 rounded-2xl bg-slate-50 dark:bg-slate-700 hover:bg-purple-50 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 active:scale-95 transition-all text-center flex-1 border border-slate-100 dark:border-slate-600"
                 >
-                  <Share2 className="w-4 h-4 stroke-[2.2] text-purple-600" />
+                  <Share2 className="w-4 h-4 stroke-[2.2] text-purple-600 dark:text-purple-400" />
                   <span className="text-[11px] font-medium">แชร์</span>
                 </button>
               </div>
@@ -561,20 +561,20 @@ export default function ClinicPage() {
               {/* Realistic Clinic Gallery Thumbnails Carousel */}
               <div className="space-y-1.5 pt-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-semibold text-slate-700">
+                  <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-300">
                     บรรยากาศภายในคลินิก (แตะเพื่อดูภาพจริง)
                   </span>
-                  <span className="text-[10px] text-teal-600 font-medium">
+                  <span className="text-[10px] text-teal-600 dark:text-teal-400 font-medium">
                     {clinicAtmosphereData.length} รูป
                   </span>
                 </div>
 
                 <div className="grid grid-cols-4 gap-1.5 h-16">
-                  {clinicAtmosphereData.map((img, idx) => (
+                  {clinicAtmosphereData.map((img) => (
                     <div
                       key={img.id}
                       onClick={() => setPreviewImage(img)}
-                      className="h-full rounded-xl overflow-hidden shadow-xs border border-slate-200 cursor-pointer relative group"
+                      className="h-full rounded-xl overflow-hidden shadow-xs border border-slate-200 dark:border-slate-700 cursor-pointer relative group"
                     >
                       <div
                         className="absolute inset-0 bg-cover bg-center transition-transform group-hover:scale-110 duration-200"
@@ -595,7 +595,7 @@ export default function ClinicPage() {
                 <button
                   type="button"
                   onClick={() => setBookingModalOpen(true)}
-                  className="w-full py-2.5 bg-[#00A877] hover:bg-[#009166] active:scale-95 text-white rounded-full font-medium text-sm shadow-md transition-all font-kanit"
+                  className="w-full py-2.5 bg-[#00A877] hover:bg-[#009166] active:scale-95 text-white rounded-full font-medium text-sm shadow-md transition-all font-kanit cursor-pointer"
                 >
                   จองคิวตรวจรักษาที่นี่
                 </button>
@@ -687,44 +687,44 @@ export default function ClinicPage() {
         {/* Booking Appointment Modal */}
         {bookingModalOpen && (
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white w-full max-w-xs rounded-3xl p-5 text-left space-y-3.5 shadow-2xl animate-fade-in border border-teal-200">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+            <div className="bg-white dark:bg-slate-800 w-full max-w-xs rounded-3xl p-5 text-left space-y-3.5 shadow-2xl animate-fade-in border border-teal-200 dark:border-slate-700">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-700">
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-teal-600" />
-                  <h3 className="text-base font-bold text-slate-900 font-kanit">จองคิวตรวจรักษา</h3>
+                  <Calendar className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white font-kanit">จองคิวตรวจรักษา</h3>
                 </div>
                 <button
                   type="button"
                   onClick={() => setBookingModalOpen(false)}
-                  className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"
+                  className="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="bg-teal-50/60 p-2.5 rounded-2xl text-xs space-y-1">
-                <div className="font-bold text-slate-800">{selectedClinic.name}</div>
-                <div className="text-slate-600">สัตว์เลี้ยง: {selectedPet.name} ({selectedPet.breed})</div>
+              <div className="bg-teal-50/60 dark:bg-slate-700/60 p-2.5 rounded-2xl text-xs space-y-1 border border-teal-100 dark:border-slate-600">
+                <div className="font-bold text-slate-800 dark:text-white">{selectedClinic.name}</div>
+                <div className="text-slate-600 dark:text-slate-300">สัตว์เลี้ยง: {selectedPet.name} ({selectedPet.breed})</div>
               </div>
 
               <form onSubmit={handleBookingSubmit} className="space-y-3 text-xs">
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">วันที่ต้องการนัดหมาย</label>
+                  <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">วันที่ต้องการนัดหมาย</label>
                   <input
                     type="date"
                     required
                     value={bookingDate}
                     onChange={(e) => setBookingDate(e.target.value)}
-                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800"
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">ช่วงเวลา</label>
+                  <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">ช่วงเวลา</label>
                   <select
                     value={bookingTime}
                     onChange={(e) => setBookingTime(e.target.value)}
-                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800"
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-400"
                   >
                     <option value="10:00 - 11:00 น.">เช้า: 10:00 - 11:00 น.</option>
                     <option value="14:00 - 15:00 น.">บ่าย: 14:00 - 15:00 น.</option>
@@ -733,18 +733,18 @@ export default function ClinicPage() {
                 </div>
 
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">อาการหรือเรื่องที่ต้องการตรวจ</label>
+                  <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">อาการหรือเรื่องที่ต้องการตรวจ</label>
                   <input
                     type="text"
                     placeholder="เช่น ตรวจสุขภาพประจำปี, ฉีดวัคซีน"
                     value={bookingNote}
                     onChange={(e) => setBookingNote(e.target.value)}
-                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800"
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-400"
                   />
                 </div>
 
                 {bookingSuccess && (
-                  <div className="p-2 bg-emerald-100 text-emerald-800 rounded-xl text-center font-bold">
+                  <div className="p-2 bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-200 rounded-xl text-center font-bold">
                     ✓ กำลังยืนยันการจองคิว...
                   </div>
                 )}
@@ -752,14 +752,14 @@ export default function ClinicPage() {
                 <div className="pt-2 space-y-1.5">
                   <button
                     type="submit"
-                    className="w-full py-2.5 bg-[#00A877] text-white font-medium rounded-full text-xs shadow-md active:scale-95 transition-transform"
+                    className="w-full py-2.5 bg-[#00A877] hover:bg-[#009166] text-white font-medium rounded-full text-xs shadow-md active:scale-95 transition-transform cursor-pointer font-kanit"
                   >
                     ยืนยันการจองคิว
                   </button>
                   <button
                     type="button"
                     onClick={() => setBookingModalOpen(false)}
-                    className="w-full py-1.5 text-slate-500 text-xs"
+                    className="w-full py-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 text-xs"
                   >
                     ยกเลิก
                   </button>

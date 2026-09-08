@@ -64,7 +64,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ role }) => {
   const navItems = isVet ? vetNavItems : userNavItems;
 
   return (
-    <nav className="w-full bg-[#82D0D6] border-t border-teal-300/40 flex items-center justify-around py-2 px-2 select-none z-40 sticky bottom-0 shrink-0">
+    <nav className="w-full bg-[#82D0D6] dark:bg-[#1E293B] border-t border-teal-300/40 dark:border-slate-800 flex items-center justify-around py-2 px-2 select-none z-40 sticky bottom-0 shrink-0 transition-colors duration-200">
       {navItems.map((item) => {
         const Icon = item.icon;
         return (
@@ -73,13 +73,13 @@ export const BottomNav: React.FC<BottomNavProps> = ({ role }) => {
             href={item.href}
             className={`flex flex-col items-center justify-center flex-1 py-1 transition-all ${
               item.isActive
-                ? "text-slate-900 font-bold"
-                : "text-slate-700/80 hover:text-slate-900 font-medium"
+                ? "text-slate-900 dark:text-teal-300 font-bold"
+                : "text-slate-700/80 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 font-medium"
             }`}
           >
             <div
               className={`p-1 transition-transform duration-200 ${
-                item.isActive ? "scale-110" : "hover:scale-105"
+                item.isActive ? "scale-110" : "hover:scale-105 active:scale-95"
               }`}
             >
               <Icon

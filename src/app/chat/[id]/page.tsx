@@ -37,7 +37,7 @@ export default function ChatDetailPage() {
 
   return (
     <MobileFrame>
-      <div className="flex-1 flex flex-col justify-between bg-[#F8FAFB] min-h-full select-none">
+      <div className="flex-1 flex flex-col justify-between bg-[#F8FAFB] dark:bg-[#0B0F17] min-h-full select-none transition-colors duration-300">
         
         {/* Chat Room Top Bar */}
         <header className="w-full bg-[#62C0C6] py-2.5 px-3 flex items-center justify-between shadow-sm z-30 shrink-0">
@@ -79,7 +79,7 @@ export default function ChatDetailPage() {
         {/* Messages Stream */}
         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3.5 text-left">
           <div className="text-center my-1">
-            <span className="text-[11px] text-slate-500 bg-slate-200/80 px-3 py-1 rounded-full">
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 bg-slate-200/80 dark:bg-slate-800 px-3 py-1 rounded-full">
               วันนี้ • การให้คำปรึกษาทางสัตวแพทย์
             </span>
           </div>
@@ -101,13 +101,13 @@ export default function ChatDetailPage() {
                   className={`max-w-[78%] px-4 py-2.5 rounded-2xl text-[14px] leading-relaxed shadow-sm ${
                     isUser
                       ? "bg-[#00A877] text-white rounded-br-xs"
-                      : "bg-white text-slate-800 rounded-bl-xs border border-slate-100"
+                      : "bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-bl-xs border border-slate-100 dark:border-slate-700"
                   }`}
                 >
                   <p>{msg.text}</p>
                   <div
                     className={`text-[10px] mt-1 text-right ${
-                      isUser ? "text-emerald-100" : "text-slate-400"
+                      isUser ? "text-emerald-100" : "text-slate-400 dark:text-slate-400"
                     }`}
                   >
                     {msg.time}
@@ -122,17 +122,17 @@ export default function ChatDetailPage() {
         {/* Input Bar */}
         <form
           onSubmit={handleSend}
-          className="p-3 bg-white border-t border-slate-200 flex items-center gap-2 shrink-0"
+          className="p-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center gap-2 shrink-0"
         >
           <button
             type="button"
-            className="w-9 h-9 rounded-full text-slate-500 hover:text-slate-800 hover:bg-slate-100 flex items-center justify-center shrink-0"
+            className="w-9 h-9 rounded-full text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center shrink-0"
           >
             <ImageIcon className="w-5 h-5" />
           </button>
           <button
             type="button"
-            className="w-9 h-9 rounded-full text-slate-500 hover:text-slate-800 hover:bg-slate-100 flex items-center justify-center shrink-0"
+            className="w-9 h-9 rounded-full text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center shrink-0"
           >
             <Paperclip className="w-5 h-5" />
           </button>
@@ -142,7 +142,7 @@ export default function ChatDetailPage() {
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder="พิมพ์ข้อความปรึกษาแพทย์..."
-            className="flex-1 px-4 py-2.5 bg-slate-100 rounded-full text-[14px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-400 border border-transparent focus:bg-white transition-all"
+            className="flex-1 px-4 py-2.5 bg-slate-100 dark:bg-slate-800 rounded-full text-[14px] text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-400 border border-transparent dark:border-slate-700 focus:bg-white dark:focus:bg-slate-800 transition-all"
           />
 
           <button

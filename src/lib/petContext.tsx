@@ -120,6 +120,7 @@ interface PetContextType {
   addPet: (pet: Omit<Pet, "id">) => void;
   activityButtons: ActivityButton[];
   addActivityButton: (btn: Omit<ActivityButton, "id">) => void;
+  removeActivityButton: (id: string) => void;
   activityLogs: ActivityLog[];
   logActivity: (type: string, title: string, emoji?: string, note?: string) => void;
   removeActivityLog: (id: string) => void;
@@ -292,6 +293,12 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (Array.isArray(parsedLogs)) setActivityLogs(parsedLogs);
       }
 
+      const savedActivityButtons = localStorage.getItem("petmily_activity_buttons");
+      if (savedActivityButtons) {
+        const parsedBtns = JSON.parse(savedActivityButtons);
+        if (Array.isArray(parsedBtns) && parsedBtns.length > 0) setActivityButtons(parsedBtns);
+      }
+
       const savedAppointments = localStorage.getItem("petmily_appointments");
       if (savedAppointments) {
         const parsedApps = JSON.parse(savedAppointments);
@@ -314,13 +321,14 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       localStorage.setItem("petmily_current_user", JSON.stringify(currentUser));
       localStorage.setItem("petmily_is_premium", JSON.stringify(isPremium));
       localStorage.setItem("petmily_pets", JSON.stringify(pets));
+      localStorage.setItem("petmily_activity_buttons", JSON.stringify(activityButtons));
       localStorage.setItem("petmily_activity_logs", JSON.stringify(activityLogs));
       localStorage.setItem("petmily_appointments", JSON.stringify(appointments));
       localStorage.setItem("petmily_expenses", JSON.stringify(expenses));
     } catch (e) {
       console.warn("Local storage sync error:", e);
     }
-  }, [currentUser, isPremium, pets, activityLogs, appointments, expenses]);
+  }, [currentUser, isPremium, pets, activityButtons, activityLogs, appointments, expenses]);
 
   const selectedPet: Pet = pets[selectedPetIndex] || pets[0] || {
     id: "pet-new",
@@ -459,7 +467,33 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }).then();
   };
 
+  const removeActivityButton = (id: string) => {
+    setActivityButtons((prev) => prev.filter((btn) => btn.id !== id));
+  };
+
   const removeActivityLog = (id: string) => {
+    const targetLog = activityLogs.find((l) => l.id === id);
+    if (targetLog) {
+      const cleanTitle = targetLog.title.replace(/^บันทึก/, "").trim();
+      setActivityButtons((prev) =>
+        prev.filter((btn) => {
+          // Keep default non-custom buttons unless explicitly removed
+          if (["food", "poop", "walk", "bath"].includes(btn.id) && btn.type !== "custom") {
+            return true;
+          }
+          // If this button matches the removed activity's emoji or title, remove it
+          if (
+            btn.emoji === targetLog.emoji ||
+            btn.name === cleanTitle ||
+            btn.name === targetLog.title ||
+            (targetLog.type === "custom" && btn.type === "custom" && btn.name === cleanTitle)
+          ) {
+            return false;
+          }
+          return true;
+        })
+      );
+    }
     setActivityLogs((prev) => prev.filter((log) => log.id !== id));
     if (!id.startsWith("log-")) {
       supabase.from("activity_logs").delete().eq("id", id).then();
@@ -577,6 +611,7 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         addPet,
         activityButtons,
         addActivityButton,
+        removeActivityButton,
         activityLogs,
         logActivity,
         removeActivityLog,

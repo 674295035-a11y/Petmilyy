@@ -84,97 +84,62 @@ export default function GuestLandingPage() {
             </p>
           </div>
 
-          {/* Quick Activity Logger Section */}
-          <div className="space-y-2 text-left pt-1">
-            <div className="flex items-center justify-between">
-              <div className="inline-block bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-md">
-                <h2 className="text-[13px] font-semibold text-slate-800 dark:text-slate-200">
-                  บันทึกกิจกรรมด่วน
-                </h2>
-              </div>
-              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                (สัตว์เลี้ยงของฉัน)
-              </span>
-            </div>
-
-            {/* Quick Activity Circle Buttons */}
-            <div className="flex items-center gap-2.5 pt-1 overflow-x-auto no-scrollbar pb-1">
-              {activityButtons.map((btn) => (
-                <button
-                  key={btn.id}
-                  type="button"
-                  onClick={() => handleActionClick(`บันทึก ${btn.name}`)}
-                  className="w-14 h-14 rounded-full bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-[0_4px_12px_rgba(0,0,0,0.06)] active:scale-95 flex flex-col items-center justify-center transition-all shrink-0 hover:border-teal-300 dark:hover:border-teal-500 relative"
-                  title={`บันทึก ${btn.name}`}
-                >
-                  {btn.type === "food" ? (
-                    <div className="relative">
-                      <svg className="w-7 h-7 text-slate-800 dark:text-slate-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M4 11h16a1 1 0 0 1 1 1v1a8 8 0 0 1-8 8h-2a8 8 0 0 1-8-8v-1a1 1 0 0 1 1-1z" />
-                        <path d="M7 11V7a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v4" />
-                      </svg>
-                      <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full absolute -top-1 -right-1 border-2 border-white dark:border-slate-800 shadow-sm" />
-                    </div>
-                  ) : btn.type === "poop" ? (
-                    <svg className="w-7 h-7 text-slate-800 dark:text-slate-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 2a3 3 0 0 0-3 3c0 1 .5 2 1.5 2.5C9 8 8 9 8 10.5c0 1.2.8 2.2 2 2.5-1.5.5-2.5 1.8-2.5 3.3 0 2.2 2 4 4.5 4s4.5-1.8 4.5-4c0-1.5-1-2.8-2.5-3.3 1.2-.3 2-1.3 2-2.5 0-1.5-1-2.5-2.5-3C14.5 7 15 6 15 5a3 3 0 0 0-3-3z" />
-                    </svg>
-                  ) : btn.type === "walk" ? (
-                    <svg className="w-7 h-7 text-slate-800 dark:text-slate-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="9" cy="6" r="2" />
-                      <path d="M9 8v4l3 2" />
-                      <path d="M15 11l-3-2" />
-                      <path d="M12 14l-2 6" />
-                      <path d="M14 16l3 4" />
-                      <path d="M18 16c1-1 3-1 4 0" />
-                    </svg>
-                  ) : btn.type === "bath" ? (
-                    <svg className="w-7 h-7 text-slate-800 dark:text-slate-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M4 12h16a1 1 0 0 1 1 1v3a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4v-3a1 1 0 0 1 1-1z" />
-                      <path d="M6 12V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
-                      <path d="M4 21l2-2" />
-                      <path d="M20 21l-2-2" />
-                    </svg>
-                  ) : (
-                    <span className="text-2xl select-none leading-none">
-                      {btn.emoji || "✨"}
-                    </span>
-                  )}
-                </button>
-              ))}
-
-              {/* Plus Button to Add New Custom Activity */}
-              <button
-                type="button"
-                onClick={() => handleActionClick("เพิ่มกิจกรรมใหม่")}
-                className="w-14 h-14 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 active:scale-95 flex items-center justify-center text-slate-700 dark:text-slate-200 transition-all shadow-[0_4px_12px_rgba(0,0,0,0.06)] shrink-0"
-                title="เพิ่มกิจกรรมใหม่"
-              >
-                <Plus className="w-7 h-7 stroke-[2.4]" />
-              </button>
-            </div>
-          </div>
-
-          {/* Today's Logged Activities Feed */}
-          <div className="bg-white dark:bg-slate-800 rounded-3xl p-4 border border-slate-100 dark:border-slate-700 shadow-[0_4px_20px_rgba(0,0,0,0.04)] text-left space-y-2.5">
-            <div className="flex items-center justify-between pb-1 border-b border-slate-100 dark:border-slate-700">
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+          {/* 3 Feature Highlight Cards from Image 5 (พบแพทย์ผู้เชี่ยวชาญ, โรงพยาบาลชั้นนำ, บันทึกประวัติสุขภาพ) */}
+          <div className="w-full bg-[#A8E6EA]/40 dark:bg-slate-800/80 border-2 border-[#76CBD1] dark:border-teal-700/60 rounded-[32px] p-3.5 shadow-sm space-y-3">
+            {/* Grid of 3 Feature Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* Card 1: พบแพทย์ผู้เชี่ยวชาญ */}
+              <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 text-center shadow-sm border border-teal-100/80 dark:border-slate-700 flex flex-col items-center justify-between transition-all hover:shadow-md hover:scale-[1.02] duration-200">
+                <div className="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-slate-700/80 flex items-center justify-center mx-auto mb-2.5 text-slate-900 dark:text-teal-300">
+                  <svg className="w-7 h-7 stroke-[2.2]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3" />
+                    <path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4" />
+                    <circle cx="20" cy="10" r="2" />
+                  </svg>
+                </div>
                 <h3 className="text-[15px] font-bold text-slate-900 dark:text-white font-kanit">
-                  บันทึกกิจกรรมวันนี้ (0)
+                  พบแพทย์ผู้เชี่ยวชาญ
                 </h3>
+                <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed mt-1.5 font-light">
+                  ปรึกษาสัตวแพทย์ผ่านวิดีโอคอลได้ตลอด 24 ชม. รับคำแนะนำด่วนได้ทันทีโดยไม่ต้องเดินทาง
+                </p>
               </div>
-              <Link
-                href="/login"
-                className="text-[12px] font-semibold text-teal-600 dark:text-teal-400 hover:text-teal-700 flex items-center gap-0.5"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                บันทึกเพิ่ม
-              </Link>
-            </div>
 
-            <div className="py-4 text-center text-slate-400 dark:text-slate-500 text-xs">
-              ยังไม่มีบันทึกกิจกรรมวันนี้ แตะปุ่มด้านบนเพื่อเริ่มบันทึก! ✨
+              {/* Card 2: โรงพยาบาลชั้นนำ */}
+              <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 text-center shadow-sm border border-teal-100/80 dark:border-slate-700 flex flex-col items-center justify-between transition-all hover:shadow-md hover:scale-[1.02] duration-200">
+                <div className="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-slate-700/80 flex items-center justify-center mx-auto mb-2.5 text-slate-900 dark:text-teal-300">
+                  <svg className="w-7 h-7 stroke-[2.2]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" />
+                    <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" />
+                    <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2" />
+                    <path d="M10 6h4" />
+                    <path d="M12 4v4" />
+                    <path d="M10 12h4" />
+                    <path d="M10 16h4" />
+                  </svg>
+                </div>
+                <h3 className="text-[15px] font-bold text-slate-900 dark:text-white font-kanit">
+                  โรงพยาบาลชั้นนำ
+                </h3>
+                <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed mt-1.5 font-light">
+                  ค้นหาและนัดหมายเครือข่ายคลินิก-โรงพยาบาลสัตว์ใกล้บ้าน พร้อมระบบเช็กคิวด่วนได้ง่ายๆ
+                </p>
+              </div>
+
+              {/* Card 3: บันทึกประวัติสุขภาพ */}
+              <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 text-center shadow-sm border border-teal-100/80 dark:border-slate-700 flex flex-col items-center justify-between transition-all hover:shadow-md hover:scale-[1.02] duration-200">
+                <div className="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-slate-700/80 flex items-center justify-center mx-auto mb-2.5 text-slate-900 dark:text-teal-300">
+                  <svg className="w-7 h-7 stroke-[2.2]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+                  </svg>
+                </div>
+                <h3 className="text-[15px] font-bold text-slate-900 dark:text-white font-kanit">
+                  บันทึกประวัติสุขภาพ
+                </h3>
+                <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed mt-1.5 font-light">
+                  จัดเก็บประวัติการรักษา ตารางฉีดวัคซีน และแจ้งเตือนนัดหมายสำคัญของน้องๆ ครบจบในแอปเดียว
+                </p>
+              </div>
             </div>
           </div>
 

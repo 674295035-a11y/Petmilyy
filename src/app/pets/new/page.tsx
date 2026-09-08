@@ -138,11 +138,11 @@ export default function PetInfoPage() {
 
   return (
     <MobileFrame>
-      <div className="flex-1 flex flex-col justify-between bg-white min-h-full pb-8 select-none relative overflow-y-auto">
+      <div className="flex-1 flex flex-col justify-between bg-white dark:bg-[#0B0F17] min-h-full pb-8 select-none relative overflow-y-auto transition-colors duration-300">
         
         {/* Toast Feedback */}
         {toastMessage && (
-          <div className="absolute top-14 left-4 right-4 z-50 p-3 bg-slate-900/90 text-white rounded-2xl text-xs flex items-center gap-2 shadow-xl animate-fade-in border border-slate-700">
+          <div className="absolute top-14 left-4 right-4 z-50 p-3 bg-slate-900/90 dark:bg-slate-800 text-white rounded-2xl text-xs flex items-center gap-2 shadow-xl animate-fade-in border border-slate-700">
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
             <span className="font-medium">{toastMessage}</span>
           </div>
@@ -154,7 +154,7 @@ export default function PetInfoPage() {
           <div className="px-4 pt-3 pb-1 flex items-center">
             <Link
               href="/home"
-              className="w-10 h-10 rounded-full flex items-center justify-center text-slate-800 hover:bg-slate-100 active:scale-95 transition-all"
+              className="w-10 h-10 rounded-full flex items-center justify-center text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-95 transition-all"
               aria-label="ย้อนกลับ"
             >
               <ArrowLeft className="w-6 h-6 stroke-[2.4]" />
@@ -220,15 +220,15 @@ export default function PetInfoPage() {
           </button>
 
           {/* Recommended Preset Avatars (แนะนำรูปได้) */}
-          <div className="mt-3 flex items-center gap-2.5 bg-slate-50 px-3 py-1.5 rounded-2xl border border-slate-200">
-            <span className="text-[12px] text-slate-500 font-medium">รูปแนะนำ:</span>
+          <div className="mt-3 flex items-center gap-2.5 bg-slate-50 dark:bg-slate-800/80 px-3 py-1.5 rounded-2xl border border-slate-200 dark:border-slate-700">
+            <span className="text-[12px] text-slate-500 dark:text-slate-400 font-medium">รูปแนะนำ:</span>
             <button
               type="button"
               onClick={() => setFormData((prev) => ({ ...prev, avatar: "cat", customPhotoUrl: "" }))}
               className={`w-9 h-9 rounded-full overflow-hidden border-2 transition-all ${
                 formData.avatar === "cat" && !formData.customPhotoUrl
                   ? "border-[#5CB8C1] scale-110 shadow-sm ring-2 ring-teal-200"
-                  : "border-slate-200 opacity-70 hover:opacity-100"
+                  : "border-slate-200 dark:border-slate-600 opacity-70 hover:opacity-100"
               }`}
               title="รูปแนะนำ: น้องแมว"
             >
@@ -240,7 +240,7 @@ export default function PetInfoPage() {
               className={`w-9 h-9 rounded-full overflow-hidden border-2 transition-all ${
                 formData.avatar === "dog" && !formData.customPhotoUrl
                   ? "border-[#5CB8C1] scale-110 shadow-sm ring-2 ring-teal-200"
-                  : "border-slate-200 opacity-70 hover:opacity-100"
+                  : "border-slate-200 dark:border-slate-600 opacity-70 hover:opacity-100"
               }`}
               title="รูปแนะนำ: น้องสุนัข"
             >
@@ -254,7 +254,7 @@ export default function PetInfoPage() {
           
           {/* Pet Name */}
           <div className="space-y-1">
-            <label className="block text-[14px] font-medium text-slate-800">
+            <label className="block text-[14px] font-medium text-slate-800 dark:text-slate-200">
               ชื่อสัตว์เลี้ยง
             </label>
             <input
@@ -263,14 +263,14 @@ export default function PetInfoPage() {
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="เช่น ตี๋บ้อง, มารวย, โมจิ"
-              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-[14px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-400 shadow-[0_2px_8px_rgba(0,0,0,0.03)]"
+              className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-[14px] text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-400 shadow-[0_2px_8px_rgba(0,0,0,0.03)]"
             />
           </div>
 
           {/* Type & Breed (2 Columns) */}
           <div className="grid grid-cols-2 gap-2.5">
             <div className="space-y-1">
-              <label className="block text-[14px] font-medium text-slate-800">
+              <label className="block text-[14px] font-medium text-slate-800 dark:text-slate-200">
                 ประเภท
               </label>
               <select
@@ -282,7 +282,7 @@ export default function PetInfoPage() {
                     avatar: e.target.value === "สุนัข" ? "dog" : "cat",
                   })
                 }
-                className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-2xl text-[14px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-400 shadow-[0_2px_8px_rgba(0,0,0,0.03)]"
+                className="w-full px-3 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-[14px] text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-400 shadow-[0_2px_8px_rgba(0,0,0,0.03)]"
               >
                 <option value="แมว">แมว</option>
                 <option value="สุนัข">สุนัข</option>
@@ -293,7 +293,7 @@ export default function PetInfoPage() {
             </div>
 
             <div className="space-y-1">
-              <label className="block text-[14px] font-medium text-slate-800">
+              <label className="block text-[14px] font-medium text-slate-800 dark:text-slate-200">
                 สายพันธุ์
               </label>
               <input
@@ -302,7 +302,7 @@ export default function PetInfoPage() {
                 value={formData.breed}
                 onChange={(e) => setFormData({ ...formData, breed: e.target.value })}
                 placeholder="เช่น ไฮกัน, สกอตติช"
-                className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-2xl text-[14px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-400 shadow-[0_2px_8px_rgba(0,0,0,0.03)]"
+                className="w-full px-3 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-[14px] text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-400 shadow-[0_2px_8px_rgba(0,0,0,0.03)]"
               />
             </div>
           </div>
@@ -311,7 +311,7 @@ export default function PetInfoPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {/* Birth Date */}
             <div className="space-y-1">
-              <label className="block text-[14px] font-medium text-slate-800">
+              <label className="block text-[14px] font-medium text-slate-800 dark:text-slate-200">
                 วัน/เดือน/ปีเกิด
               </label>
               <div className="relative">
@@ -319,14 +319,14 @@ export default function PetInfoPage() {
                   type="date"
                   value={formData.birthdate}
                   onChange={(e) => handleBirthdateChange(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-2xl text-[14px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-400 shadow-[0_2px_8px_rgba(0,0,0,0.03)]"
+                  className="w-full px-3 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-[14px] text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-400 shadow-[0_2px_8px_rgba(0,0,0,0.03)]"
                 />
               </div>
             </div>
 
             {/* Age with Unit Dropdown (วัน - เดือน - ปี) */}
             <div className="space-y-1">
-              <label className="block text-[14px] font-medium text-slate-800">
+              <label className="block text-[14px] font-medium text-slate-800 dark:text-slate-200">
                 อายุ (วัน-เดือน-ปี)
               </label>
               <div className="flex gap-1.5">
@@ -336,14 +336,14 @@ export default function PetInfoPage() {
                   value={formData.ageValue}
                   onChange={(e) => setFormData({ ...formData, ageValue: e.target.value })}
                   placeholder="เช่น 1"
-                  className="w-1/2 px-3 py-2.5 bg-white border border-slate-200 rounded-2xl text-[14px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-400 shadow-[0_2px_8px_rgba(0,0,0,0.03)] font-semibold"
+                  className="w-1/2 px-3 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-[14px] text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-400 shadow-[0_2px_8px_rgba(0,0,0,0.03)] font-semibold"
                 />
                 <select
                   value={formData.ageUnit}
                   onChange={(e) =>
                     setFormData({ ...formData, ageUnit: e.target.value as any })
                   }
-                  className="w-1/2 px-2.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-[14px] text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-teal-400"
+                  className="w-1/2 px-2.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-[14px] text-slate-800 dark:text-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-teal-400"
                 >
                   <option value="ปี">ปี</option>
                   <option value="เดือน">เดือน</option>
@@ -356,7 +356,7 @@ export default function PetInfoPage() {
           {/* Weight & Height (2 Columns) */}
           <div className="grid grid-cols-2 gap-2.5">
             <div className="space-y-1">
-              <label className="block text-[14px] font-medium text-slate-800">
+              <label className="block text-[14px] font-medium text-slate-800 dark:text-slate-200">
                 น้ำหนัก (ก.ก)
               </label>
               <input
@@ -365,12 +365,12 @@ export default function PetInfoPage() {
                 value={formData.weight}
                 onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
                 placeholder="เช่น 4.5"
-                className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-2xl text-[14px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-400 shadow-[0_2px_8px_rgba(0,0,0,0.03)]"
+                className="w-full px-3 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-[14px] text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-400 shadow-[0_2px_8px_rgba(0,0,0,0.03)]"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="block text-[14px] font-medium text-slate-800">
+              <label className="block text-[14px] font-medium text-slate-800 dark:text-slate-200">
                 ส่วนสูง (ซม.)
               </label>
               <input
@@ -379,14 +379,14 @@ export default function PetInfoPage() {
                 value={formData.height}
                 onChange={(e) => setFormData({ ...formData, height: e.target.value })}
                 placeholder="เช่น 25"
-                className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-2xl text-[14px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-400 shadow-[0_2px_8px_rgba(0,0,0,0.03)]"
+                className="w-full px-3 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-[14px] text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-400 shadow-[0_2px_8px_rgba(0,0,0,0.03)]"
               />
             </div>
           </div>
 
           {/* Drug Allergy */}
           <div className="space-y-1">
-            <label className="block text-[14px] font-medium text-slate-800">
+            <label className="block text-[14px] font-medium text-slate-800 dark:text-slate-200">
               ประวัติแพ้ยา (ถ้ามี)
             </label>
             <input
@@ -394,13 +394,13 @@ export default function PetInfoPage() {
               value={formData.drugAllergy}
               onChange={(e) => setFormData({ ...formData, drugAllergy: e.target.value })}
               placeholder="เช่น ไม่มี หรือ ระบุชื่อยา"
-              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-[14px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-400 shadow-[0_2px_8px_rgba(0,0,0,0.03)]"
+              className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-[14px] text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-400 shadow-[0_2px_8px_rgba(0,0,0,0.03)]"
             />
           </div>
 
           {/* Success Alert */}
           {isSuccess && (
-            <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl text-xs flex items-center gap-2 animate-fade-in">
+            <div className="p-3 bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 rounded-xl text-xs flex items-center gap-2 animate-fade-in">
               <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>บันทึกข้อมูลสัตว์เลี้ยงสำเร็จแล้ว! กำลังไปที่หน้าหลัก...</span>
             </div>
@@ -423,7 +423,7 @@ export default function PetInfoPage() {
             <div className="text-center">
               <Link
                 href="/home"
-                className="text-[14px] text-slate-600 hover:text-slate-900 transition-colors inline-block py-1"
+                className="text-[14px] text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors inline-block py-1"
               >
                 ไว้บันทึกภายหลัง
               </Link>

@@ -109,7 +109,7 @@ export default function HomePage() {
 
   return (
     <MobileFrame>
-      <div className="flex-1 flex flex-col justify-between bg-[#F8FAFB] min-h-full relative select-none">
+      <div className="flex-1 flex flex-col justify-between bg-[#F8FAFB] dark:bg-[#0B0F17] min-h-full relative select-none transition-colors duration-300">
         
         {/* App Header (Top Mint Teal Bar) */}
         <AppHeader
@@ -125,8 +125,8 @@ export default function HomePage() {
           
           {/* Toast Notification for Instant Feedback */}
           {toastMessage && (
-            <div className="p-3 bg-emerald-50 border border-emerald-300 text-emerald-800 rounded-2xl text-xs flex items-center gap-2 shadow-sm animate-bounce">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <div className="p-3 bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-700 text-emerald-800 dark:text-emerald-200 rounded-2xl text-xs flex items-center gap-2 shadow-sm animate-bounce">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <span className="font-medium">{toastMessage}</span>
             </div>
           )}
@@ -140,12 +140,12 @@ export default function HomePage() {
                 onClick={() => setSelectedPetIndex(idx)}
                 className={`relative rounded-full p-0.5 transition-all duration-200 shrink-0 ${
                   selectedPetIndex === idx
-                    ? "ring-2 ring-[#5CB8C1] ring-offset-2 scale-105"
-                    : "opacity-80 hover:opacity-100"
+                    ? "ring-2 ring-[#5CB8C1] ring-offset-2 dark:ring-offset-slate-900 scale-105"
+                    : "opacity-80 hover:opacity-100 hover:scale-105"
                 }`}
                 title={pet.name}
               >
-                <div className="w-14 h-14 rounded-full overflow-hidden bg-white shadow-sm flex items-center justify-center border border-amber-100">
+                <div className="w-14 h-14 rounded-full overflow-hidden bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center border border-amber-100 dark:border-slate-700">
                   <PetAvatarDisplay
                     avatar={pet.avatar}
                     photoUrl={pet.photoUrl}
@@ -159,7 +159,7 @@ export default function HomePage() {
             {/* Add Pet Button */}
             <Link
               href="/pets/new"
-              className="w-14 h-14 rounded-full bg-slate-200 hover:bg-slate-300 active:scale-95 flex items-center justify-center text-slate-700 transition-all shadow-sm shrink-0"
+              className="w-14 h-14 rounded-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 active:scale-95 hover:scale-105 flex items-center justify-center text-slate-700 dark:text-slate-200 transition-all shadow-sm shrink-0 border border-transparent dark:border-slate-700"
               title="เพิ่มสัตว์เลี้ยงใหม่"
             >
               <Plus className="w-7 h-7 stroke-[2.2]" />
@@ -173,22 +173,22 @@ export default function HomePage() {
                 <Link
                   key={app.id}
                   href="/history"
-                  className="block bg-white rounded-2xl p-3.5 border border-amber-200/80 shadow-[0_2px_12px_rgba(245,158,11,0.08)] hover:shadow-md transition-all text-left"
+                  className="block bg-white dark:bg-slate-800 rounded-2xl p-3.5 border border-amber-200/80 dark:border-slate-700 shadow-[0_2px_12px_rgba(245,158,11,0.08)] hover:shadow-md hover:scale-[1.01] transition-all text-left"
                 >
                   <div className="flex items-start gap-3">
-                    <div className="w-7 h-7 rounded-full bg-amber-50 flex items-center justify-center text-amber-500 shrink-0 mt-0.5">
+                    <div className="w-7 h-7 rounded-full bg-amber-50 dark:bg-amber-950/40 flex items-center justify-center text-amber-500 shrink-0 mt-0.5">
                       <div className="w-6 h-6 rounded-full border-2 border-amber-500 flex items-center justify-center text-amber-500 font-bold text-xs">
                         !
                       </div>
                     </div>
                     <div className="flex-1">
-                      <div className="text-[15px] font-bold text-red-600 leading-tight">
+                      <div className="text-[15px] font-bold text-red-600 dark:text-rose-400 leading-tight">
                         นัดหมาย: {app.serviceType || "พบแพทย์"}
                       </div>
-                      <div className="text-[13px] text-slate-700 mt-0.5">
+                      <div className="text-[13px] text-slate-700 dark:text-slate-300 mt-0.5">
                         {app.date} เวลา {app.time} น. ที่ {app.clinicName}
                       </div>
-                      <div className="text-[11px] text-slate-500 mt-0.5">
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                         สัตว์เลี้ยง: {app.petName}
                       </div>
                     </div>
@@ -215,50 +215,69 @@ export default function HomePage() {
             <div className="flex items-center gap-2.5 pt-1 overflow-x-auto no-scrollbar pb-1">
               {activityButtons.map((btn) => {
                 const isActive = activeActivityId === btn.id;
+                const isCustom = !["food", "poop", "walk", "bath"].includes(btn.id) || btn.type === "custom";
                 return (
-                  <button
-                    key={btn.id}
-                    type="button"
-                    onClick={() => handleQuickActivityClick(btn)}
-                    className={`w-14 h-14 rounded-full bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-[0_4px_12px_rgba(0,0,0,0.06)] active:scale-95 flex flex-col items-center justify-center transition-all shrink-0 relative ${
-                      isActive ? "scale-110 ring-2 ring-emerald-500 bg-emerald-50 dark:bg-emerald-950/40" : "hover:border-teal-300 dark:hover:border-teal-500"
-                    }`}
-                    title={`บันทึก ${btn.name}`}
-                  >
-                    {btn.type === "food" ? (
-                      <div className="relative">
-                        <svg className="w-7 h-7 text-slate-800 dark:text-slate-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M4 11h16a1 1 0 0 1 1 1v1a8 8 0 0 1-8 8h-2a8 8 0 0 1-8-8v-1a1 1 0 0 1 1-1z" />
-                          <path d="M7 11V7a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v4" />
+                  <div key={btn.id} className="relative group shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => handleQuickActivityClick(btn)}
+                      className={`w-14 h-14 rounded-full bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-[0_4px_12px_rgba(0,0,0,0.06)] active:scale-95 hover:scale-105 flex flex-col items-center justify-center transition-all shrink-0 relative ${
+                        isActive ? "scale-110 ring-2 ring-emerald-500 bg-emerald-50 dark:bg-emerald-950/40" : "hover:border-teal-300 dark:hover:border-teal-500"
+                      }`}
+                      title={`บันทึก ${btn.name}`}
+                    >
+                      {btn.type === "food" ? (
+                        <div className="relative">
+                          <svg className="w-7 h-7 text-slate-800 dark:text-slate-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M4 11h16a1 1 0 0 1 1 1v1a8 8 0 0 1-8 8h-2a8 8 0 0 1-8-8v-1a1 1 0 0 1 1-1z" />
+                            <path d="M7 11V7a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v4" />
+                          </svg>
+                          <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full absolute -top-1 -right-1 border-2 border-white dark:border-slate-800 shadow-sm" />
+                        </div>
+                      ) : btn.type === "poop" ? (
+                        <svg className="w-7 h-7 text-slate-800 dark:text-slate-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M12 2a3 3 0 0 0-3 3c0 1 .5 2 1.5 2.5C9 8 8 9 8 10.5c0 1.2.8 2.2 2 2.5-1.5.5-2.5 1.8-2.5 3.3 0 2.2 2 4 4.5 4s4.5-1.8 4.5-4c0-1.5-1-2.8-2.5-3.3 1.2-.3 2-1.3 2-2.5 0-1.5-1-2.5-2.5-3C14.5 7 15 6 15 5a3 3 0 0 0-3-3z" />
                         </svg>
-                        <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full absolute -top-1 -right-1 border-2 border-white dark:border-slate-800 shadow-sm" />
-                      </div>
-                    ) : btn.type === "poop" ? (
-                      <svg className="w-7 h-7 text-slate-800 dark:text-slate-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M12 2a3 3 0 0 0-3 3c0 1 .5 2 1.5 2.5C9 8 8 9 8 10.5c0 1.2.8 2.2 2 2.5-1.5.5-2.5 1.8-2.5 3.3 0 2.2 2 4 4.5 4s4.5-1.8 4.5-4c0-1.5-1-2.8-2.5-3.3 1.2-.3 2-1.3 2-2.5 0-1.5-1-2.5-2.5-3C14.5 7 15 6 15 5a3 3 0 0 0-3-3z" />
-                      </svg>
-                    ) : btn.type === "walk" ? (
-                      <svg className="w-7 h-7 text-slate-800 dark:text-slate-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="9" cy="6" r="2" />
-                        <path d="M9 8v4l3 2" />
-                        <path d="M15 11l-3-2" />
-                        <path d="M12 14l-2 6" />
-                        <path d="M14 16l3 4" />
-                        <path d="M18 16c1-1 3-1 4 0" />
-                      </svg>
-                    ) : btn.type === "bath" ? (
-                      <svg className="w-7 h-7 text-slate-800 dark:text-slate-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M4 12h16a1 1 0 0 1 1 1v3a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4v-3a1 1 0 0 1 1-1z" />
-                        <path d="M6 12V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
-                        <path d="M4 21l2-2" />
-                        <path d="M20 21l-2-2" />
-                      </svg>
-                    ) : (
-                      <span className="text-2xl select-none leading-none">
-                        {btn.emoji || "✨"}
-                      </span>
+                      ) : btn.type === "walk" ? (
+                        <svg className="w-7 h-7 text-slate-800 dark:text-slate-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="9" cy="6" r="2" />
+                          <path d="M9 8v4l3 2" />
+                          <path d="M15 11l-3-2" />
+                          <path d="M12 14l-2 6" />
+                          <path d="M14 16l3 4" />
+                          <path d="M18 16c1-1 3-1 4 0" />
+                        </svg>
+                      ) : btn.type === "bath" ? (
+                        <svg className="w-7 h-7 text-slate-800 dark:text-slate-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M4 12h16a1 1 0 0 1 1 1v3a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4v-3a1 1 0 0 1 1-1z" />
+                          <path d="M6 12V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
+                          <path d="M4 21l2-2" />
+                          <path d="M20 21l-2-2" />
+                        </svg>
+                      ) : (
+                        <span className="text-2xl select-none leading-none">
+                          {btn.emoji || "✨"}
+                        </span>
+                      )}
+                    </button>
+
+                    {/* Optional hover delete badge for custom button */}
+                    {isCustom && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          usePetContext().removeActivityButton(btn.id);
+                          setToastMessage(`ลบปุ่มกิจกรรม "${btn.name}" แล้ว`);
+                          setTimeout(() => setToastMessage(null), 2000);
+                        }}
+                        className="opacity-0 group-hover:opacity-100 absolute -top-1 -right-1 w-4 h-4 bg-rose-500 hover:bg-rose-600 text-white rounded-full flex items-center justify-center text-[10px] transition-opacity shadow-sm"
+                        title="ลบปุ่มกิจกรรมนี้"
+                      >
+                        ×
+                      </button>
                     )}
-                  </button>
+                  </div>
                 );
               })}
 
@@ -266,7 +285,7 @@ export default function HomePage() {
               <button
                 type="button"
                 onClick={() => setShowAddActivityModal(true)}
-                className="w-14 h-14 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 active:scale-95 flex items-center justify-center text-slate-700 dark:text-slate-200 transition-all shadow-[0_4px_12px_rgba(0,0,0,0.06)] shrink-0"
+                className="w-14 h-14 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 active:scale-95 hover:scale-105 flex items-center justify-center text-slate-700 dark:text-slate-200 transition-all shadow-[0_4px_12px_rgba(0,0,0,0.06)] shrink-0"
                 title="เพิ่มกิจกรรมใหม่"
               >
                 <Plus className="w-7 h-7 stroke-[2.4]" />

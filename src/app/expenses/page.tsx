@@ -163,7 +163,7 @@ export default function ExpensesPage() {
 
   return (
     <MobileFrame>
-      <div className="flex-1 flex flex-col justify-between bg-[#F8FAFB] min-h-full select-none relative">
+      <div className="flex-1 flex flex-col justify-between bg-[#F8FAFB] dark:bg-[#0B0F17] min-h-full select-none relative transition-colors duration-300">
         
         {/* Top Header */}
         <AppHeader
@@ -178,8 +178,8 @@ export default function ExpensesPage() {
           
           {/* Toast Notification */}
           {toastMessage && (
-            <div className="p-3 bg-emerald-50 border border-emerald-300 text-emerald-800 rounded-2xl text-xs flex items-center gap-2 shadow-sm animate-bounce">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <div className="p-3 bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-700 text-emerald-800 dark:text-emerald-200 rounded-2xl text-xs flex items-center gap-2 shadow-sm animate-bounce">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <span className="font-medium">{toastMessage}</span>
             </div>
           )}
@@ -195,20 +195,20 @@ export default function ExpensesPage() {
           <button
             type="button"
             onClick={() => setShowAddModal(true)}
-            className="w-full py-2.5 bg-white border border-teal-300 hover:bg-teal-50/50 active:scale-[0.99] rounded-2xl text-xs font-bold text-teal-700 flex items-center justify-center gap-1.5 shadow-xs transition-all font-kanit"
+            className="w-full py-2.5 bg-white dark:bg-slate-800 border border-teal-300 dark:border-teal-700 hover:bg-teal-50/50 dark:hover:bg-slate-700 active:scale-[0.99] rounded-2xl text-xs font-bold text-teal-700 dark:text-teal-300 flex items-center justify-center gap-1.5 shadow-xs transition-all font-kanit cursor-pointer"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
             <span>+ บันทึกค่าใช้จ่ายใหม่</span>
           </button>
 
           {/* 1. Summary Card */}
-          <div className="bg-white rounded-3xl p-4 border border-slate-100 shadow-[0_4px_16px_rgba(0,0,0,0.03)] space-y-2.5">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-4 border border-slate-100 dark:border-slate-700 shadow-[0_4px_16px_rgba(0,0,0,0.03)] space-y-2.5">
             <div className="flex items-start justify-between">
               <div>
-                <div className="text-[14px] font-bold text-slate-900 font-kanit">
+                <div className="text-[14px] font-bold text-slate-900 dark:text-white font-kanit">
                   ยอดรวมค่าใช้จ่าย
                 </div>
-                <div className="text-[20px] font-bold text-slate-900 font-kanit mt-0.5">
+                <div className="text-[20px] font-bold text-slate-900 dark:text-white font-kanit mt-0.5">
                   ฿{totalExpense.toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
               </div>
@@ -218,15 +218,15 @@ export default function ExpensesPage() {
                 <button
                   type="button"
                   onClick={() => setShowMonthModal(true)}
-                  className="inline-flex items-center gap-1 text-[13px] font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 px-2.5 py-1 rounded-xl border border-teal-200 transition-colors"
+                  className="inline-flex items-center gap-1 text-[13px] font-bold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-slate-700 hover:bg-teal-100 dark:hover:bg-slate-600 px-2.5 py-1 rounded-xl border border-teal-200 dark:border-slate-600 transition-colors cursor-pointer"
                 >
                   <span>{selectedMonth}</span>
-                  <ChevronDown className="w-4 h-4 text-teal-600" />
+                  <ChevronDown className="w-4 h-4 text-teal-600 dark:text-teal-400" />
                 </button>
-                <div className="text-[11px] text-slate-500 mt-1">
+                <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
                   เปรียบเทียบเดือนที่แล้ว
                 </div>
-                <div className="text-[14px] font-bold text-[#4CAF50]">
+                <div className="text-[14px] font-bold text-[#4CAF50] dark:text-emerald-400">
                   {totalExpense > 0 ? "-5%" : "0%"}
                 </div>
               </div>
@@ -234,10 +234,10 @@ export default function ExpensesPage() {
 
             {/* Budget Progress Bar */}
             <div className="pt-1 space-y-1">
-              <div className="text-[12px] text-slate-700 font-medium">
+              <div className="text-[12px] text-slate-700 dark:text-slate-300 font-medium">
                 ใช้ไปแล้ว {percentUsed}% จากงบ {budget.toLocaleString()}
               </div>
-              <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden flex">
+              <div className="w-full h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden flex">
                 <div
                   className="h-full bg-[#52B72A] rounded-full transition-all duration-500"
                   style={{ width: `${percentUsed}%` }}
@@ -247,16 +247,16 @@ export default function ExpensesPage() {
           </div>
 
           {/* 2. Charts Card (Donut & Daily Bar breakdown) */}
-          <div className="bg-white rounded-3xl p-4 border border-slate-100 shadow-[0_4px_16px_rgba(0,0,0,0.03)] grid grid-cols-2 gap-3 items-center">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-4 border border-slate-100 dark:border-slate-700 shadow-[0_4px_16px_rgba(0,0,0,0.03)] grid grid-cols-2 gap-3 items-center">
             {/* Left: Donut Chart */}
             <div className="flex flex-col items-center">
-              <h3 className="text-[13px] font-bold text-slate-800 mb-2 font-kanit">
+              <h3 className="text-[13px] font-bold text-slate-800 dark:text-slate-200 mb-2 font-kanit">
                 สัดส่วนค่าใช้จ่าย
               </h3>
               <div className="relative w-24 h-24">
                 <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
                   {/* Background Circle */}
-                  <circle cx="18" cy="18" r="14" fill="none" stroke="#F1F2F6" strokeWidth="6" />
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="#F1F2F6" strokeWidth="6" className="dark:stroke-slate-700" />
                   
                   {totalExpense > 0 ? (
                     <>
@@ -350,13 +350,13 @@ export default function ExpensesPage() {
 
           {/* 3. Main Categories Grid (หมวดหมู่หลัก) */}
           <div className="space-y-1.5">
-            <h3 className="text-[14px] font-bold text-slate-900 font-kanit">
+            <h3 className="text-[14px] font-bold text-slate-900 dark:text-white font-kanit">
               หมวดหมู่หลัก
             </h3>
 
             <div className="grid grid-cols-4 gap-2 text-center">
               {/* Card 1: Equipment */}
-              <div className={`${categoryConfig["อุปกรณ์"].bgCard} rounded-2xl p-2.5 flex flex-col justify-between h-28 border shadow-xs`}>
+              <div className={`${categoryConfig["อุปกรณ์"].bgCard} rounded-2xl p-2.5 flex flex-col justify-between h-28 border shadow-xs hover:scale-105 transition-transform`}>
                 <div className={`w-7 h-7 rounded-full ${categoryConfig["อุปกรณ์"].bgIcon} flex items-center justify-center mx-auto text-xs`}>
                   {categoryConfig["อุปกรณ์"].emoji}
                 </div>
@@ -373,7 +373,7 @@ export default function ExpensesPage() {
               </div>
 
               {/* Card 2: Medical */}
-              <div className={`${categoryConfig["การแพทย์"].bgCard} rounded-2xl p-2.5 flex flex-col justify-between h-28 border shadow-xs`}>
+              <div className={`${categoryConfig["การแพทย์"].bgCard} rounded-2xl p-2.5 flex flex-col justify-between h-28 border shadow-xs hover:scale-105 transition-transform`}>
                 <div className={`w-7 h-7 rounded-full ${categoryConfig["การแพทย์"].bgIcon} flex items-center justify-center mx-auto text-xs`}>
                   {categoryConfig["การแพทย์"].emoji}
                 </div>
@@ -390,7 +390,7 @@ export default function ExpensesPage() {
               </div>
 
               {/* Card 3: Other */}
-              <div className={`${categoryConfig["อื่นๆ"].bgCard} rounded-2xl p-2.5 flex flex-col justify-between h-28 border shadow-xs`}>
+              <div className={`${categoryConfig["อื่นๆ"].bgCard} rounded-2xl p-2.5 flex flex-col justify-between h-28 border shadow-xs hover:scale-105 transition-transform`}>
                 <div className={`w-7 h-7 rounded-full ${categoryConfig["อื่นๆ"].bgIcon} flex items-center justify-center mx-auto text-xs`}>
                   {categoryConfig["อื่นๆ"].emoji}
                 </div>
@@ -407,7 +407,7 @@ export default function ExpensesPage() {
               </div>
 
               {/* Card 4: Food */}
-              <div className={`${categoryConfig["อาหาร"].bgCard} rounded-2xl p-2.5 flex flex-col justify-between h-28 border shadow-xs`}>
+              <div className={`${categoryConfig["อาหาร"].bgCard} rounded-2xl p-2.5 flex flex-col justify-between h-28 border shadow-xs hover:scale-105 transition-transform`}>
                 <div className={`w-7 h-7 rounded-full ${categoryConfig["อาหาร"].bgIcon} flex items-center justify-center mx-auto text-xs`}>
                   {categoryConfig["อาหาร"].emoji}
                 </div>
@@ -426,15 +426,15 @@ export default function ExpensesPage() {
           </div>
 
           {/* 4. Recent Transactions List (รายการล่าสุด) */}
-          <div className="bg-white rounded-3xl p-4 border border-slate-100 shadow-[0_4px_16px_rgba(0,0,0,0.03)] space-y-3">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-4 border border-slate-100 dark:border-slate-700 shadow-[0_4px_16px_rgba(0,0,0,0.03)] space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-[15px] font-bold text-slate-900 font-kanit">
+              <h3 className="text-[15px] font-bold text-slate-900 dark:text-white font-kanit">
                 รายการล่าสุด ({expenses.length})
               </h3>
               <button
                 type="button"
                 onClick={() => setShowAddModal(true)}
-                className="text-xs text-teal-600 font-semibold hover:underline flex items-center gap-1"
+                className="text-xs text-teal-600 dark:text-teal-400 font-semibold hover:underline flex items-center gap-1 cursor-pointer"
               >
                 <Plus className="w-3 h-3" />
                 บันทึกเพิ่ม
@@ -443,13 +443,13 @@ export default function ExpensesPage() {
 
             {expenses.length === 0 ? (
               <div className="text-center py-6 space-y-2">
-                <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto text-slate-400">
+                <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mx-auto text-slate-400 dark:text-slate-500">
                   <Receipt className="w-6 h-6" />
                 </div>
-                <div className="text-xs font-semibold text-slate-700">
+                <div className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                   ยังไม่มีรายการค่าใช้จ่ายในเดือน{selectedMonth}
                 </div>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-slate-400 dark:text-slate-500">
                   แตะปุ่ม &ldquo;+ บันทึกค่าใช้จ่ายใหม่&rdquo; เพื่อเริ่มต้นจดบันทึก
                 </p>
               </div>
@@ -460,7 +460,7 @@ export default function ExpensesPage() {
                   return (
                     <div
                       key={item.id}
-                      className="flex items-center justify-between text-[13px] py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50 rounded-xl px-2 transition-colors"
+                      className="flex items-center justify-between text-[13px] py-2 border-b border-slate-100 dark:border-slate-700 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-700/60 rounded-xl px-2 transition-colors"
                     >
                       <div className="flex items-center gap-2.5 min-w-0 flex-1">
                         <span
@@ -468,23 +468,23 @@ export default function ExpensesPage() {
                           style={{ backgroundColor: cat.chartColor }}
                         />
                         <div className="min-w-0 flex-1">
-                          <div className="text-slate-800 font-medium truncate">
+                          <div className="text-slate-800 dark:text-slate-100 font-medium truncate">
                             {item.title}
                           </div>
-                          <div className="text-[10px] text-slate-400">
+                          <div className="text-[10px] text-slate-400 dark:text-slate-500">
                             {item.category} • {item.date}
                           </div>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2 shrink-0 ml-3">
-                        <span className="font-bold text-slate-900">
+                        <span className="font-bold text-slate-900 dark:text-white">
                           -฿{Number(item.amount).toLocaleString()}
                         </span>
                         <button
                           type="button"
                           onClick={() => deleteExpense(item.id)}
-                          className="w-6 h-6 rounded-full flex items-center justify-center text-slate-400 hover:text-rose-600 transition-colors"
+                          className="w-6 h-6 rounded-full flex items-center justify-center text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer"
                           title="ลบรายการ"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -505,18 +505,18 @@ export default function ExpensesPage() {
         {/* Month Selector Modal */}
         {showMonthModal && (
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white w-full max-w-xs rounded-3xl p-5 text-left space-y-3.5 shadow-2xl animate-fade-in border border-teal-200">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+            <div className="bg-white dark:bg-slate-800 w-full max-w-xs rounded-3xl p-5 text-left space-y-3.5 shadow-2xl animate-fade-in border border-teal-200 dark:border-slate-700">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-700">
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-teal-600" />
-                  <h3 className="text-base font-bold text-slate-900 font-kanit">
+                  <Calendar className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white font-kanit">
                     เลือกดูตามเดือน
                   </h3>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowMonthModal(false)}
-                  className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"
+                  className="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -536,7 +536,7 @@ export default function ExpensesPage() {
                     className={`p-2.5 rounded-xl text-xs font-semibold border transition-all text-center ${
                       selectedMonth === m
                         ? "bg-[#00A877] text-white border-[#00A877] shadow-sm"
-                        : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
+                        : "bg-slate-50 dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-600 hover:bg-slate-100"
                     }`}
                   >
                     {m}
@@ -550,7 +550,7 @@ export default function ExpensesPage() {
                   setSelectedMonth(currentRealMonth);
                   setShowMonthModal(false);
                 }}
-                className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-full text-xs"
+                className="w-full py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-medium rounded-full text-xs"
               >
                 กลับไปเดือนปัจจุบัน ({currentRealMonth})
               </button>
@@ -561,18 +561,18 @@ export default function ExpensesPage() {
         {/* Add Expense Modal */}
         {showAddModal && (
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white w-full max-w-xs rounded-3xl p-5 text-left space-y-3.5 shadow-2xl animate-fade-in border border-teal-200 max-h-[90vh] overflow-y-auto">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+            <div className="bg-white dark:bg-slate-800 w-full max-w-xs rounded-3xl p-5 text-left space-y-3.5 shadow-2xl animate-fade-in border border-teal-200 dark:border-slate-700 max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-700">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-teal-600" />
-                  <h3 className="text-base font-bold text-slate-900 font-kanit">
+                  <Sparkles className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white font-kanit">
                     บันทึกค่าใช้จ่าย
                   </h3>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"
+                  className="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -581,7 +581,7 @@ export default function ExpensesPage() {
               <form onSubmit={handleSaveExpense} className="space-y-3 text-xs">
                 {/* Title */}
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
                     ชื่อรายการค่าใช้จ่าย
                   </label>
                   <input
@@ -590,13 +590,13 @@ export default function ExpensesPage() {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="เช่น อาหารเม็ดแมว, ฉีดวัคซีน"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400"
+                    className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400"
                   />
                 </div>
 
                 {/* Amount */}
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
                     จำนวนเงิน (บาท)
                   </label>
                   <input
@@ -606,13 +606,13 @@ export default function ExpensesPage() {
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     placeholder="เช่น 950"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-teal-400"
+                    className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-teal-400"
                   />
                 </div>
 
                 {/* Category Selector */}
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
                     หมวดหมู่
                   </label>
                   <div className="grid grid-cols-2 gap-2">
@@ -623,8 +623,8 @@ export default function ExpensesPage() {
                         onClick={() => setCategory(cat)}
                         className={`p-2 rounded-xl text-xs flex items-center gap-1.5 border transition-all ${
                           category === cat
-                            ? "bg-teal-50 border-teal-500 text-teal-800 font-bold ring-1 ring-teal-500"
-                            : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
+                            ? "bg-teal-50 dark:bg-teal-950/60 border-teal-500 text-teal-800 dark:text-teal-300 font-bold ring-1 ring-teal-500"
+                            : "bg-slate-50 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:bg-slate-100"
                         }`}
                       >
                         <span>{categoryConfig[cat].emoji}</span>
@@ -636,7 +636,7 @@ export default function ExpensesPage() {
 
                 {/* Date */}
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
                     วันที่ / เดือน
                   </label>
                   <input
@@ -644,7 +644,7 @@ export default function ExpensesPage() {
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
                     placeholder={`เช่น วันนี้, 08 ${selectedMonth}`}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-teal-400"
+                    className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 text-xs focus:outline-none focus:ring-2 focus:ring-teal-400"
                   />
                 </div>
 
@@ -652,14 +652,14 @@ export default function ExpensesPage() {
                 <div className="pt-2 space-y-1.5">
                   <button
                     type="submit"
-                    className="w-full py-2.5 bg-[#00A877] hover:bg-[#009166] text-white font-medium rounded-full text-xs shadow-md active:scale-95 transition-transform"
+                    className="w-full py-2.5 bg-[#00A877] hover:bg-[#009166] text-white font-medium rounded-full text-xs shadow-md active:scale-95 transition-transform font-kanit cursor-pointer"
                   >
                     บันทึกข้อมูล
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowAddModal(false)}
-                    className="w-full py-1.5 text-slate-500 text-xs text-center"
+                    className="w-full py-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 text-xs text-center"
                   >
                     ยกเลิก
                   </button>
