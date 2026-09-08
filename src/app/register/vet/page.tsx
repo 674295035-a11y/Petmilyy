@@ -29,35 +29,90 @@ export default function RegisterVetPage() {
     setErrorMessage("");
     setIsLoading(true);
 
+    const emailTrimmed = formData.email.trim();
+    const fullNameTrimmed = formData.fullName.trim();
+    const clinicNameTrimmed = formData.clinicName.trim();
+    const educationTrimmed = formData.education.trim();
+    const specializationTrimmed = formData.specialization.trim();
+
     try {
-      // 1. Try Supabase Auth Sign Up for Vet
+      // 1. Supabase Auth Sign Up for Vet
       const { data, error } = await supabase.auth.signUp({
-        email: formData.email,
+        email: emailTrimmed,
         password: formData.password,
         options: {
           data: {
-            full_name: formData.fullName,
-            clinic_name: formData.clinicName,
+            full_name: fullNameTrimmed,
+            clinic_name: clinicNameTrimmed,
+            education: educationTrimmed,
+            specialization: specializationTrimmed,
             role: "vet",
           },
         },
       });
 
+      // If user is already registered, attempt to sign in and update profile
       if (error) {
-        setErrorMessage(`Supabase Auth Error: ${error.message}`);
+        if (
+          error.message.toLowerCase().includes("already registered") ||
+          error.message.toLowerCase().includes("already exists") ||
+          error.message.toLowerCase().includes("user already")
+        ) {
+          const { data: signInData, error: signInErr } =
+            await supabase.auth.signInWithPassword({
+              email: emailTrimmed,
+              password: formData.password,
+            });
+
+          if (!signInErr && signInData?.user) {
+            await supabase.from("profiles").upsert({
+              id: signInData.user.id,
+              email: emailTrimmed,
+              full_name: fullNameTrimmed,
+              clinic_name: clinicNameTrimmed,
+              education: educationTrimmed,
+              specialization: specializationTrimmed,
+              role: "vet",
+              updated_at: new Date().toISOString(),
+            });
+
+            resetForNewUser({
+              fullName: fullNameTrimmed,
+              email: emailTrimmed,
+              phone: "",
+              role: "vet",
+              clinicName: clinicNameTrimmed,
+            });
+
+            setIsSuccess(true);
+            setTimeout(() => {
+              router.push("/vet/home");
+            }, 900);
+            return;
+          } else {
+            setErrorMessage("อีเมลนี้ได้รับการลงทะเบียนแล้ว กรุณาเข้าสู่ระบบ");
+            setIsLoading(false);
+            return;
+          }
+        }
+
+        setErrorMessage(`เกิดข้อผิดพลาด: ${error.message}`);
         setIsLoading(false);
         return;
       }
 
-      // 2. Insert into profiles table
+      // 2. Insert/Upsert into profiles table
       const userId = data?.user?.id;
       if (userId) {
         const { error: profileErr } = await supabase.from("profiles").upsert({
           id: userId,
-          email: formData.email,
-          full_name: formData.fullName,
-          clinic_name: formData.clinicName,
+          email: emailTrimmed,
+          full_name: fullNameTrimmed,
+          clinic_name: clinicNameTrimmed,
+          education: educationTrimmed,
+          specialization: specializationTrimmed,
           role: "vet",
+          updated_at: new Date().toISOString(),
         });
 
         if (profileErr) {
@@ -65,18 +120,18 @@ export default function RegisterVetPage() {
         }
       }
 
-      // 3. Reset data state
+      // 3. Reset context state for vet
       resetForNewUser({
-        fullName: formData.fullName,
-        email: formData.email,
+        fullName: fullNameTrimmed,
+        email: emailTrimmed,
         phone: "",
         role: "vet",
-        clinicName: formData.clinicName,
+        clinicName: clinicNameTrimmed,
       });
 
       setIsSuccess(true);
       setTimeout(() => {
-        router.push("/login?role=vet&registered=true");
+        router.push("/vet/home");
       }, 1000);
     } catch (err: any) {
       console.error("Supabase Save Error:", err);
