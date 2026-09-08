@@ -201,12 +201,12 @@ export default function HomePage() {
           {/* Quick Activity Logger Section */}
           <div className="space-y-2 text-left pt-1">
             <div className="flex items-center justify-between">
-              <div className="inline-block bg-slate-100 px-3 py-1 rounded-md">
-                <h2 className="text-[13px] font-semibold text-slate-800">
+              <div className="inline-block bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-md">
+                <h2 className="text-[13px] font-semibold text-slate-800 dark:text-slate-200">
                   บันทึกกิจกรรมด่วน
                 </h2>
               </div>
-              <span className="text-[11px] text-slate-500 font-medium">
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                 ({selectedPet.name})
               </span>
             </div>
@@ -220,25 +220,25 @@ export default function HomePage() {
                     key={btn.id}
                     type="button"
                     onClick={() => handleQuickActivityClick(btn)}
-                    className={`w-14 h-14 rounded-full bg-white border border-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.06)] active:scale-95 flex flex-col items-center justify-center transition-all shrink-0 relative ${
-                      isActive ? "scale-110 ring-2 ring-emerald-500 bg-emerald-50" : "hover:border-teal-300"
+                    className={`w-14 h-14 rounded-full bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-[0_4px_12px_rgba(0,0,0,0.06)] active:scale-95 flex flex-col items-center justify-center transition-all shrink-0 relative ${
+                      isActive ? "scale-110 ring-2 ring-emerald-500 bg-emerald-50 dark:bg-emerald-950/40" : "hover:border-teal-300 dark:hover:border-teal-500"
                     }`}
                     title={`บันทึก ${btn.name}`}
                   >
                     {btn.type === "food" ? (
                       <div className="relative">
-                        <svg className="w-7 h-7 text-slate-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg className="w-7 h-7 text-slate-800 dark:text-slate-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M4 11h16a1 1 0 0 1 1 1v1a8 8 0 0 1-8 8h-2a8 8 0 0 1-8-8v-1a1 1 0 0 1 1-1z" />
                           <path d="M7 11V7a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v4" />
                         </svg>
-                        <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full absolute -top-1 -right-1 border-2 border-white shadow-sm" />
+                        <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full absolute -top-1 -right-1 border-2 border-white dark:border-slate-800 shadow-sm" />
                       </div>
                     ) : btn.type === "poop" ? (
-                      <svg className="w-7 h-7 text-slate-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <svg className="w-7 h-7 text-slate-800 dark:text-slate-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M12 2a3 3 0 0 0-3 3c0 1 .5 2 1.5 2.5C9 8 8 9 8 10.5c0 1.2.8 2.2 2 2.5-1.5.5-2.5 1.8-2.5 3.3 0 2.2 2 4 4.5 4s4.5-1.8 4.5-4c0-1.5-1-2.8-2.5-3.3 1.2-.3 2-1.3 2-2.5 0-1.5-1-2.5-2.5-3C14.5 7 15 6 15 5a3 3 0 0 0-3-3z" />
                       </svg>
                     ) : btn.type === "walk" ? (
-                      <svg className="w-7 h-7 text-slate-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <svg className="w-7 h-7 text-slate-800 dark:text-slate-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <circle cx="9" cy="6" r="2" />
                         <path d="M9 8v4l3 2" />
                         <path d="M15 11l-3-2" />
@@ -247,7 +247,7 @@ export default function HomePage() {
                         <path d="M18 16c1-1 3-1 4 0" />
                       </svg>
                     ) : btn.type === "bath" ? (
-                      <svg className="w-7 h-7 text-slate-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <svg className="w-7 h-7 text-slate-800 dark:text-slate-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M4 12h16a1 1 0 0 1 1 1v3a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4v-3a1 1 0 0 1 1-1z" />
                         <path d="M6 12V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
                         <path d="M4 21l2-2" />
@@ -266,7 +266,7 @@ export default function HomePage() {
               <button
                 type="button"
                 onClick={() => setShowAddActivityModal(true)}
-                className="w-14 h-14 rounded-full bg-slate-200 hover:bg-slate-300 active:scale-95 flex items-center justify-center text-slate-700 transition-all shadow-[0_4px_12px_rgba(0,0,0,0.06)] shrink-0"
+                className="w-14 h-14 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 active:scale-95 flex items-center justify-center text-slate-700 dark:text-slate-200 transition-all shadow-[0_4px_12px_rgba(0,0,0,0.06)] shrink-0"
                 title="เพิ่มกิจกรรมใหม่"
               >
                 <Plus className="w-7 h-7 stroke-[2.4]" />
@@ -275,18 +275,18 @@ export default function HomePage() {
           </div>
 
           {/* Today's Logged Activities Feed (แสดงกิจกรรมที่บันทึกไว้) */}
-          <div className="bg-white rounded-3xl p-4 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.04)] text-left space-y-2.5">
-            <div className="flex items-center justify-between pb-1 border-b border-slate-100">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-4 border border-slate-100 dark:border-slate-700 shadow-[0_4px_20px_rgba(0,0,0,0.04)] text-left space-y-2.5">
+            <div className="flex items-center justify-between pb-1 border-b border-slate-100 dark:border-slate-700">
               <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-teal-600" />
-                <h3 className="text-[15px] font-bold text-slate-900 font-kanit">
+                <Clock className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                <h3 className="text-[15px] font-bold text-slate-900 dark:text-white font-kanit">
                   บันทึกกิจกรรมวันนี้ ({petLogs.length})
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setShowAddActivityModal(true)}
-                className="text-[12px] font-semibold text-teal-600 hover:text-teal-700 flex items-center gap-0.5"
+                className="text-[12px] font-semibold text-teal-600 dark:text-teal-400 hover:text-teal-700 flex items-center gap-0.5"
               >
                 <Plus className="w-3.5 h-3.5" />
                 บันทึกเพิ่ม
@@ -294,7 +294,7 @@ export default function HomePage() {
             </div>
 
             {petLogs.length === 0 ? (
-              <div className="py-4 text-center text-slate-400 text-xs">
+              <div className="py-4 text-center text-slate-400 dark:text-slate-500 text-xs">
                 ยังไม่มีบันทึกกิจกรรมวันนี้ แตะปุ่มด้านบนเพื่อเริ่มบันทึก! ✨
               </div>
             ) : (
@@ -302,16 +302,16 @@ export default function HomePage() {
                 {petLogs.map((log) => (
                   <div
                     key={log.id}
-                    className="flex items-center justify-between p-2.5 rounded-2xl bg-slate-50 hover:bg-slate-100/80 border border-slate-100 transition-all"
+                    className="flex items-center justify-between p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-700/60 hover:bg-slate-100/80 dark:hover:bg-slate-700 border border-slate-100 dark:border-slate-600 transition-all"
                   >
                     <div className="flex items-center gap-2.5 min-w-0 flex-1">
                       <span className="text-xl shrink-0">{log.emoji || "✨"}</span>
                       <div className="min-w-0 flex-1">
-                        <div className="text-[13px] font-bold text-slate-800 truncate">
+                        <div className="text-[13px] font-bold text-slate-800 dark:text-slate-100 truncate">
                           {log.title}
                         </div>
                         {log.note && (
-                          <div className="text-[11px] text-slate-500 truncate">
+                          <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
                             {log.note}
                           </div>
                         )}
@@ -319,7 +319,7 @@ export default function HomePage() {
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0 ml-2">
-                      <span className="text-[11px] font-medium text-slate-600 bg-white px-2 py-0.5 rounded-md border border-slate-200">
+                      <span className="text-[11px] font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-600">
                         {log.time}
                       </span>
                       <button
@@ -338,35 +338,35 @@ export default function HomePage() {
           </div>
 
           {/* Health Info Card ("ข้อมูลสุขภาพ") */}
-          <div className="bg-white rounded-3xl p-4 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.04)] text-left">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-4 border border-slate-100 dark:border-slate-700 shadow-[0_4px_20px_rgba(0,0,0,0.04)] text-left">
             {/* Header */}
             <div className="flex items-center justify-between pb-2.5">
               <div className="flex items-center gap-2">
-                <Heart className="w-5 h-5 fill-slate-900 text-slate-900" />
-                <span className="text-[16px] font-bold text-slate-900 font-kanit">
+                <Heart className="w-5 h-5 fill-slate-900 text-slate-900 dark:fill-white dark:text-white" />
+                <span className="text-[16px] font-bold text-slate-900 dark:text-white font-kanit">
                   ข้อมูลสุขภาพ
                 </span>
               </div>
-              <span className="text-[11px] font-medium px-2.5 py-1 bg-slate-200/80 text-slate-700 rounded-full">
+              <span className="text-[11px] font-medium px-2.5 py-1 bg-slate-200/80 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-full">
                 บันทึกโดยสัตวแพทย์
               </span>
             </div>
 
             {/* Health Info Rows */}
             <div className="space-y-2 text-[14px]">
-              <div className="flex items-center justify-between py-1.5 border-b border-slate-100">
-                <span className="text-slate-700 font-normal">
+              <div className="flex items-center justify-between py-1.5 border-b border-slate-100 dark:border-slate-700">
+                <span className="text-slate-700 dark:text-slate-300 font-normal">
                   วัคซีนรวม (เข็มล่าสุด)
                 </span>
-                <span className={`font-semibold ${selectedPet.latestVaccine ? "text-slate-900" : "text-slate-400 text-[13px]"}`}>
+                <span className={`font-semibold ${selectedPet.latestVaccine ? "text-slate-900 dark:text-white" : "text-slate-400 dark:text-slate-500 text-[13px]"}`}>
                   {selectedPet.latestVaccine || "ยังไม่มีข้อมูล (รอแพทย์บันทึก)"}
                 </span>
               </div>
               <div className="flex items-center justify-between pt-1">
-                <span className="text-slate-700 font-normal">
+                <span className="text-slate-700 dark:text-slate-300 font-normal">
                   น้ำหนักล่าสุด
                 </span>
-                <span className={`font-semibold ${selectedPet.weight && selectedPet.weight !== "-" ? "text-slate-900" : "text-slate-400 text-[13px]"}`}>
+                <span className={`font-semibold ${selectedPet.weight && selectedPet.weight !== "-" ? "text-slate-900 dark:text-white" : "text-slate-400 dark:text-slate-500 text-[13px]"}`}>
                   {selectedPet.weight && selectedPet.weight !== "-"
                     ? `${selectedPet.weight} กก. ปกติ`
                     : "ยังไม่มีข้อมูล"}
@@ -375,29 +375,29 @@ export default function HomePage() {
             </div>
 
             {!selectedPet.latestVaccine && (
-              <div className="mt-2.5 pt-2 border-t border-slate-100 text-[11px] text-slate-400 text-center">
+              <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-700 text-[11px] text-slate-400 dark:text-slate-500 text-center">
                 * ข้อมูลสุขภาพจะบันทึกโดยสัตวแพทย์เมื่อนำสัตว์เลี้ยงเข้ารับการตรวจ
               </div>
             )}
           </div>
 
           {/* PetCare Premium Banner Card */}
-          <div className="bg-white rounded-3xl p-4 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.04)] text-left space-y-3">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-4 border border-slate-100 dark:border-slate-700 shadow-[0_4px_20px_rgba(0,0,0,0.04)] text-left space-y-3">
             {/* Header with Crown & Price */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Crown className="w-5 h-5 fill-slate-900 text-slate-900" />
-                <span className="text-[16px] font-bold text-slate-900 tracking-tight font-kanit">
+                <Crown className="w-5 h-5 fill-slate-900 text-slate-900 dark:fill-white dark:text-white" />
+                <span className="text-[16px] font-bold text-slate-900 dark:text-white tracking-tight font-kanit">
                   PetCare Premium
                 </span>
               </div>
-              <span className="text-[12px] font-semibold px-2.5 py-0.5 bg-slate-200 text-slate-800 rounded-full">
+              <span className="text-[12px] font-semibold px-2.5 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-full">
                 ฿499/เดือน
               </span>
             </div>
 
             {/* Subtext Benefits */}
-            <p className="text-[13px] text-slate-600 leading-snug">
+            <p className="text-[13px] text-slate-600 dark:text-slate-300 leading-snug">
               ปรึกษาแพทย์ส่วนตัว 24 ชม. และส่วนลดค่ายาพิเศษ
             </p>
 

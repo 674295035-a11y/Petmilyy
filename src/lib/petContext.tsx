@@ -136,6 +136,9 @@ interface PetContextType {
   notifications: NotificationItem[];
   clearNotifications: () => void;
   resetForNewUser: (user?: Partial<UserProfile>) => void;
+  themeMode: "light" | "dark";
+  setThemeMode: (mode: "light" | "dark") => void;
+  toggleTheme: () => void;
 }
 
 const defaultActivityButtons: ActivityButton[] = [
@@ -229,9 +232,42 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     },
   ]);
 
+  const [themeMode, setThemeModeState] = useState<"light" | "dark">("light");
+
+  const setThemeMode = (mode: "light" | "dark") => {
+    setThemeModeState(mode);
+    try {
+      localStorage.setItem("petmily_theme", mode);
+      if (typeof document !== "undefined") {
+        if (mode === "dark") {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+        }
+      }
+    } catch (e) {}
+  };
+
+  const toggleTheme = () => {
+    const nextMode = themeMode === "dark" ? "light" : "dark";
+    setThemeMode(nextMode);
+  };
+
   // Load from localStorage on mount (client-side)
   useEffect(() => {
     try {
+      const savedTheme = localStorage.getItem("petmily_theme") as "light" | "dark" | null;
+      if (savedTheme === "dark" || savedTheme === "light") {
+        setThemeModeState(savedTheme);
+        if (typeof document !== "undefined") {
+          if (savedTheme === "dark") {
+            document.documentElement.classList.add("dark");
+          } else {
+            document.documentElement.classList.remove("dark");
+          }
+        }
+      }
+
       const savedUser = localStorage.getItem("petmily_current_user");
       if (savedUser) {
         const parsed = JSON.parse(savedUser);
@@ -557,6 +593,9 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         notifications,
         clearNotifications,
         resetForNewUser,
+        themeMode,
+        setThemeMode,
+        toggleTheme,
       }}
     >
       {children}

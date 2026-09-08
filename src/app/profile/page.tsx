@@ -28,9 +28,8 @@ import { FloralCatAvatar, PetAvatarDisplay } from "@/components/PetAvatars";
 import { usePetContext } from "@/lib/petContext";
 
 export default function ProfilePage() {
-  const { currentUser, pets, expenses, isPremium, notifications } = usePetContext();
+  const { currentUser, pets, expenses, isPremium, notifications, themeMode, setThemeMode } = usePetContext();
   const [activeModal, setActiveModal] = useState<string | null>(null);
-  const [themeMode, setThemeMode] = useState<"light" | "dark">("light");
   
   // Change password states
   const [currentPass, setCurrentPass] = useState("");
