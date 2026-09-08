@@ -368,13 +368,15 @@ function PaymentContent() {
             onClick={() => setPaymentMethod("banking")}
             className={`bg-white dark:bg-slate-800 rounded-2xl p-3.5 border cursor-pointer flex items-center gap-3 transition-all ${
               paymentMethod === "banking"
-                ? "border-slate-800 dark:border-teal-400 shadow-sm ring-1 ring-slate-800 dark:ring-teal-400"
+                ? "border-teal-400 dark:border-teal-500 shadow-sm ring-1 ring-teal-400"
                 : "border-slate-100 dark:border-slate-700 shadow-xs hover:border-slate-200"
             }`}
           >
-            {/* Checked Circle */}
-            <div className="w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center shrink-0">
-              <Check className="w-3 h-3 stroke-[3]" />
+            {/* Radio Circle */}
+            <div className="w-5 h-5 rounded-full border-2 border-slate-400 flex items-center justify-center shrink-0">
+              {paymentMethod === "banking" && (
+                <div className="w-2.5 h-2.5 bg-teal-600 rounded-full" />
+              )}
             </div>
 
             {/* Bank Logos (KBank & SCB) */}
