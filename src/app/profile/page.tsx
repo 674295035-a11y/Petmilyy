@@ -24,7 +24,7 @@ import {
 import MobileFrame from "@/components/MobileFrame";
 import BottomNav from "@/components/BottomNav";
 import PetmilyLogo from "@/components/PetmilyLogo";
-import { FloralCatAvatar } from "@/components/PetAvatars";
+import { FloralCatAvatar, PetAvatarDisplay } from "@/components/PetAvatars";
 import { usePetContext } from "@/lib/petContext";
 
 export default function ProfilePage() {
@@ -136,7 +136,16 @@ export default function ProfilePage() {
               {/* Floating Avatar */}
               <div className="absolute -top-10 left-1/2 -translate-x-1/2">
                 <div className="w-20 h-20 rounded-full overflow-hidden bg-white shadow-md border-2 border-white flex items-center justify-center">
-                  <FloralCatAvatar size={76} />
+                  {pets.length > 0 ? (
+                    <PetAvatarDisplay
+                      avatar={pets[0].avatar}
+                      photoUrl={pets[0].photoUrl}
+                      name={pets[0].name}
+                      size={76}
+                    />
+                  ) : (
+                    <FloralCatAvatar size={76} />
+                  )}
                 </div>
               </div>
 

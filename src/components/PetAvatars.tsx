@@ -384,10 +384,41 @@ export const PatientAvatar: React.FC<{
         <circle cx="45" cy="38" r="2" fill="#451A03" />
         <circle cx="55" cy="38" r="2" fill="#451A03" />
         <polygon points="49,42 51,42 50,44" fill="#DC2626" />
-        <path d="M 50 30 C 47 27 44 29 44 32 C 44 35 50 38 50 38 C 50 38 56 35 56 32 C 56 29 53 27 50 30 Z" fill="#EF4444" />
         <text x="50" y="86" textAnchor="middle" fontSize="9" fontWeight="bold" fill="#78350F">คุณโชกิ</text>
       </svg>
     </div>
   );
 };
+
+export const PetAvatarDisplay: React.FC<{
+  avatar?: string;
+  photoUrl?: string;
+  name?: string;
+  size?: number;
+  className?: string;
+}> = ({ avatar = "cat", photoUrl, name = "Pet", size = 56, className = "" }) => {
+  const imageSource = photoUrl || (avatar?.startsWith("data:") || avatar?.startsWith("http") ? avatar : null);
+
+  if (imageSource) {
+    return (
+      <div
+        className={`relative inline-flex items-center justify-center shrink-0 rounded-full overflow-hidden bg-white ${className}`}
+        style={{ width: size, height: size }}
+      >
+        <img
+          src={imageSource}
+          alt={name}
+          className="w-full h-full object-cover"
+        />
+      </div>
+    );
+  }
+
+  if (avatar === "dog") {
+    return <GoldenRetrieverAvatar size={size} className={className} />;
+  }
+
+  return <FloralCatAvatar size={size} className={className} />;
+};
+
 

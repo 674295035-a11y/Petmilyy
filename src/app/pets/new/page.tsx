@@ -88,6 +88,7 @@ export default function PetInfoPage() {
     const fullAgeString = `${formData.ageValue} ${formData.ageUnit}`;
 
     try {
+      const chosenAvatar = formData.customPhotoUrl || formData.avatar;
       const newPetData = {
         name: formData.name || "สัตว์เลี้ยงของฉัน",
         type: formData.type || "แมว",
@@ -97,7 +98,8 @@ export default function PetInfoPage() {
         weight: formData.weight ? formData.weight : "-",
         height: formData.height ? formData.height : "-",
         drugAllergy: formData.drugAllergy || "ไม่มีประวัติแพ้ยา",
-        avatar: formData.avatar,
+        avatar: chosenAvatar,
+        photoUrl: formData.customPhotoUrl || undefined,
         ownerName: currentUser.fullName || "ผู้ใช้งาน",
         latestVaccine: "",
       };
@@ -114,7 +116,7 @@ export default function PetInfoPage() {
         weight: newPetData.weight,
         height: newPetData.height,
         drug_allergy: newPetData.drugAllergy,
-        avatar: newPetData.avatar,
+        avatar: newPetData.photoUrl || newPetData.avatar,
         owner_name: newPetData.ownerName,
         latest_vaccine: newPetData.latestVaccine,
       });
@@ -183,7 +185,7 @@ export default function PetInfoPage() {
             className="relative group cursor-pointer"
             title="แตะเพื่อเพิ่มหรือเปลี่ยนรูปภาพสัตว์เลี้ยง"
           >
-            <div className="w-32 h-32 rounded-full overflow-hidden flex items-center justify-center relative border-2 border-amber-200/80 shadow-md bg-white">
+            <div className="w-32 h-32 rounded-full overflow-hidden flex items-center justify-center relative border-2 border-teal-300 shadow-md bg-white">
               {formData.customPhotoUrl ? (
                 <img
                   src={formData.customPhotoUrl}
@@ -202,14 +204,44 @@ export default function PetInfoPage() {
               <Camera className="w-4 h-4 stroke-[2.4]" />
             </div>
           </div>
+          
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="text-[12px] font-semibold text-teal-700 hover:text-teal-800 mt-2 flex items-center gap-1"
+            className="text-[13px] font-bold text-[#00A877] hover:text-[#009166] mt-2 flex items-center gap-1.5 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200"
           >
-            <Upload className="w-3.5 h-3.5" />
-            <span>แตะเพื่อเพิ่มรูปภาพสัตว์เลี้ยง</span>
+            <Upload className="w-4 h-4" />
+            <span>{formData.customPhotoUrl ? "เปลี่ยนรูปภาพสัตว์เลี้ยง" : "อัปโหลดรูปภาพสัตว์เลี้ยงของคุณ"}</span>
           </button>
+
+          {/* Recommended Preset Avatars (แนะนำรูปได้) */}
+          <div className="mt-2.5 flex items-center gap-2">
+            <span className="text-[11px] text-slate-400 font-medium">หรือเลือกรูปแนะนำ:</span>
+            <button
+              type="button"
+              onClick={() => setFormData((prev) => ({ ...prev, avatar: "cat", customPhotoUrl: "" }))}
+              className={`w-9 h-9 rounded-full overflow-hidden border-2 transition-all ${
+                formData.avatar === "cat" && !formData.customPhotoUrl
+                  ? "border-[#5CB8C1] scale-110 shadow-sm ring-2 ring-teal-200"
+                  : "border-slate-200 opacity-70 hover:opacity-100"
+              }`}
+              title="รูปแนะนำ: แมว"
+            >
+              <FloralCatAvatar size={36} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setFormData((prev) => ({ ...prev, avatar: "dog", customPhotoUrl: "" }))}
+              className={`w-9 h-9 rounded-full overflow-hidden border-2 transition-all ${
+                formData.avatar === "dog" && !formData.customPhotoUrl
+                  ? "border-[#5CB8C1] scale-110 shadow-sm ring-2 ring-teal-200"
+                  : "border-slate-200 opacity-70 hover:opacity-100"
+              }`}
+              title="รูปแนะนำ: สุนัข"
+            >
+              <GoldenRetrieverAvatar size={36} />
+            </button>
+          </div>
         </div>
 
         {/* Pet Form */}

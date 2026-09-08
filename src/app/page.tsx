@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import MobileFrame from "@/components/MobileFrame";
 import PetmilyLogo from "@/components/PetmilyLogo";
-import { FloralCatAvatar, GoldenRetrieverAvatar } from "@/components/PetAvatars";
+import { FloralCatAvatar, GoldenRetrieverAvatar, PetAvatarDisplay } from "@/components/PetAvatars";
 import { usePetContext } from "@/lib/petContext";
 
 export default function GuestLandingPage() {
@@ -89,11 +89,12 @@ export default function GuestLandingPage() {
                 title={pet.name}
               >
                 <div className="w-14 h-14 rounded-full overflow-hidden bg-white shadow-sm flex items-center justify-center border border-amber-100">
-                  {pet.avatar === "dog" ? (
-                    <GoldenRetrieverAvatar size={56} />
-                  ) : (
-                    <FloralCatAvatar size={56} />
-                  )}
+                  <PetAvatarDisplay
+                    avatar={pet.avatar}
+                    photoUrl={pet.photoUrl}
+                    name={pet.name}
+                    size={56}
+                  />
                 </div>
               </button>
             ))}

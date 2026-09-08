@@ -92,8 +92,8 @@ export default function UserRegisterPage() {
 
       setIsSuccess(true);
       setTimeout(() => {
-        router.push("/login?role=user&registered=true");
-      }, 1000);
+        router.push("/pets/new");
+      }, 900);
     } catch (err: any) {
       console.error("Supabase Save Error:", err);
       setErrorMessage(err.message || "เกิดข้อผิดพลาดในการเชื่อมต่อ Supabase");
@@ -243,7 +243,7 @@ export default function UserRegisterPage() {
           {isSuccess && (
             <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl text-xs flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 shrink-0" />
-              <span>สมัครสมาชิกสำเร็จ! ไปที่หน้าเข้าสู่ระบบ</span>
+              <span>สมัครสมาชิกสำเร็จ! กำลังไปที่หน้าบันทึกสัตว์เลี้ยง...</span>
             </div>
           )}
 

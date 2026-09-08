@@ -21,7 +21,8 @@ export interface Pet {
   weight: string;
   height: string;
   drugAllergy: string;
-  avatar: "cat" | "dog";
+  avatar: string;
+  photoUrl?: string;
   ownerName: string;
   latestVaccine: string;
 }
@@ -341,12 +342,16 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const addPet = (newPetData: Omit<Pet, "id">) => {
     const newPet: Pet = {
       ...newPetData,
+      photoUrl: newPetData.photoUrl || (newPetData.avatar?.startsWith("data:") ? newPetData.avatar : undefined),
       ownerName: currentUser.fullName || newPetData.ownerName,
       id: `pet-${Date.now()}`,
     };
     setPets((prev) => {
       const updated = [...prev, newPet];
       setSelectedPetIndex(updated.length - 1);
+      try {
+        localStorage.setItem("petmily_pets", JSON.stringify(updated));
+      } catch (e) {}
       return updated;
     });
 
@@ -372,7 +377,7 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       weight: newPet.weight,
       height: newPet.height,
       drug_allergy: newPet.drugAllergy,
-      avatar: newPet.avatar,
+      avatar: newPet.photoUrl || newPet.avatar,
       owner_name: newPet.ownerName,
       latest_vaccine: newPet.latestVaccine,
     }).then(({ error }) => {
