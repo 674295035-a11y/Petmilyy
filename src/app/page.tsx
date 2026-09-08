@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import MobileFrame from "@/components/MobileFrame";
 import PetmilyLogo from "@/components/PetmilyLogo";
+import SplashScreen from "@/components/SplashScreen";
 import { FloralCatAvatar, GoldenRetrieverAvatar, PetAvatarDisplay } from "@/components/PetAvatars";
 import { usePetContext } from "@/lib/petContext";
 
@@ -20,6 +21,7 @@ export default function GuestLandingPage() {
   const router = useRouter();
   const { pets, selectedPetIndex, setSelectedPetIndex, selectedPet, activityButtons } =
     usePetContext();
+  const [showSplash, setShowSplash] = useState(true);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const handleActionClick = (actionName: string) => {
@@ -30,8 +32,17 @@ export default function GuestLandingPage() {
   };
 
   return (
-    <MobileFrame>
-      <div className="flex-1 flex flex-col justify-between bg-[#F8FAFB] min-h-full relative select-none">
+    <>
+      {/* Splash Screen Intro before Main Screen */}
+      {showSplash && (
+        <SplashScreen
+          onFinish={() => setShowSplash(false)}
+          durationMs={2800}
+        />
+      )}
+
+      <MobileFrame>
+        <div className="flex-1 flex flex-col justify-between bg-[#F8FAFB] dark:bg-[#0B0F17] min-h-full relative select-none transition-colors duration-300">
         
         {/* Custom Header for Guest/Landing Page (รูปที่ 2 แบบไม่มีลูกศร/กระดิ่ง แต่มีปุ่ม เข้าสู่ระบบ กับ สมัครสมาชิก) */}
         <header className="w-full bg-[#62C0C6] py-2 px-3.5 flex items-center justify-between shadow-sm select-none z-30 shrink-0">
@@ -220,5 +231,6 @@ export default function GuestLandingPage() {
 
       </div>
     </MobileFrame>
+    </>
   );
 }
