@@ -8,32 +8,44 @@ import PetmilyLogo from "./PetmilyLogo";
 interface AppHeaderProps {
   title?: string;
   showLogo?: boolean;
+  showBack?: boolean;
   backHref?: string;
   showBell?: boolean;
   bellCount?: number;
   onBellClick?: () => void;
+  rightElement?: React.ReactNode;
+  leftElement?: React.ReactNode;
   className?: string;
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({
   title,
   showLogo = true,
+  showBack = true,
   backHref = "/home",
   showBell = true,
   bellCount,
   onBellClick,
+  rightElement,
+  leftElement,
   className = "",
 }) => {
   return (
     <header className={`w-full bg-[#62C0C6] py-2.5 px-4 flex items-center justify-between shadow-sm select-none z-30 shrink-0 ${className}`}>
-      {/* Back Button */}
-      <Link
-        href={backHref}
-        className="w-9 h-9 -ml-1 rounded-full flex items-center justify-center text-slate-900 hover:bg-black/10 active:scale-95 transition-all"
-        aria-label="ย้อนกลับ"
-      >
-        <ArrowLeft className="w-6 h-6 stroke-[2.4]" />
-      </Link>
+      {/* Left Action / Back Button */}
+      {leftElement ? (
+        leftElement
+      ) : showBack ? (
+        <Link
+          href={backHref}
+          className="w-9 h-9 -ml-1 rounded-full flex items-center justify-center text-slate-900 hover:bg-black/10 active:scale-95 transition-all"
+          aria-label="ย้อนกลับ"
+        >
+          <ArrowLeft className="w-6 h-6 stroke-[2.4]" />
+        </Link>
+      ) : (
+        <div className="w-2" />
+      )}
 
       {/* Center Brand or Title */}
       <div className="flex items-center justify-center gap-2">
@@ -53,8 +65,10 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
         )}
       </div>
 
-      {/* Notification Bell or Spacer */}
-      {showBell ? (
+      {/* Right Action / Bell / Spacer */}
+      {rightElement ? (
+        rightElement
+      ) : showBell ? (
         <button
           type="button"
           onClick={onBellClick}
@@ -67,7 +81,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           )}
         </button>
       ) : (
-        <div className="w-9 h-9" />
+        <div className="w-2" />
       )}
     </header>
   );
