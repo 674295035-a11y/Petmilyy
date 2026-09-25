@@ -1,35 +1,35 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  Plus,
   Heart,
   Crown,
-  Clock,
   LogIn,
   UserPlus,
+  Bell,
+  X,
+  CheckCheck,
 } from "lucide-react";
 import MobileFrame from "@/components/MobileFrame";
 import PetmilyLogo from "@/components/PetmilyLogo";
 import SplashScreen from "@/components/SplashScreen";
-import { FloralCatAvatar, GoldenRetrieverAvatar, PetAvatarDisplay } from "@/components/PetAvatars";
 import { usePetContext } from "@/lib/petContext";
 
 export default function GuestLandingPage() {
   const router = useRouter();
-  const { pets, selectedPetIndex, setSelectedPetIndex, selectedPet, activityButtons } =
-    usePetContext();
+  const { isPremium, currentUser, notifications, clearNotifications } = usePetContext();
   const [showSplash, setShowSplash] = useState(true);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
 
-  const handleActionClick = (actionName: string) => {
-    setToastMessage(`กรุณาเข้าสู่ระบบเพื่อใช้งาน "${actionName}" ✨`);
-    setTimeout(() => {
-      router.push("/login");
-    }, 900);
-  };
+  const isAccountPremium =
+    isPremium ||
+    (currentUser as any)?.isPremium === true ||
+    (typeof window !== "undefined" && localStorage.getItem("petmily_is_premium") === "true");
+
+  const unreadNotifs = notifications ? notifications.filter((n) => n.unread).length : 0;
 
   return (
     <>
@@ -44,7 +44,7 @@ export default function GuestLandingPage() {
       <MobileFrame>
         <div className="flex-1 flex flex-col justify-between bg-[#F8FAFB] dark:bg-[#0B0F17] min-h-full relative select-none transition-colors duration-300">
         
-        {/* Custom Header for Guest/Landing Page (รูปที่ 2 แบบไม่มีลูกศร/กระดิ่ง แต่มีปุ่ม เข้าสู่ระบบ กับ สมัครสมาชิก) */}
+        {/* Custom Header for Guest/Landing Page */}
         <header className="w-full bg-[#62C0C6] py-2 px-3.5 flex items-center justify-between shadow-sm select-none z-30 shrink-0">
           {/* Brand Logo & Name */}
           <div className="flex items-center gap-2">
@@ -56,7 +56,7 @@ export default function GuestLandingPage() {
             </span>
           </div>
 
-          {/* Action Buttons: เข้าสู่ระบบ / สมัครสมาชิก */}
+          {/* Action Buttons: เข้าสู่ระบบ / สมัครสมาชิก / การแจ้งเตือน */}
           <div className="flex items-center gap-1.5 shrink-0">
             <Link
               href="/login"
@@ -72,10 +72,22 @@ export default function GuestLandingPage() {
               <UserPlus className="w-3.5 h-3.5" />
               <span>สมัครสมาชิก</span>
             </Link>
+            <button
+              type="button"
+              onClick={() => setShowNotificationModal(true)}
+              className="w-8 h-8 rounded-full flex items-center justify-center text-slate-900 hover:bg-black/10 active:scale-90 transition-all relative cursor-pointer ml-0.5"
+              aria-label="การแจ้งเตือน"
+              title="การแจ้งเตือน"
+            >
+              <Bell className="w-4 h-4 fill-slate-900 text-slate-900" />
+              {unreadNotifs > 0 && (
+                <span className="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full border-2 border-white animate-pulse" />
+              )}
+            </button>
           </div>
         </header>
 
-        {/* Scrollable Content Container (รูปที่ 2) */}
+        {/* Scrollable Content Container */}
         <div className="flex-1 overflow-y-auto px-4 pt-3 pb-8 space-y-4">
           
           {/* Toast Notification */}
@@ -85,7 +97,7 @@ export default function GuestLandingPage() {
             </div>
           )}
 
-          {/* Welcome Banner: ยินดีต้อนรับ สู่ PETMILY เพื่อนซี้สี่ขา • ดูแลสุขภาพสัตว์เลี้ยงที่คุณรัก */}
+          {/* Welcome Banner */}
           <div className="w-full bg-gradient-to-r from-teal-50 via-emerald-50 to-teal-50 dark:from-slate-800 dark:via-slate-800 dark:to-slate-800 border border-teal-200/80 dark:border-slate-700 rounded-3xl p-4 text-center shadow-sm">
             <div className="text-[16px] font-bold text-teal-800 dark:text-teal-300 font-kanit">
               ยินดีต้อนรับ สู่ PETMILY เพื่อนซี้สี่ขา
@@ -95,9 +107,8 @@ export default function GuestLandingPage() {
             </p>
           </div>
 
-          {/* 3 Feature Highlight Cards from Image 5 (พบแพทย์ผู้เชี่ยวชาญ, โรงพยาบาลชั้นนำ, บันทึกประวัติสุขภาพ) */}
+          {/* 3 Feature Highlight Cards */}
           <div className="w-full bg-[#A8E6EA]/40 dark:bg-slate-800/80 border-2 border-[#76CBD1] dark:border-teal-700/60 rounded-[32px] p-3.5 shadow-sm space-y-3">
-            {/* Grid of 3 Feature Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {/* Card 1: พบแพทย์ผู้เชี่ยวชาญ */}
               <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 text-center shadow-sm border border-teal-100/80 dark:border-slate-700 flex flex-col items-center justify-between transition-all hover:shadow-md hover:scale-[1.02] duration-200">
@@ -194,40 +205,119 @@ export default function GuestLandingPage() {
             </div>
           </div>
 
-          {/* PetCare Premium Banner Card */}
-          <div className="bg-white dark:bg-slate-800 rounded-3xl p-4 border border-slate-100 dark:border-slate-700 shadow-[0_4px_20px_rgba(0,0,0,0.04)] text-left space-y-3">
-            {/* Header with Crown & Price */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Crown className="w-5 h-5 fill-slate-900 text-slate-900 dark:fill-white dark:text-white" />
-                <span className="text-[16px] font-bold text-slate-900 dark:text-white tracking-tight font-kanit">
-                  PetCare Premium
+          {/* PetCare Premium Banner Card (แสดงเฉพาะเมื่อยังไม่สมัครพรีเมียม) */}
+          {!isAccountPremium && (
+            <div className="bg-white dark:bg-slate-800 rounded-3xl p-4 border border-slate-100 dark:border-slate-700 shadow-[0_4px_20px_rgba(0,0,0,0.04)] text-left space-y-3">
+              {/* Header with Crown & Price */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Crown className="w-5 h-5 fill-slate-900 text-slate-900 dark:fill-white dark:text-white" />
+                  <span className="text-[16px] font-bold text-slate-900 dark:text-white tracking-tight font-kanit">
+                    PetCare Premium
+                  </span>
+                </div>
+                <span className="text-[12px] font-semibold px-2.5 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-full">
+                  ฿499/เดือน
                 </span>
               </div>
-              <span className="text-[12px] font-semibold px-2.5 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-full">
-                ฿499/เดือน
-              </span>
-            </div>
 
-            {/* Subtext Benefits */}
-            <p className="text-[13px] text-slate-600 dark:text-slate-300 leading-snug">
-              ปรึกษาแพทย์ส่วนตัว 24 ชม. และส่วนลดค่ายาพิเศษ
-            </p>
+              {/* Subtext Benefits */}
+              <p className="text-[13px] text-slate-600 dark:text-slate-300 leading-snug">
+                ปรึกษาแพทย์ส่วนตัว 24 ชม. และส่วนลดค่ายาพิเศษ
+              </p>
 
-            {/* CTA Button */}
-            <div>
-              <Link
-                href="/login"
-                className="block w-full text-center bg-[#00A877] hover:bg-[#009166] active:scale-[0.98] text-white font-medium text-[15px] py-2.5 px-6 rounded-full shadow-[0_6px_16px_rgba(0,168,119,0.3)] transition-all duration-200 font-kanit"
-              >
-                สมัครเลย
-              </Link>
+              {/* CTA Button */}
+              <div>
+                <Link
+                  href="/login"
+                  className="block w-full text-center bg-[#00A877] hover:bg-[#009166] active:scale-[0.98] text-white font-medium text-[15px] py-2.5 px-6 rounded-full shadow-[0_6px_16px_rgba(0,168,119,0.3)] transition-all duration-200 font-kanit"
+                >
+                  สมัครเลย
+                </Link>
+              </div>
             </div>
-          </div>
+          )}
 
         </div>
 
-        {/* Note: รูปที่ 3 (BottomNav) ลบออกสำหรับหน้านี้ตามที่ระบุในคำขอ */}
+        {/* Global Notification Modal */}
+        {showNotificationModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+            <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl p-5 text-left space-y-3.5 shadow-2xl border border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-teal-50 dark:bg-teal-950/60 flex items-center justify-center text-[#00A877]">
+                    <Bell className="w-4 h-4 fill-current" />
+                  </div>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white font-kanit">
+                    การแจ้งเตือน
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowNotificationModal(false)}
+                  className="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+                {!notifications || notifications.length === 0 ? (
+                  <div className="text-center py-8 text-xs text-slate-400 dark:text-slate-500">
+                    ไม่มีการแจ้งเตือนใหม่ในขณะนี้
+                  </div>
+                ) : (
+                  notifications.map((notif) => (
+                    <div
+                      key={notif.id}
+                      className={`p-3 rounded-2xl border text-xs space-y-1 transition-all ${
+                        notif.unread
+                          ? "bg-teal-50/90 dark:bg-teal-950/40 border-teal-200 dark:border-teal-800"
+                          : "bg-slate-50/70 dark:bg-slate-800/60 border-slate-200/80 dark:border-slate-800"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-slate-800 dark:text-slate-100">
+                          {notif.title}
+                        </span>
+                        {notif.unread && (
+                          <span className="w-2 h-2 rounded-full bg-rose-500" />
+                        )}
+                      </div>
+                      <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                        {notif.message}
+                      </p>
+                      <div className="text-[10px] text-slate-400 dark:text-slate-500 pt-0.5">
+                        {notif.time}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <div className="pt-2 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    clearNotifications();
+                  }}
+                  className="flex-1 py-2 px-3 bg-teal-50 dark:bg-slate-800 hover:bg-teal-100 dark:hover:bg-slate-700 text-[#00A877] dark:text-teal-400 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 transition-all font-kanit"
+                >
+                  <CheckCheck className="w-3.5 h-3.5" />
+                  <span>อ่านทั้งหมดแล้ว</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowNotificationModal(false)}
+                  className="py-2 px-5 bg-[#00A877] hover:bg-[#009166] text-white rounded-full text-xs font-medium transition-all font-kanit shadow-sm"
+                >
+                  ปิด
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
       </div>
     </MobileFrame>

@@ -38,7 +38,7 @@ interface SavedCard {
 function PaymentContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { setIsPremium } = usePetContext();
+  const { upgradeToPremium, setIsPremium } = usePetContext();
   const plan = searchParams.get("plan") || "monthly";
   const isYearly = plan === "yearly";
 
@@ -146,8 +146,8 @@ function PaymentContent() {
     }
 
     setIsProcessing(true);
-    setTimeout(() => {
-      setIsPremium(true);
+    setTimeout(async () => {
+      await upgradeToPremium();
       setIsProcessing(false);
       setIsSuccessModalOpen(true);
     }, 1200);
@@ -156,8 +156,8 @@ function PaymentContent() {
   const handleConfirmPromptPayTransfer = () => {
     setShowPromptPayModal(false);
     setIsProcessing(true);
-    setTimeout(() => {
-      setIsPremium(true);
+    setTimeout(async () => {
+      await upgradeToPremium();
       setIsProcessing(false);
       setIsSuccessModalOpen(true);
     }, 1000);

@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import MobileFrame from "@/components/MobileFrame";
 import BottomNav from "@/components/BottomNav";
+import AppHeader from "@/components/AppHeader";
 import PetmilyLogo from "@/components/PetmilyLogo";
 import { FloralCatAvatar, PetAvatarDisplay } from "@/components/PetAvatars";
 import { usePetContext } from "@/lib/petContext";
@@ -105,19 +106,11 @@ export default function ProfilePage() {
       <div className={`flex-1 flex flex-col justify-between min-h-full select-none relative ${themeMode === "dark" ? "bg-slate-900 text-white" : "bg-[#F8FAFB] text-slate-900"}`}>
         
         {/* Top Header Bar */}
-        <header className="w-full bg-[#62C0C6] py-2.5 px-4 flex items-center justify-between shadow-sm z-30 shrink-0">
-          <Link
-            href="/home"
-            className="w-9 h-9 -ml-1 rounded-full flex items-center justify-center text-slate-900 hover:bg-black/10 active:scale-95 transition-all"
-            aria-label="ย้อนกลับ"
-          >
-            <ArrowLeft className="w-6 h-6 stroke-[2.4]" />
-          </Link>
-          <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center bg-white shadow-sm border border-white/60">
-            <PetmilyLogo size={32} />
-          </div>
-          <div className="w-9 h-9" />
-        </header>
+        <AppHeader
+          backHref="/home"
+          showLogo={true}
+          showBell={true}
+        />
 
         {/* Scrollable Content Container */}
         <div className="flex-1 overflow-y-auto px-5 pt-3 pb-6 space-y-3.5">

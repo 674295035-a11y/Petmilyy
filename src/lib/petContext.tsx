@@ -140,6 +140,12 @@ interface PetContextType {
   themeMode: "light" | "dark";
   setThemeMode: (mode: "light" | "dark") => void;
   toggleTheme: () => void;
+  upgradeToPremium: () => Promise<void>;
+  fetchAppointments: () => Promise<void>;
+  fetchChatMessages: (threadId: string) => Promise<void>;
+  fetchNotifications: () => Promise<void>;
+  addNotification: (item: Omit<NotificationItem, "id">) => Promise<void>;
+  syncWithSupabase: () => Promise<void>;
 }
 
 const defaultActivityButtons: ActivityButton[] = [
@@ -203,30 +209,69 @@ const createInitialChats = (userName: string): ChatThread[] => [
   },
 ];
 
+const DOCTOR_UUID_MAP: Record<string, string> = {
+  "vet-1": "a0000000-0000-0000-0000-000000000001",
+  "vet-2": "a0000000-0000-0000-0000-000000000002",
+  "vet-3": "a0000000-0000-0000-0000-000000000003",
+};
+
+const defaultInitialAppointments: Appointment[] = [
+  {
+    id: "app-default-1",
+    clinicName: "โรงพยาบาลสัตว์ท่าสะอ้าน",
+    doctorName: "สัตวแพทย์ประจำเวร",
+    serviceType: "ฉีดวัคซีนรวมประจำปี",
+    date: "2026-10-01",
+    time: "14:00 - 15:00 น.",
+    ownerName: "อันดา",
+    petName: "kuromi",
+    petType: "cat",
+    phone: "089-123-4567",
+    status: "ยืนยันแล้ว",
+    notes: "ฉีดวัคซีนรวมประจำปี",
+    fee: "฿450.00",
+  },
+];
+
 const PetContext = createContext<PetContextType | undefined>(undefined);
 
 export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<UserProfile>({
-    fullName: "ผู้ใช้งานทั่วไป",
-    email: "user@petmily.app",
-    phone: "08X-XXX-XXXX",
+    fullName: "อันดา",
+    email: "anda@petmily.app",
+    phone: "089-123-4567",
     role: "user",
   });
 
   const [userRole, setUserRole] = useState<"user" | "vet">("user");
   const [isPremium, setIsPremium] = useState<boolean>(false);
-  const [pets, setPets] = useState<Pet[]>([]);
+  const [pets, setPets] = useState<Pet[]>([
+    {
+      id: "pet-kuromi",
+      name: "kuromi",
+      type: "cat",
+      breed: "แมวไทยพันธุ์ผสม",
+      birthdate: "2024-05-10",
+      age: "2 ปี 4 เดือน",
+      weight: "4.5",
+      height: "25",
+      drugAllergy: "ไม่มีประวัติแพ้ยา",
+      avatar: "cat",
+      ownerName: "อันดา",
+      latestVaccine: "",
+    },
+  ]);
   const [selectedPetIndex, setSelectedPetIndex] = useState<number>(0);
   const [activityButtons, setActivityButtons] = useState<ActivityButton[]>(defaultActivityButtons);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
-  const [chatThreads, setChatThreads] = useState<ChatThread[]>(createInitialChats("ผู้ใช้งาน"));
+  const [chatThreads, setChatThreads] = useState<ChatThread[]>(createInitialChats("อันดา"));
   const [vetPatients, setVetPatients] = useState<VetPatient[]>([]);
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>(defaultInitialAppointments);
   const [expenses, setExpenses] = useState<ExpenseItem[]>([]);
   const [notifications, setNotifications] = useState<NotificationItem[]>([
     {
       id: "n-1",
-      title: "ยินดีต้อนรับสู่ PETMILY",
+      title: "ยินดีต้อนรับคุณ อันดา",
       message: "เริ่มต้นบันทึกข้อมูลและดูแลสัตว์เลี้ยงตัวโปรดของคุณได้เลย",
       time: "เมื่อสักครู่",
       unread: true,
@@ -277,7 +322,7 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
 
       const savedPremium = localStorage.getItem("petmily_is_premium");
-      if (savedPremium) {
+      if (savedPremium !== null) {
         setIsPremium(JSON.parse(savedPremium));
       }
 
@@ -310,6 +355,22 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const parsedExp = JSON.parse(savedExpenses);
         if (Array.isArray(parsedExp)) setExpenses(parsedExp);
       }
+
+      const savedChats = localStorage.getItem("petmily_chat_threads");
+      if (savedChats) {
+        const parsedChats = JSON.parse(savedChats);
+        if (Array.isArray(parsedChats) && parsedChats.length > 0) {
+          setChatThreads(parsedChats);
+        }
+      }
+
+      const savedNotifs = localStorage.getItem("petmily_notifications");
+      if (savedNotifs) {
+        const parsedNotifs = JSON.parse(savedNotifs);
+        if (Array.isArray(parsedNotifs) && parsedNotifs.length > 0) {
+          setNotifications(parsedNotifs);
+        }
+      }
     } catch (e) {
       console.warn("Local storage restore error:", e);
     }
@@ -325,10 +386,12 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       localStorage.setItem("petmily_activity_logs", JSON.stringify(activityLogs));
       localStorage.setItem("petmily_appointments", JSON.stringify(appointments));
       localStorage.setItem("petmily_expenses", JSON.stringify(expenses));
+      localStorage.setItem("petmily_chat_threads", JSON.stringify(chatThreads));
+      localStorage.setItem("petmily_notifications", JSON.stringify(notifications));
     } catch (e) {
       console.warn("Local storage sync error:", e);
     }
-  }, [currentUser, isPremium, pets, activityButtons, activityLogs, appointments, expenses]);
+  }, [currentUser, isPremium, pets, activityButtons, activityLogs, appointments, expenses, chatThreads, notifications]);
 
   const selectedPet: Pet = pets[selectedPetIndex] || pets[0] || {
     id: "pet-new",
@@ -356,30 +419,11 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     setCurrentUser(newUser);
     setUserRole(newUser.role);
+    // Reset premium status for new user login
     setIsPremium(false);
-    setPets([]);
-    setSelectedPetIndex(0);
-    setActivityLogs([]);
-    setAppointments([]);
-    setExpenses([]);
-    setChatThreads(createInitialChats(newUser.fullName));
-    setNotifications([
-      {
-        id: `n-${Date.now()}`,
-        title: `ยินดีต้อนรับคุณ ${newUser.fullName}`,
-        message: "เริ่มต้นบันทึกข้อมูลสัตว์เลี้ยงของคุณเพื่อเริ่มใช้งานระบบทั้งหมด",
-        time: "เมื่อสักครู่",
-        unread: true,
-      },
-    ]);
-
     try {
       localStorage.setItem("petmily_current_user", JSON.stringify(newUser));
       localStorage.setItem("petmily_is_premium", JSON.stringify(false));
-      localStorage.setItem("petmily_pets", JSON.stringify([]));
-      localStorage.setItem("petmily_activity_logs", JSON.stringify([]));
-      localStorage.setItem("petmily_appointments", JSON.stringify([]));
-      localStorage.setItem("petmily_expenses", JSON.stringify([]));
     } catch (e) {}
   };
 
@@ -500,10 +544,48 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  const sendChatMessage = (threadId: string, text: string) => {
+  const upgradeToPremium = async () => {
+    setIsPremium(true);
+    try {
+      localStorage.setItem("petmily_is_premium", JSON.stringify(true));
+      const updatedUser = { ...currentUser, isPremium: true };
+      setCurrentUser(updatedUser);
+      localStorage.setItem("petmily_current_user", JSON.stringify(updatedUser));
+
+      // Sync to Supabase profiles
+      await supabase.from("profiles").upsert(
+        {
+          full_name: currentUser.fullName || "ผู้ใช้งาน",
+          email: currentUser.email || "user@petmily.app",
+          role: userRole,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "email" }
+      );
+
+      // Add Notification to Supabase and Local
+      await addNotification({
+        title: "ยินดีต้อนรับสู่ PetCare Premium ⭐",
+        message: "สิทธิประโยชน์ VIP ของคุณเปิดใช้งานเรียบร้อยแล้ว แชทปรึกษาแพทย์ได้ตลอด 24 ชม.",
+        time: "เมื่อสักครู่",
+        unread: true,
+      });
+    } catch (err) {
+      console.warn("upgradeToPremium sync error:", err);
+    }
+  };
+
+  const sendChatMessage = async (threadId: string, text: string) => {
     const timeNow = new Date().toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" });
-    setChatThreads((prev) =>
-      prev.map((thread) => {
+    const newMsgId = `m-${Date.now()}`;
+    const targetThread = chatThreads.find((t) => t.id === threadId);
+    const dbThreadId =
+      DOCTOR_UUID_MAP[threadId] ||
+      (threadId.includes("-") && threadId.length === 36 ? threadId : DOCTOR_UUID_MAP["vet-1"]);
+
+    // 1. Immediate optimistic UI update
+    setChatThreads((prev) => {
+      const updated = prev.map((thread) => {
         if (thread.id === threadId) {
           return {
             ...thread,
@@ -511,8 +593,8 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             messages: [
               ...thread.messages,
               {
-                id: `m-${Date.now()}`,
-                sender: "user",
+                id: newMsgId,
+                sender: "user" as const,
                 text,
                 time: timeNow,
               },
@@ -520,23 +602,188 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           };
         }
         return thread;
-      })
-    );
+      });
+      try {
+        localStorage.setItem("petmily_chat_threads", JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
 
-    if (!threadId.startsWith("vet-")) {
-      supabase.from("chat_messages").insert({
-        thread_id: threadId,
-        sender: "user",
-        text,
-        time: timeNow,
-      }).then();
+    // 2. Persist User Message to Supabase
+    try {
+      if (dbThreadId) {
+        // Upsert thread record
+        await supabase
+          .from("chat_threads")
+          .upsert(
+            {
+              id: dbThreadId,
+              doctor_name: targetThread?.doctorName || "สัตวแพทย์",
+              clinic_name: targetThread?.clinicName || "โรงพยาบาลสัตว์",
+              avatar_type: targetThread?.avatarType || "da",
+              last_message: text,
+              online: true,
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: "id" }
+          );
+
+        // Insert chat message
+        await supabase.from("chat_messages").insert({
+          thread_id: dbThreadId,
+          sender: "user",
+          text: text,
+          time: timeNow,
+        });
+      }
+    } catch (err) {
+      console.warn("Supabase sendChatMessage error:", err);
+    }
+
+    // 3. Simulated Doctor Auto-reply synced to Supabase (1.2s delay)
+    setTimeout(async () => {
+      const docTime = new Date().toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" });
+      const docMsgId = `m-doc-${Date.now()}`;
+      const replies = [
+        `สวัสดีค่ะคุณ ${currentUser.fullName || "เจ้าของสัตว์เลี้ยง"} หมอได้รับข้อความแล้วนะคะ อาการของน้องเป็นอย่างไรบ้างคะ เล่าเพิ่มเติมให้หมอฟังได้เลยค่ะ 🩺🐾`,
+        "ยินดีให้คำปรึกษาค่ะ อาการนี้แนะนำให้น้องดื่มน้ำสะอาดมากๆ และสังเกตว่ามีไข้หรือซึมลงไหมนะคะ",
+        "หมอตรวจดูข้อมูลแล้วนะคะ หากมีอาการผิดปกติ สามารถจองคิวตรวจรักษาที่คลินิกผ่านแอปได้ทันทีเลยค่ะ",
+        "คุณหมอรับทราบข้อมูลแล้วค่ะ หากมีรูปภาพหรือวิดีโออาการของน้อง สามารถส่งมาให้หมอดูประกอบการวินิจฉัยได้เลยนะคะ 🐱🐶",
+      ];
+      const replyText = replies[Math.floor(Math.random() * replies.length)];
+
+      setChatThreads((p) => {
+        const updated = p.map((t) => {
+          if (t.id === threadId) {
+            return {
+              ...t,
+              lastMessage: replyText,
+              unreadCount: t.unreadCount + 1,
+              messages: [
+                ...t.messages,
+                {
+                  id: docMsgId,
+                  sender: "doctor" as const,
+                  text: replyText,
+                  time: docTime,
+                },
+              ],
+            };
+          }
+          return t;
+        });
+        try {
+          localStorage.setItem("petmily_chat_threads", JSON.stringify(updated));
+        } catch (e) {}
+        return updated;
+      });
+
+      // Persist doctor reply to Supabase
+      try {
+        if (dbThreadId) {
+          await supabase.from("chat_messages").insert({
+            thread_id: dbThreadId,
+            sender: "doctor",
+            text: replyText,
+            time: docTime,
+          });
+
+          await supabase
+            .from("chat_threads")
+            .update({
+              last_message: replyText,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", dbThreadId);
+
+          await addNotification({
+            title: `ข้อความตอบกลับจาก ${targetThread?.doctorName || "สัตวแพทย์"} 💬`,
+            message: replyText,
+            time: docTime,
+            unread: true,
+          });
+        }
+      } catch (err) {
+        console.warn("Supabase doctor reply sync error:", err);
+      }
+    }, 1200);
+  };
+
+  const fetchChatMessages = async (threadId: string) => {
+    try {
+      const dbThreadId =
+        DOCTOR_UUID_MAP[threadId] ||
+        (threadId.includes("-") && threadId.length === 36 ? threadId : DOCTOR_UUID_MAP["vet-1"]);
+
+      if (!dbThreadId) return;
+
+      const { data, error } = await supabase
+        .from("chat_messages")
+        .select("*")
+        .eq("thread_id", dbThreadId)
+        .order("created_at", { ascending: true });
+
+      if (!error && data && data.length > 0) {
+        setChatThreads((prev) => {
+          const updated = prev.map((thread) => {
+            if (thread.id === threadId) {
+              const remoteMsgs = data.map((d: any) => ({
+                id: d.id,
+                sender: d.sender as "user" | "doctor",
+                text: d.text,
+                time: d.time || "เมื่อสักครู่",
+              }));
+
+              // Preserve first doctor welcome greeting if not present in remote
+              const firstDoctorMsg = thread.messages.find((m) => m.sender === "doctor");
+              const hasDoctorMsgInRemote = remoteMsgs.some((m: any) => m.sender === "doctor");
+
+              const baseList =
+                firstDoctorMsg && !hasDoctorMsgInRemote
+                  ? [firstDoctorMsg, ...remoteMsgs]
+                  : remoteMsgs;
+
+              // De-duplicate
+              const merged: typeof baseList = [];
+              for (const m of baseList) {
+                const already = merged.some(
+                  (item) => item.id === m.id || (item.text === m.text && item.sender === m.sender)
+                );
+                if (!already) {
+                  merged.push(m);
+                }
+              }
+
+              return {
+                ...thread,
+                lastMessage:
+                  merged[merged.length - 1]?.text || thread.lastMessage,
+                messages: merged,
+              };
+            }
+            return thread;
+          });
+
+          try {
+            localStorage.setItem("petmily_chat_threads", JSON.stringify(updated));
+          } catch (e) {}
+
+          return updated;
+        });
+      }
+    } catch (err) {
+      console.warn("fetchChatMessages error:", err);
     }
   };
 
   const clearUnread = (threadId: string) => {
-    setChatThreads((prev) =>
-      prev.map((thread) => (thread.id === threadId ? { ...thread, unreadCount: 0 } : thread))
-    );
+    setChatThreads((prev) => {
+      const updated = prev.map((thread) => (thread.id === threadId ? { ...thread, unreadCount: 0 } : thread));
+      try {
+        localStorage.setItem("petmily_chat_threads", JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
   };
 
   const updateVetPatient = (id: string, updates: Partial<VetPatient>) => {
@@ -545,7 +792,53 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
   };
 
-  const addAppointment = (app: Omit<Appointment, "id">) => {
+  const fetchAppointments = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("appointments")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (!error && data && data.length > 0) {
+        const fetchedApps: Appointment[] = data.map((row: any) => ({
+          id: row.id,
+          clinicName: row.clinic_name || "โรงพยาบาลสัตว์",
+          doctorName: row.doctor_name || "สัตวแพทย์ประจำเวร",
+          serviceType: row.service_type || "ตรวจรักษา",
+          date: row.appointment_date || new Date().toISOString().split("T")[0],
+          time: row.appointment_time || "10:00 น.",
+          ownerName: row.owner_name || currentUser.fullName || "อันดา",
+          petName: row.pet_name || (selectedPet ? selectedPet.name : "kuromi"),
+          petType: "cat",
+          phone: row.phone || "089-123-4567",
+          status: row.status === "confirmed" ? "ยืนยันแล้ว" : (row.status || "ยืนยันแล้ว"),
+          notes: row.note || "",
+          fee: "฿450.00",
+        }));
+
+        setAppointments((prev) => {
+          const merged = [...fetchedApps];
+          for (const item of prev) {
+            const exists = merged.some(
+              (m) =>
+                m.id === item.id ||
+                (m.date === item.date &&
+                  m.time === item.time &&
+                  m.clinicName === item.clinicName)
+            );
+            if (!exists) {
+              merged.push(item);
+            }
+          }
+          return merged;
+        });
+      }
+    } catch (e) {
+      console.warn("Supabase fetch appointments error:", e);
+    }
+  };
+
+  const addAppointment = async (app: Omit<Appointment, "id">) => {
     const newApp: Appointment = {
       ...app,
       id: `app-${Date.now()}`,
@@ -564,20 +857,141 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       ...prev,
     ]);
 
-    // Sync to Supabase appointments table
-    supabase.from("appointments").insert({
-      clinic_name: app.clinicName,
-      doctor_name: app.doctorName,
-      service_type: app.serviceType,
-      appointment_date: app.date,
-      appointment_time: app.time,
-      owner_name: app.ownerName,
-      pet_name: app.petName,
-      phone: app.phone,
-      note: app.notes || "",
-      status: "confirmed",
-    }).then();
+    // Format valid date for Postgres DATE column
+    let validDate = app.date;
+    if (!validDate || !/^\d{4}-\d{2}-\d{2}$/.test(validDate)) {
+      validDate = new Date().toISOString().split("T")[0];
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from("appointments")
+        .insert({
+          clinic_name: app.clinicName,
+          doctor_name: app.doctorName,
+          service_type: app.serviceType,
+          appointment_date: validDate,
+          appointment_time: app.time,
+          owner_name: app.ownerName,
+          pet_name: app.petName,
+          phone: app.phone,
+          note: app.notes || "",
+          status: "confirmed",
+        })
+        .select();
+
+      if (data && data[0]?.id) {
+        setAppointments((prev) =>
+          prev.map((item) => (item.id === newApp.id ? { ...item, id: data[0].id } : item))
+        );
+      }
+      if (error) {
+        console.warn("Supabase insert appointment warning:", error.message);
+      }
+    } catch (err) {
+      console.warn("Supabase insert appointment error:", err);
+    }
   };
+
+  const syncWithSupabase = async () => {
+    try {
+      await fetchAppointments();
+      await fetchChatMessages("vet-1");
+      await fetchChatMessages("vet-2");
+      await fetchChatMessages("vet-3");
+
+      // Sync pets
+      const { data: petData, error: petErr } = await supabase
+        .from("pets")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (!petErr && petData && petData.length > 0) {
+        const dbPets: Pet[] = petData.map((p: any) => ({
+          id: p.id,
+          name: p.name,
+          type: p.type || "cat",
+          breed: p.breed || "",
+          birthdate: p.birthdate || "",
+          age: p.age || "",
+          weight: p.weight || "",
+          height: p.height || "",
+          drugAllergy: p.drug_allergy || "ไม่มี",
+          avatar: p.avatar || "cat",
+          photoUrl:
+            p.avatar?.startsWith("http") || p.avatar?.startsWith("data:")
+              ? p.avatar
+              : undefined,
+          ownerName: p.owner_name || currentUser.fullName,
+          latestVaccine: p.latest_vaccine || "",
+        }));
+
+        setPets((prev) => {
+          if (prev.length === 0) return dbPets;
+          return prev;
+        });
+      }
+      // Sync notifications
+      await fetchNotifications();
+    } catch (err) {
+      console.warn("syncWithSupabase error:", err);
+    }
+  };
+
+  const fetchNotifications = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("notifications")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (!error && data && data.length > 0) {
+        const remoteNotifs: NotificationItem[] = data.map((d: any) => ({
+          id: d.id,
+          title: d.title,
+          message: d.message,
+          time: d.time || "เมื่อสักครู่",
+          unread: d.unread !== undefined ? d.unread : true,
+        }));
+
+        setNotifications((prev) => {
+          const merged = [...remoteNotifs];
+          for (const p of prev) {
+            if (!merged.some((m) => m.id === p.id || m.title === p.title)) {
+              merged.push(p);
+            }
+          }
+          return merged;
+        });
+      }
+    } catch (err) {
+      console.warn("fetchNotifications error:", err);
+    }
+  };
+
+  const addNotification = async (item: Omit<NotificationItem, "id">) => {
+    const newNotif: NotificationItem = {
+      ...item,
+      id: `n-${Date.now()}`,
+    };
+    setNotifications((prev) => [newNotif, ...prev]);
+
+    try {
+      await supabase.from("notifications").insert({
+        title: item.title,
+        message: item.message,
+        time: item.time,
+        unread: item.unread ?? true,
+      });
+    } catch (err) {
+      console.warn("Supabase insert notification warning:", err);
+    }
+  };
+
+  // Run Supabase sync on mount
+  useEffect(() => {
+    syncWithSupabase();
+  }, []);
 
   const addExpense = (exp: Omit<ExpenseItem, "id">) => {
     const newExp: ExpenseItem = {
@@ -591,8 +1005,14 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setExpenses((prev) => prev.filter((exp) => exp.id !== id));
   };
 
-  const clearNotifications = () => {
+  const clearNotifications = async () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
+    try {
+      await supabase
+        .from("notifications")
+        .update({ unread: false })
+        .neq("id", "00000000-0000-0000-0000-000000000000");
+    } catch (err) {}
   };
 
   return (
@@ -604,6 +1024,7 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setUserRole,
         isPremium,
         setIsPremium,
+        upgradeToPremium,
         pets,
         selectedPetIndex,
         setSelectedPetIndex,
@@ -627,10 +1048,15 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         deleteExpense,
         notifications,
         clearNotifications,
+        fetchNotifications,
+        addNotification,
         resetForNewUser,
         themeMode,
         setThemeMode,
         toggleTheme,
+        fetchAppointments,
+        fetchChatMessages,
+        syncWithSupabase,
       }}
     >
       {children}

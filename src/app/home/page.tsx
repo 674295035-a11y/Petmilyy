@@ -47,13 +47,30 @@ export default function HomePage() {
     appointments,
     notifications,
     clearNotifications,
+    isPremium,
+    upgradeToPremium,
+    currentUser,
   } = usePetContext();
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [showNotificationModal, setShowNotificationModal] = useState(false);
+  const [showInstantUpgradeModal, setShowInstantUpgradeModal] = useState(false);
   const [showAddActivityModal, setShowAddActivityModal] = useState(false);
   const [activeActivityId, setActiveActivityId] = useState<string | null>(null);
+
+  // Consider user premium if isPremium is true or currentUser is flagged as premium or free VIP
+  const isAccountPremium =
+    isPremium ||
+    (currentUser as any)?.isPremium === true ||
+    (typeof window !== "undefined" && localStorage.getItem("petmily_is_premium") === "true");
+
+  const handleInstantUpgrade = async () => {
+    await upgradeToPremium();
+    setShowInstantUpgradeModal(false);
+    setToastMessage("🎉 สมัครสมาชิก PetCare Premium สำเร็จแล้ว! สิทธิประโยชน์ VIP เปิดใช้งานเรียบร้อย ⭐");
+    setTimeout(() => setToastMessage(null), 3500);
+  };
 
   // New activity form states
   const [customName, setCustomName] = useState("");
@@ -400,36 +417,39 @@ export default function HomePage() {
             )}
           </div>
 
-          {/* PetCare Premium Banner Card */}
-          <div className="bg-white dark:bg-slate-800 rounded-3xl p-4 border border-slate-100 dark:border-slate-700 shadow-[0_4px_20px_rgba(0,0,0,0.04)] text-left space-y-3">
-            {/* Header with Crown & Price */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Crown className="w-5 h-5 fill-slate-900 text-slate-900 dark:fill-white dark:text-white" />
-                <span className="text-[16px] font-bold text-slate-900 dark:text-white tracking-tight font-kanit">
-                  PetCare Premium
+          {/* PetCare Premium Banner Card (แสดงเฉพาะเมื่อยังไม่ได้สมัครสมาชิกพรีเมียม) */}
+          {!isAccountPremium && (
+            <div className="bg-white dark:bg-slate-800 rounded-3xl p-4 border border-slate-100 dark:border-slate-700 shadow-[0_4px_20px_rgba(0,0,0,0.04)] text-left space-y-3 animate-fade-in">
+              {/* Header with Crown & Price */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Crown className="w-5 h-5 fill-slate-900 text-slate-900 dark:fill-white dark:text-white" />
+                  <span className="text-[16px] font-bold text-slate-900 dark:text-white tracking-tight font-kanit">
+                    PetCare Premium
+                  </span>
+                </div>
+                <span className="text-[12px] font-semibold px-2.5 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-full">
+                  ฿499/เดือน
                 </span>
               </div>
-              <span className="text-[12px] font-semibold px-2.5 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-full">
-                ฿499/เดือน
-              </span>
-            </div>
 
-            {/* Subtext Benefits */}
-            <p className="text-[13px] text-slate-600 dark:text-slate-300 leading-snug">
-              ปรึกษาแพทย์ส่วนตัว 24 ชม. และส่วนลดค่ายาพิเศษ
-            </p>
+              {/* Subtext Benefits */}
+              <p className="text-[13px] text-slate-600 dark:text-slate-300 leading-snug">
+                ปรึกษาแพทย์ส่วนตัว 24 ชม. และส่วนลดค่ายาพิเศษ
+              </p>
 
-            {/* CTA Button */}
-            <div>
-              <Link
-                href="/premium"
-                className="block w-full text-center bg-[#00A877] hover:bg-[#009166] active:scale-[0.98] text-white font-medium text-[15px] py-2.5 px-6 rounded-full shadow-[0_6px_16px_rgba(0,168,119,0.3)] transition-all duration-200"
-              >
-                สมัครเลย
-              </Link>
+              {/* CTA Button: กดแล้วสมัครสมาชิกพรีเมียมทันที */}
+              <div>
+                <button
+                  type="button"
+                  onClick={handleInstantUpgrade}
+                  className="block w-full text-center bg-[#00A877] hover:bg-[#009166] active:scale-[0.98] text-white font-bold text-[15px] py-2.5 px-6 rounded-full shadow-[0_6px_16px_rgba(0,168,119,0.3)] transition-all duration-200 font-kanit cursor-pointer"
+                >
+                  สมัครเลย
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
         </div>
 
@@ -608,6 +628,57 @@ export default function HomePage() {
                   className="w-full py-2 text-slate-500 hover:text-slate-800 text-xs font-medium"
                 >
                   ไว้คราวหลัง
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Instant Premium Upgrade Modal */}
+        {showInstantUpgradeModal && (
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+            <div className="bg-white dark:bg-slate-900 w-full max-w-xs rounded-3xl p-5 text-center space-y-4 shadow-2xl border border-amber-300 dark:border-amber-600/30">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-amber-400 to-amber-200 text-slate-900 mx-auto flex items-center justify-center shadow-lg shadow-amber-400/30">
+                <Crown className="w-8 h-8 fill-slate-900" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white font-kanit">
+                  สมัครสมาชิก PetCare Premium
+                </h3>
+                <p className="text-xs text-slate-600 dark:text-slate-300">
+                  แพ็กเกจการดูแลระดับ VIP เพียง ฿499/เดือน
+                </p>
+              </div>
+
+              <div className="text-left text-xs space-y-2 bg-amber-50/70 dark:bg-slate-800 p-3.5 rounded-2xl border border-amber-200/80 dark:border-slate-700">
+                <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200">
+                  <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
+                  <span>ปรึกษาสัตวแพทย์ส่วนตัวได้ 24 ชั่วโมง</span>
+                </div>
+                <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200">
+                  <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
+                  <span>ส่วนลดค่ายาและการรักษา 20%</span>
+                </div>
+                <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200">
+                  <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
+                  <span>นัดหมายแพทย์ล่วงหน้าแบบ Priority</span>
+                </div>
+              </div>
+
+              <div className="space-y-2 pt-1">
+                <button
+                  type="button"
+                  onClick={handleInstantUpgrade}
+                  className="w-full py-3 bg-[#00A877] hover:bg-[#009166] text-white font-bold rounded-full text-sm shadow-[0_6px_16px_rgba(0,168,119,0.35)] transition-all font-kanit cursor-pointer"
+                >
+                  ยืนยันสมัครพรีเมียม (฿499/เดือน)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowInstantUpgradeModal(false)}
+                  className="w-full py-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs font-medium cursor-pointer"
+                >
+                  ยกเลิก
                 </button>
               </div>
             </div>

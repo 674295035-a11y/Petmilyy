@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Clock, Heart, X, CheckCircle2, Calendar, FileText, User } from "lucide-react";
 import MobileFrame from "@/components/MobileFrame";
@@ -10,8 +10,12 @@ import BottomNav from "@/components/BottomNav";
 import { usePetContext, Appointment } from "@/lib/petContext";
 
 export default function HistoryPage() {
-  const { appointments, notifications } = usePetContext();
+  const { appointments, notifications, fetchAppointments } = usePetContext();
   const [selectedItem, setSelectedItem] = useState<Appointment | null>(null);
+
+  useEffect(() => {
+    fetchAppointments();
+  }, []);
 
   const unreadNotifs = notifications.filter((n) => n.unread).length;
 
@@ -21,7 +25,7 @@ export default function HistoryPage() {
         
         {/* Top Header */}
         <AppHeader
-          backHref="/profile"
+          backHref="/home"
           showLogo={true}
           showBell={true}
           bellCount={unreadNotifs}

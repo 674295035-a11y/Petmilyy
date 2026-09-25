@@ -3,8 +3,9 @@
 import React, { useState, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Calendar, Camera, CheckCircle2, Upload, Sparkles } from "lucide-react";
+import { Calendar, Camera, CheckCircle2, Upload, Sparkles } from "lucide-react";
 import MobileFrame from "@/components/MobileFrame";
+import AppHeader from "@/components/AppHeader";
 import { FloralCatAvatar, GoldenRetrieverAvatar } from "@/components/PetAvatars";
 import { usePetContext } from "@/lib/petContext";
 import { supabase } from "@/lib/supabaseClient";
@@ -149,25 +150,13 @@ export default function PetInfoPage() {
         )}
 
         {/* Top Header */}
-        <div className="w-full shrink-0">
-          {/* Back Arrow Bar */}
-          <div className="px-4 pt-3 pb-1 flex items-center">
-            <Link
-              href="/home"
-              className="w-10 h-10 rounded-full flex items-center justify-center text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-95 transition-all"
-              aria-label="ย้อนกลับ"
-            >
-              <ArrowLeft className="w-6 h-6 stroke-[2.4]" />
-            </Link>
-          </div>
-
-          {/* Mint Teal Title Bar (ข้อมูลสัตว์) */}
-          <div className="w-full bg-[#62C0C6] py-3 text-center shadow-sm">
-            <h1 className="text-[22px] font-bold text-slate-900 tracking-tight font-kanit">
-              ข้อมูลสัตว์
-            </h1>
-          </div>
-        </div>
+        <AppHeader
+          title="ข้อมูลสัตว์"
+          showLogo={false}
+          showBack={true}
+          backHref="/home"
+          showBell={true}
+        />
 
         {/* Hidden File Input for Custom Pet Photo Upload */}
         <input

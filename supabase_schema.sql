@@ -138,6 +138,17 @@ CREATE TABLE IF NOT EXISTS public.appointments (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- 10. NOTIFICATIONS TABLE
+CREATE TABLE IF NOT EXISTS public.notifications (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    message TEXT NOT NULL,
+    time TEXT NOT NULL,
+    unread BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Enable Row Level Security (RLS) & Add Basic Public Access Policies (For Development)
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.pets ENABLE ROW LEVEL SECURITY;
@@ -148,6 +159,7 @@ ALTER TABLE public.chat_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.vet_patients ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.expenses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.appointments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 
 -- Allow all actions for dev testing
 CREATE POLICY "Allow public read/write access to profiles" ON public.profiles FOR ALL USING (true);
@@ -159,6 +171,7 @@ CREATE POLICY "Allow public read/write access to chat_messages" ON public.chat_m
 CREATE POLICY "Allow public read/write access to vet_patients" ON public.vet_patients FOR ALL USING (true);
 CREATE POLICY "Allow public read/write access to expenses" ON public.expenses FOR ALL USING (true);
 CREATE POLICY "Allow public read/write access to appointments" ON public.appointments FOR ALL USING (true);
+CREATE POLICY "Allow public read/write access to notifications" ON public.notifications FOR ALL USING (true);
 
 -- Insert Sample Initial Data (Presets)
 INSERT INTO public.activity_buttons (name, emoji, type, badge_dot_color, is_preset) VALUES
@@ -166,4 +179,5 @@ INSERT INTO public.activity_buttons (name, emoji, type, badge_dot_color, is_pres
 ('ขับถ่าย', '💩', 'poop', NULL, TRUE),
 ('เดินเล่น', '🐕', 'walk', NULL, TRUE),
 ('อาบน้ำ', '🛁', 'bath', NULL, TRUE);
+
 
