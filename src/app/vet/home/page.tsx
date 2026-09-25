@@ -9,7 +9,7 @@ import { VetDoctorAvatar } from "@/components/PetAvatars";
 import { usePetContext, VetPatient } from "@/lib/petContext";
 
 export default function VetHomePage() {
-  const { vetPatients, updateVetPatient, notifications, clearNotifications } = usePetContext();
+  const { vetPatients, updateVetPatient, notifications, clearNotifications, currentUser } = usePetContext();
   const [editingPatient, setEditingPatient] = useState<VetPatient | null>(null);
   const [editWeight, setEditWeight] = useState("");
   const [editVaccine, setEditVaccine] = useState("");
@@ -18,6 +18,8 @@ export default function VetHomePage() {
   const [showNotificationModal, setShowNotificationModal] = useState(false);
 
   const unreadNotifs = notifications ? notifications.filter((n) => n.unread).length : 0;
+  const vetName = currentUser?.fullName || "แพทย์หญิงโดนัท";
+  const vetPhotoUrl = typeof window !== "undefined" ? localStorage.getItem("petmily_vet_photo") : null;
 
   const openEditModal = (pat: VetPatient) => {
     setEditingPatient(pat);
@@ -57,10 +59,14 @@ export default function VetHomePage() {
 
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-full overflow-hidden bg-white shadow-xs border border-white/60 flex items-center justify-center">
-              <VetDoctorAvatar type="donut" size={36} />
+              {vetPhotoUrl ? (
+                <img src={vetPhotoUrl} alt={vetName} className="w-full h-full object-cover" />
+              ) : (
+                <VetDoctorAvatar type="donut" size={36} />
+              )}
             </div>
             <span className="text-[17px] font-bold text-slate-900 font-kanit">
-              แพทย์หญิงโดนัท
+              {vetName}
             </span>
           </div>
 

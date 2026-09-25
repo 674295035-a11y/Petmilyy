@@ -27,9 +27,11 @@ import AppHeader from "@/components/AppHeader";
 import PetmilyLogo from "@/components/PetmilyLogo";
 import { FloralCatAvatar, PetAvatarDisplay } from "@/components/PetAvatars";
 import { usePetContext } from "@/lib/petContext";
+import { useRouter } from "next/navigation";
 
 export default function ProfilePage() {
-  const { currentUser, pets, expenses, isPremium, notifications, themeMode, setThemeMode } = usePetContext();
+  const router = useRouter();
+  const { currentUser, pets, expenses, isPremium, notifications, themeMode, setThemeMode, resetForNewUser, setIsPremium } = usePetContext() as any;
   const [activeModal, setActiveModal] = useState<string | null>(null);
   
   // Change password states
@@ -60,6 +62,17 @@ export default function ProfilePage() {
       setConfirmPass("");
       setActiveModal(null);
     }, 1500);
+  };
+
+  const handleLogout = () => {
+    // Reset premium status so landing page shows premium banner again
+    try {
+      localStorage.setItem("petmily_is_premium", JSON.stringify(false));
+      localStorage.removeItem("petmily_current_user");
+    } catch (e) {}
+    if (setIsPremium) setIsPremium(false);
+    if (resetForNewUser) resetForNewUser();
+    router.push("/");
   };
 
   const menuItems = [
@@ -230,12 +243,13 @@ export default function ProfilePage() {
 
           {/* Logout Button (Solid Red) */}
           <div className="pt-2">
-            <Link
-              href="/"
+            <button
+              type="button"
+              onClick={handleLogout}
               className="block w-full py-3 bg-[#E50914] hover:bg-[#CC0812] active:scale-[0.98] text-white font-semibold text-[16px] rounded-full text-center shadow-[0_6px_16px_rgba(229,9,20,0.35)] transition-all font-kanit"
             >
               ออกจากระบบ
-            </Link>
+            </button>
           </div>
 
         </div>
