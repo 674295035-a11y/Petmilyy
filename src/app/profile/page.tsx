@@ -41,7 +41,7 @@ export default function ProfilePage() {
   const [showPass, setShowPass] = useState(false);
   const [passSavedMessage, setPassSavedMessage] = useState<string | null>(null);
 
-  const totalExpense = expenses.reduce((sum, item) => sum + (item.amount || 0), 0);
+  const totalExpense = expenses.reduce((sum: number, item: any) => sum + (item.amount || 0), 0);
   const formattedExpense = totalExpense > 0 ? `฿${totalExpense.toLocaleString()}` : "฿0.00";
 
   const handleSavePassword = (e: React.FormEvent) => {
@@ -65,15 +65,25 @@ export default function ProfilePage() {
   };
 
   const handleLogout = () => {
-    // Reset premium status so landing page shows premium banner again
-    try {
-      localStorage.setItem("petmily_is_premium", JSON.stringify(false));
-      localStorage.removeItem("petmily_current_user");
-    } catch (e) {}
+    // Clear ALL user-specific localStorage to prevent data leaking between accounts
+    const keysToRemove = [
+      "petmily_current_user",
+      "petmily_is_premium",
+      "petmily_pets",
+      "petmily_activity_logs",
+      "petmily_appointments",
+      "petmily_expenses",
+      "petmily_chat_threads",
+      "petmily_notifications",
+      "petmily_activity_buttons",
+      "petmily_vet_photo",
+    ];
+    keysToRemove.forEach(k => { try { localStorage.removeItem(k); } catch {} });
     if (setIsPremium) setIsPremium(false);
     if (resetForNewUser) resetForNewUser();
     router.push("/");
   };
+
 
   const menuItems = [
     {
@@ -322,7 +332,7 @@ export default function ProfilePage() {
                 {activeModal === "notifications" && (
                   <div className="space-y-2.5">
                     {notifications && notifications.length > 0 ? (
-                      notifications.map((n) => (
+                      notifications.map((n: any) => (
                         <div key={n.id} className="p-3 bg-amber-50 rounded-2xl border border-amber-200/70 text-slate-800">
                           <div className="flex items-center gap-2 font-bold text-amber-900 text-[13px]">
                             <Bell className="w-4 h-4 text-amber-600" />

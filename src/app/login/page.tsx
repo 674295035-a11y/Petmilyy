@@ -40,20 +40,106 @@ function LoginForm() {
     setUserRole(isVet ? "vet" : "user");
 
     try {
+      let authUser: any = null;
+
       if (identifier.includes("@")) {
         const { data, error } = await supabase.auth.signInWithPassword({
-          email: identifier,
+          email: identifier.trim(),
           password: password,
         });
-        if (error) {
-          console.warn("Supabase auth notice:", error.message);
+        if (!error && data?.user) {
+          authUser = data.user;
+        } else if (error) {
+          console.warn("Supabase auth:", error.message);
+        }
+      }
+
+      // --- Load user profile from Supabase ---
+      let profileData: any = null;
+      if (authUser) {
+        const { data: prof } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", authUser.id)
+          .maybeSingle();
+        profileData = prof;
+      } else {
+        // Fallback: try by email
+        const emailToSearch = identifier.includes("@") ? identifier.trim() : null;
+        if (emailToSearch) {
+          const { data: prof } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("email", emailToSearch)
+            .maybeSingle();
+          profileData = prof;
+        }
+      }
+
+      // Clear old localStorage data to avoid mixing between users
+      const keysToReset = [
+        "petmily_pets", "petmily_activity_logs", "petmily_appointments",
+        "petmily_expenses", "petmily_chat_threads", "petmily_notifications",
+        "petmily_is_premium", "petmily_activity_buttons",
+      ];
+      keysToReset.forEach(k => { try { localStorage.removeItem(k); } catch {} });
+
+      // Set user profile in context
+      const userName = profileData?.full_name || identifier.split("@")[0] || "ผู้ใช้งาน";
+      const userEmail = profileData?.email || (identifier.includes("@") ? identifier.trim() : "");
+      const userRole2 = profileData?.role || (isVet ? "vet" : "user");
+      const userClinic = profileData?.clinic_name || "";
+
+      const newUser = {
+        fullName: userName,
+        email: userEmail,
+        phone: profileData?.phone || "",
+        role: userRole2 as "user" | "vet",
+        clinicName: userClinic,
+      };
+      setCurrentUser(newUser);
+      setUserRole(userRole2 as "user" | "vet");
+      try {
+        localStorage.setItem("petmily_current_user", JSON.stringify(newUser));
+        localStorage.setItem("petmily_is_premium", JSON.stringify(false));
+      } catch {}
+
+      // Load pets from Supabase for this user
+      if (authUser || profileData) {
+        const userId = authUser?.id || profileData?.id;
+        if (userId) {
+          const { data: petsData } = await supabase
+            .from("pets")
+            .select("*")
+            .eq("user_id", userId)
+            .order("created_at", { ascending: true });
+
+          if (petsData && petsData.length > 0) {
+            const mappedPets = petsData.map((p: any) => ({
+              id: p.id,
+              name: p.name,
+              type: p.type,
+              breed: p.breed || "",
+              birthdate: p.birthdate || "",
+              age: p.age || "",
+              weight: p.weight || "-",
+              height: p.height || "-",
+              drugAllergy: p.drug_allergy || "ไม่มีประวัติแพ้ยา",
+              avatar: p.avatar || "cat",
+              photoUrl: p.photo_url || undefined,
+              ownerName: p.owner_name || userName,
+              latestVaccine: p.latest_vaccine || "",
+            }));
+            try {
+              localStorage.setItem("petmily_pets", JSON.stringify(mappedPets));
+            } catch {}
+          }
         }
       }
 
       setIsSuccess(true);
       setTimeout(() => {
-        // Existing user goes directly to /home (or /vet/home)
-        if (isVet) {
+        if (isVet || userRole2 === "vet") {
           router.push("/vet/home");
         } else {
           router.push("/home");
@@ -61,18 +147,23 @@ function LoginForm() {
       }, 700);
     } catch (err: any) {
       console.error(err);
+      // Navigate anyway (offline/fallback mode)
+      const fallbackName = identifier.includes("@") ? identifier.split("@")[0] : identifier;
+      setCurrentUser({
+        fullName: fallbackName,
+        email: identifier.includes("@") ? identifier : "",
+        phone: "",
+        role: isVet ? "vet" : "user",
+      });
       setIsSuccess(true);
       setTimeout(() => {
-        if (isVet) {
-          router.push("/vet/home");
-        } else {
-          router.push("/home");
-        }
+        router.push(isVet ? "/vet/home" : "/home");
       }, 700);
     } finally {
       setIsLoading(false);
     }
   };
+
 
   // Google Sign-In Handler
   const handleGoogleLogin = async () => {

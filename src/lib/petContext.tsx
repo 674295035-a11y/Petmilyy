@@ -237,46 +237,23 @@ const PetContext = createContext<PetContextType | undefined>(undefined);
 
 export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<UserProfile>({
-    fullName: "อันดา",
-    email: "anda@petmily.app",
-    phone: "089-123-4567",
+    fullName: "",
+    email: "",
+    phone: "",
     role: "user",
   });
 
   const [userRole, setUserRole] = useState<"user" | "vet">("user");
   const [isPremium, setIsPremium] = useState<boolean>(false);
-  const [pets, setPets] = useState<Pet[]>([
-    {
-      id: "pet-kuromi",
-      name: "kuromi",
-      type: "cat",
-      breed: "แมวไทยพันธุ์ผสม",
-      birthdate: "2024-05-10",
-      age: "2 ปี 4 เดือน",
-      weight: "4.5",
-      height: "25",
-      drugAllergy: "ไม่มีประวัติแพ้ยา",
-      avatar: "cat",
-      ownerName: "อันดา",
-      latestVaccine: "",
-    },
-  ]);
+  const [pets, setPets] = useState<Pet[]>([]);
   const [selectedPetIndex, setSelectedPetIndex] = useState<number>(0);
   const [activityButtons, setActivityButtons] = useState<ActivityButton[]>(defaultActivityButtons);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
-  const [chatThreads, setChatThreads] = useState<ChatThread[]>(createInitialChats("อันดา"));
+  const [chatThreads, setChatThreads] = useState<ChatThread[]>([]);
   const [vetPatients, setVetPatients] = useState<VetPatient[]>([]);
-  const [appointments, setAppointments] = useState<Appointment[]>(defaultInitialAppointments);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [expenses, setExpenses] = useState<ExpenseItem[]>([]);
-  const [notifications, setNotifications] = useState<NotificationItem[]>([
-    {
-      id: "n-1",
-      title: "ยินดีต้อนรับคุณ อันดา",
-      message: "เริ่มต้นบันทึกข้อมูลและดูแลสัตว์เลี้ยงตัวโปรดของคุณได้เลย",
-      time: "เมื่อสักครู่",
-      unread: true,
-    },
-  ]);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
 
   const [themeMode, setThemeModeState] = useState<"light" | "dark">("light");
 
@@ -410,7 +387,7 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const resetForNewUser = (user?: Partial<UserProfile>) => {
     const newUser: UserProfile = {
-      fullName: user?.fullName || "ผู้ใช้งานทั่วไป",
+      fullName: user?.fullName || "",
       email: user?.email || "",
       phone: user?.phone || "",
       role: user?.role || "user",
@@ -418,13 +395,17 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     setCurrentUser(newUser);
-    setUserRole(newUser.role);
-    // Reset premium status for new user login
+    setUserRole(newUser.role as "user" | "vet");
     setIsPremium(false);
-    try {
-      localStorage.setItem("petmily_current_user", JSON.stringify(newUser));
-      localStorage.setItem("petmily_is_premium", JSON.stringify(false));
-    } catch (e) {}
+    // Clear all user-specific state
+    setPets([]);
+    setChatThreads([]);
+    setAppointments([]);
+    setExpenses([]);
+    setNotifications([]);
+    setActivityLogs([]);
+    setActivityButtons(defaultActivityButtons);
+    setSelectedPetIndex(0);
   };
 
   const addPet = (newPetData: Omit<Pet, "id">) => {
