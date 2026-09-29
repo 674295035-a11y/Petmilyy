@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "./supabaseClient";
 
 export interface UserProfile {
+  id?: string;
   fullName: string;
   email: string;
   phone: string;
@@ -141,7 +142,7 @@ interface PetContextType {
   setThemeMode: (mode: "light" | "dark") => void;
   toggleTheme: () => void;
   upgradeToPremium: () => Promise<void>;
-  fetchAppointments: () => Promise<void>;
+  fetchAppointments: (targetUser?: UserProfile) => Promise<void>;
   fetchChatMessages: (threadId: string) => Promise<void>;
   fetchNotifications: () => Promise<void>;
   addNotification: (item: Omit<NotificationItem, "id">) => Promise<void>;
@@ -387,6 +388,7 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const resetForNewUser = (user?: Partial<UserProfile>) => {
     const newUser: UserProfile = {
+      id: user?.id,
       fullName: user?.fullName || "",
       email: user?.email || "",
       phone: user?.phone || "",
@@ -406,6 +408,23 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setActivityLogs([]);
     setActivityButtons(defaultActivityButtons);
     setSelectedPetIndex(0);
+
+    // Clear localStorage to prevent any stale data from other users
+    try {
+      localStorage.removeItem("petmily_appointments");
+      localStorage.removeItem("petmily_pets");
+      localStorage.removeItem("petmily_activity_logs");
+      localStorage.removeItem("petmily_expenses");
+      localStorage.removeItem("petmily_chat_threads");
+      localStorage.removeItem("petmily_notifications");
+      localStorage.setItem("petmily_current_user", JSON.stringify(newUser));
+      localStorage.setItem("petmily_is_premium", JSON.stringify(false));
+    } catch (e) {}
+
+    // If user profile has identifiers, fetch only this user's appointments from Supabase
+    if (newUser.fullName || newUser.email || newUser.id || newUser.phone) {
+      fetchAppointments(newUser);
+    }
   };
 
   const addPet = (newPetData: Omit<Pet, "id">) => {
@@ -773,46 +792,75 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
   };
 
-  const fetchAppointments = async () => {
+  const fetchAppointments = async (targetUser?: UserProfile) => {
     try {
-      const { data, error } = await supabase
+      const user = targetUser || currentUser;
+      // If no user is logged in or user has no name / email / id / phone, no appointments should be shown
+      if (!user || (!user.fullName?.trim() && !user.email?.trim() && !user.id && !user.phone?.trim())) {
+        setAppointments([]);
+        try {
+          localStorage.removeItem("petmily_appointments");
+        } catch (e) {}
+        return;
+      }
+
+      let query = supabase
         .from("appointments")
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("appointment_date", { ascending: false });
 
-      if (!error && data && data.length > 0) {
+      if (user.role === "vet") {
+        if (user.clinicName?.trim()) {
+          query = query.eq("clinic_name", user.clinicName.trim());
+        } else if (user.fullName?.trim()) {
+          query = query.or(`doctor_name.ilike.%${user.fullName.trim()}%,clinic_name.ilike.%${user.fullName.trim()}%`);
+        }
+      } else {
+        // Normal user: ONLY fetch appointments booked by/for this specific user
+        const orConditions: string[] = [];
+        if (user.id) {
+          orConditions.push(`user_id.eq.${user.id}`);
+        }
+        if (user.fullName && user.fullName.trim()) {
+          orConditions.push(`owner_name.eq.${user.fullName.trim()}`);
+        }
+        if (user.phone && user.phone.trim()) {
+          orConditions.push(`phone.eq.${user.phone.trim()}`);
+        }
+
+        if (orConditions.length > 0) {
+          query = query.or(orConditions.join(","));
+        } else {
+          setAppointments([]);
+          return;
+        }
+      }
+
+      const { data, error } = await query;
+
+      if (!error && data) {
         const fetchedApps: Appointment[] = data.map((row: any) => ({
           id: row.id,
           clinicName: row.clinic_name || "โรงพยาบาลสัตว์",
           doctorName: row.doctor_name || "สัตวแพทย์ประจำเวร",
           serviceType: row.service_type || "ตรวจรักษา",
           date: row.appointment_date || new Date().toISOString().split("T")[0],
-          time: row.appointment_time || "10:00 น.",
-          ownerName: row.owner_name || currentUser.fullName || "อันดา",
-          petName: row.pet_name || (selectedPet ? selectedPet.name : "kuromi"),
+          time: row.appointment_time || "10:00 - 11:00 น.",
+          ownerName: row.owner_name || user.fullName || "ผู้จอง",
+          petName: row.pet_name || (selectedPet ? selectedPet.name : "สัตว์เลี้ยง"),
           petType: "cat",
-          phone: row.phone || "089-123-4567",
+          phone: row.phone || user.phone || "-",
           status: row.status === "confirmed" ? "ยืนยันแล้ว" : (row.status || "ยืนยันแล้ว"),
           notes: row.note || "",
           fee: "฿450.00",
         }));
 
-        setAppointments((prev) => {
-          const merged = [...fetchedApps];
-          for (const item of prev) {
-            const exists = merged.some(
-              (m) =>
-                m.id === item.id ||
-                (m.date === item.date &&
-                  m.time === item.time &&
-                  m.clinicName === item.clinicName)
-            );
-            if (!exists) {
-              merged.push(item);
-            }
-          }
-          return merged;
-        });
+        setAppointments(fetchedApps);
+        try {
+          localStorage.setItem("petmily_appointments", JSON.stringify(fetchedApps));
+        } catch (e) {}
+      } else {
+        setAppointments([]);
       }
     } catch (e) {
       console.warn("Supabase fetch appointments error:", e);
@@ -845,26 +893,36 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
 
     try {
+      const payload: any = {
+        clinic_name: app.clinicName,
+        doctor_name: app.doctorName,
+        service_type: app.serviceType,
+        appointment_date: validDate,
+        appointment_time: app.time,
+        owner_name: app.ownerName || currentUser.fullName || "ผู้ใช้งาน",
+        pet_name: app.petName,
+        phone: app.phone || currentUser.phone || "-",
+        note: app.notes || "",
+        status: "confirmed",
+      };
+
+      if (currentUser.id) {
+        payload.user_id = currentUser.id;
+      }
+
       const { data, error } = await supabase
         .from("appointments")
-        .insert({
-          clinic_name: app.clinicName,
-          doctor_name: app.doctorName,
-          service_type: app.serviceType,
-          appointment_date: validDate,
-          appointment_time: app.time,
-          owner_name: app.ownerName,
-          pet_name: app.petName,
-          phone: app.phone,
-          note: app.notes || "",
-          status: "confirmed",
-        })
+        .insert(payload)
         .select();
 
       if (data && data[0]?.id) {
-        setAppointments((prev) =>
-          prev.map((item) => (item.id === newApp.id ? { ...item, id: data[0].id } : item))
-        );
+        setAppointments((prev) => {
+          const updated = prev.map((item) => (item.id === newApp.id ? { ...item, id: data[0].id } : item));
+          try {
+            localStorage.setItem("petmily_appointments", JSON.stringify(updated));
+          } catch (e) {}
+          return updated;
+        });
       }
       if (error) {
         console.warn("Supabase insert appointment warning:", error.message);
@@ -876,7 +934,9 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const syncWithSupabase = async () => {
     try {
-      await fetchAppointments();
+      if (currentUser && (currentUser.fullName || currentUser.email || currentUser.id || currentUser.phone)) {
+        await fetchAppointments(currentUser);
+      }
       await fetchChatMessages("vet-1");
       await fetchChatMessages("vet-2");
       await fetchChatMessages("vet-3");

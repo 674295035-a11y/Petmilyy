@@ -16,7 +16,7 @@ function LoginForm() {
   const isVet = role === "vet";
 
   const router = useRouter();
-  const { setUserRole, setCurrentUser } = usePetContext();
+  const { setUserRole, setCurrentUser, fetchAppointments } = usePetContext();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -85,12 +85,14 @@ function LoginForm() {
       keysToReset.forEach(k => { try { localStorage.removeItem(k); } catch {} });
 
       // Set user profile in context
+      const userId = authUser?.id || profileData?.id || undefined;
       const userName = profileData?.full_name || identifier.split("@")[0] || "ผู้ใช้งาน";
       const userEmail = profileData?.email || (identifier.includes("@") ? identifier.trim() : "");
       const userRole2 = profileData?.role || (isVet ? "vet" : "user");
       const userClinic = profileData?.clinic_name || "";
 
       const newUser = {
+        id: userId,
         fullName: userName,
         email: userEmail,
         phone: profileData?.phone || "",
@@ -104,9 +106,11 @@ function LoginForm() {
         localStorage.setItem("petmily_is_premium", JSON.stringify(false));
       } catch {}
 
+      // Fetch this specific user's appointments
+      await fetchAppointments(newUser);
+
       // Load pets from Supabase for this user
       if (authUser || profileData) {
-        const userId = authUser?.id || profileData?.id;
         if (userId) {
           const { data: petsData } = await supabase
             .from("pets")

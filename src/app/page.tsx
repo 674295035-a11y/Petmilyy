@@ -185,38 +185,36 @@ export default function GuestLandingPage() {
             </div>
           </div>
 
-          {/* PetCare Premium Banner Card (แสดงเฉพาะเมื่อยังไม่สมัครพรีเมียม) */}
-          {!isAccountPremium && (
-            <div className="bg-white dark:bg-slate-800 rounded-3xl p-4 border border-slate-100 dark:border-slate-700 shadow-[0_4px_20px_rgba(0,0,0,0.04)] text-left space-y-3">
-              {/* Header with Crown & Price */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Crown className="w-5 h-5 fill-slate-900 text-slate-900 dark:fill-white dark:text-white" />
-                  <span className="text-[16px] font-bold text-slate-900 dark:text-white tracking-tight font-kanit">
-                    PetCare Premium
-                  </span>
-                </div>
-                <span className="text-[12px] font-semibold px-2.5 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-full">
-                  ฿499/เดือน
+          {/* PetCare Premium Banner Card (แสดงบนหน้า Landing Page ตามรูปที่ 2) */}
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-4 border border-slate-100 dark:border-slate-700 shadow-[0_4px_20px_rgba(0,0,0,0.04)] text-left space-y-3">
+            {/* Header with Crown & Price */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Crown className="w-5 h-5 fill-slate-900 text-slate-900 dark:fill-white dark:text-white" />
+                <span className="text-[16px] font-bold text-slate-900 dark:text-white tracking-tight font-kanit">
+                  PetCare Premium
                 </span>
               </div>
-
-              {/* Subtext Benefits */}
-              <p className="text-[13px] text-slate-600 dark:text-slate-300 leading-snug">
-                ปรึกษาแพทย์ส่วนตัว 24 ชม. และส่วนลดค่ายาพิเศษ
-              </p>
-
-              {/* CTA Button */}
-              <div>
-                <Link
-                  href="/login"
-                  className="block w-full text-center bg-[#00A877] hover:bg-[#009166] active:scale-[0.98] text-white font-medium text-[15px] py-2.5 px-6 rounded-full shadow-[0_6px_16px_rgba(0,168,119,0.3)] transition-all duration-200 font-kanit"
-                >
-                  สมัครเลย
-                </Link>
-              </div>
+              <span className="text-[12px] font-semibold px-2.5 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-full">
+                ฿499/เดือน
+              </span>
             </div>
-          )}
+
+            {/* Subtext Benefits */}
+            <p className="text-[13px] text-slate-600 dark:text-slate-300 leading-snug">
+              ปรึกษาแพทย์ส่วนตัว 24 ชม. และส่วนลดค่ายาพิเศษ
+            </p>
+
+            {/* CTA Button */}
+            <div>
+              <Link
+                href="/register/user"
+                className="block w-full text-center bg-[#00A877] hover:bg-[#009166] active:scale-[0.98] text-white font-medium text-[15px] py-2.5 px-6 rounded-full shadow-[0_6px_16px_rgba(0,168,119,0.3)] transition-all duration-200 font-kanit"
+              >
+                สมัครเลย
+              </Link>
+            </div>
+          </div>
 
         </div>
 
