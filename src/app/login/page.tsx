@@ -3,7 +3,7 @@
 import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Eye, EyeOff, ArrowLeft, CheckCircle2, Lock, X, KeyRound, Sparkles } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft, CheckCircle2, Lock, X, KeyRound, Sparkles, Mail, UserCheck, Plus, ChevronRight, Check } from "lucide-react";
 import MobileFrame from "@/components/MobileFrame";
 import PetmilyLogo from "@/components/PetmilyLogo";
 import { supabase } from "@/lib/supabaseClient";
@@ -31,6 +31,12 @@ function LoginForm() {
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [resetSuccess, setResetSuccess] = useState(false);
   const [resetError, setResetError] = useState("");
+
+  // Social login account selector modal states
+  const [showSocialModal, setShowSocialModal] = useState(false);
+  const [socialProvider, setSocialProvider] = useState<"google" | "apple" | null>(null);
+  const [customSocialEmail, setCustomSocialEmail] = useState("");
+  const [isCustomEmailMode, setIsCustomEmailMode] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,74 +146,39 @@ function LoginForm() {
 
 
   // Google Sign-In Handler
-  const handleGoogleLogin = async () => {
-    setIsLoading(true);
-    try {
-      // 1. Try Supabase OAuth
-      if (supabase && typeof supabase.auth?.signInWithOAuth === "function") {
-        const { data, error } = await supabase.auth.signInWithOAuth({
-          provider: "google",
-          options: {
-            redirectTo: typeof window !== "undefined" ? window.location.origin + "/home" : undefined,
-          },
-        });
-        if (!error && data?.url) {
-          window.location.href = data.url;
-          return;
-        }
-      }
-    } catch (e) {
-      console.warn("Google OAuth error:", e);
-    }
-
-    // Clear previous user localStorage data
-    const keysToReset = [
-      "petmily_pets", "petmily_activity_logs", "petmily_appointments",
-      "petmily_expenses", "petmily_chat_threads", "petmily_notifications",
-      "petmily_is_premium", "petmily_activity_buttons",
-    ];
-    keysToReset.forEach(k => { try { localStorage.removeItem(k); } catch {} });
-
-    // Seamless sign in fallback
-    const googleUser = {
-      fullName: "ผู้ใช้งาน (Google)",
-      email: identifier.includes("@") ? identifier : "google.user@gmail.com",
-      phone: "08X-XXX-XXXX",
-      role: (isVet ? "vet" : "user") as "user" | "vet",
-    };
-    setCurrentUser(googleUser);
-    setUserRole(isVet ? "vet" : "user");
-    try {
-      localStorage.setItem("petmily_current_user", JSON.stringify(googleUser));
-      localStorage.setItem("petmily_is_premium", JSON.stringify(false));
-    } catch {}
-    await syncWithSupabase(googleUser);
-
-    setToastMessage("เข้าสู่ระบบด้วย Google สำเร็จ! กำลังเข้าสู่ระบบ...");
-    setTimeout(() => {
-      router.push(isVet ? "/vet/home" : "/home");
-    }, 700);
+  const handleGoogleLogin = () => {
+    setSocialProvider("google");
+    setIsCustomEmailMode(false);
+    setCustomSocialEmail("");
+    setShowSocialModal(true);
   };
 
   // Apple Sign-In Handler
-  const handleAppleLogin = async () => {
-    setIsLoading(true);
-    try {
-      if (supabase && typeof supabase.auth?.signInWithOAuth === "function") {
-        const { data, error } = await supabase.auth.signInWithOAuth({
-          provider: "apple",
-          options: {
-            redirectTo: typeof window !== "undefined" ? window.location.origin + "/home" : undefined,
-          },
-        });
-        if (!error && data?.url) {
-          window.location.href = data.url;
-          return;
-        }
-      }
-    } catch (e) {
-      console.warn("Apple OAuth error:", e);
+  const handleAppleLogin = () => {
+    setSocialProvider("apple");
+    setIsCustomEmailMode(false);
+    setCustomSocialEmail("");
+    setShowSocialModal(true);
+  };
+
+  // Complete Social Login with chosen/entered email
+  const handleCompleteSocialLogin = async (chosenEmail: string) => {
+    const trimmedEmail = chosenEmail.trim();
+    if (!trimmedEmail || !trimmedEmail.includes("@")) {
+      setToastMessage("กรุณาระบุรูปแบบอีเมลให้ถูกต้อง (เช่น example@gmail.com)");
+      setTimeout(() => setToastMessage(null), 3000);
+      return;
     }
+
+    setIsLoading(true);
+    setShowSocialModal(false);
+
+    const provider = socialProvider || "google";
+    const providerName = provider === "google" ? "Google" : "Apple ID";
+    
+    const emailPrefix = trimmedEmail.split("@")[0] || "ผู้ใช้งาน";
+    const capitalizedName = emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1);
+    const displayName = `${capitalizedName} (${providerName})`;
 
     // Clear previous user localStorage data
     const keysToReset = [
@@ -217,22 +188,23 @@ function LoginForm() {
     ];
     keysToReset.forEach(k => { try { localStorage.removeItem(k); } catch {} });
 
-    // Seamless sign in fallback
-    const appleUser = {
-      fullName: "ผู้ใช้งาน (Apple ID)",
-      email: identifier.includes("@") ? identifier : "apple.user@icloud.com",
+    const socialUser = {
+      fullName: displayName,
+      email: trimmedEmail,
       phone: "08X-XXX-XXXX",
       role: (isVet ? "vet" : "user") as "user" | "vet",
     };
-    setCurrentUser(appleUser);
+
+    setCurrentUser(socialUser);
     setUserRole(isVet ? "vet" : "user");
     try {
-      localStorage.setItem("petmily_current_user", JSON.stringify(appleUser));
+      localStorage.setItem("petmily_current_user", JSON.stringify(socialUser));
       localStorage.setItem("petmily_is_premium", JSON.stringify(false));
     } catch {}
-    await syncWithSupabase(appleUser);
 
-    setToastMessage("เข้าสู่ระบบด้วย Apple ID สำเร็จ! กำลังเข้าสู่ระบบ...");
+    await syncWithSupabase(socialUser);
+
+    setToastMessage(`เข้าสู่ระบบด้วย ${providerName} (${trimmedEmail}) สำเร็จ!`);
     setTimeout(() => {
       router.push(isVet ? "/vet/home" : "/home");
     }, 700);
@@ -561,6 +533,223 @@ function LoginForm() {
           </div>
         )}
 
+        {/* Social Account Selector Modal */}
+        {showSocialModal && (
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-slate-900 w-full max-w-xs rounded-3xl p-5 text-left space-y-4 shadow-2xl animate-fade-in border border-orange-100 dark:border-slate-800">
+              
+              {/* Modal Header */}
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex items-center gap-2.5">
+                  {socialProvider === "google" ? (
+                    <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 shadow-xs">
+                      <svg className="w-5 h-5" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                      </svg>
+                    </div>
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center shrink-0 shadow-xs">
+                      <svg className="w-4 h-4 fill-current" viewBox="0 0 170 170">
+                        <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.6-7.79-11.72-14.24-5.77-9.04-10.22-19.16-13.35-30.34-3.13-11.19-4.7-21.84-4.7-31.97 0-14.53 3.69-26.68 11.07-36.46 7.37-9.78 16.74-14.78 28.1-15.01 4.79 0 10.15 1.25 16.08 3.76 5.93 2.5 9.78 3.82 11.55 3.96 1.48 0 5.48-1.46 12.01-4.38 6.53-2.92 12.44-4.07 17.74-3.45 13.82 1.09 24.63 6.13 32.44 15.12-12.18 7.39-18.17 17.52-17.97 30.4.19 10.23 4.1 18.82 11.72 25.75 7.63 6.94 16.71 10.88 27.24 11.83-2.48 7.5-5.63 15.11-9.46 22.84zM119.22 31.84c0-7.39 2.67-14.45 8.01-21.18 5.34-6.73 11.96-10.66 19.86-11.79.85 7.23-1.63 14.28-7.44 21.16-5.81 6.88-12.62 10.8-20.43 11.81z" />
+                      </svg>
+                    </div>
+                  )}
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white font-kanit leading-tight">
+                      {socialProvider === "google" ? "เลือกบัญชี Google" : "เลือก Apple ID"}
+                    </h3>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      เลือกอีเมลเพื่อเข้าสู่ระบบ PETMILY
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowSocialModal(false)}
+                  className="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Account Options List */}
+              <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                {/* 1. Typed identifier if it has @ */}
+                {identifier.includes("@") && (
+                  <button
+                    type="button"
+                    onClick={() => handleCompleteSocialLogin(identifier)}
+                    className="w-full p-2.5 rounded-2xl border border-orange-200 dark:border-orange-900/40 bg-orange-50/70 dark:bg-orange-950/30 hover:bg-orange-100/90 transition-all flex items-center justify-between text-left group cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2.5 overflow-hidden">
+                      <div className="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                        {identifier.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="overflow-hidden">
+                        <p className="text-[11px] font-bold text-slate-800 dark:text-slate-100 truncate">
+                          อีเมลที่กรอกในฟอร์ม
+                        </p>
+                        <p className="text-[11px] text-orange-600 dark:text-orange-400 font-medium truncate">
+                          {identifier}
+                        </p>
+                      </div>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
+                  </button>
+                )}
+
+                {/* 2. Provider specific demo accounts */}
+                {socialProvider === "google" ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => handleCompleteSocialLogin("user.petmily@gmail.com")}
+                      className="w-full p-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-orange-300 dark:hover:border-orange-500 hover:bg-orange-50/40 dark:hover:bg-slate-800/80 transition-all flex items-center justify-between text-left group cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2.5 overflow-hidden">
+                        <div className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                          S
+                        </div>
+                        <div className="overflow-hidden">
+                          <p className="text-[11px] font-bold text-slate-800 dark:text-slate-100 truncate">
+                            สมชาย รักสัตว์
+                          </p>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">
+                            user.petmily@gmail.com
+                          </p>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleCompleteSocialLogin("petlover.th@gmail.com")}
+                      className="w-full p-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-orange-300 dark:hover:border-orange-500 hover:bg-orange-50/40 dark:hover:bg-slate-800/80 transition-all flex items-center justify-between text-left group cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2.5 overflow-hidden">
+                        <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                          P
+                        </div>
+                        <div className="overflow-hidden">
+                          <p className="text-[11px] font-bold text-slate-800 dark:text-slate-100 truncate">
+                            ทาสแมว ชุมชนคนรักสัตว์
+                          </p>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">
+                            petlover.th@gmail.com
+                          </p>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => handleCompleteSocialLogin("user.petmily@icloud.com")}
+                      className="w-full p-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-orange-300 dark:hover:border-orange-500 hover:bg-orange-50/40 dark:hover:bg-slate-800/80 transition-all flex items-center justify-between text-left group cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2.5 overflow-hidden">
+                        <div className="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                          🍎
+                        </div>
+                        <div className="overflow-hidden">
+                          <p className="text-[11px] font-bold text-slate-800 dark:text-slate-100 truncate">
+                            สมหญิง สัตว์เลี้ยง
+                          </p>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">
+                            user.petmily@icloud.com
+                          </p>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleCompleteSocialLogin("apple.user@privaterelay.appleid.com")}
+                      className="w-full p-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-orange-300 dark:hover:border-orange-500 hover:bg-orange-50/40 dark:hover:bg-slate-800/80 transition-all flex items-center justify-between text-left group cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2.5 overflow-hidden">
+                        <div className="w-8 h-8 rounded-full bg-slate-700 text-white flex items-center justify-center font-bold text-[10px] shrink-0">
+                          🔒
+                        </div>
+                        <div className="overflow-hidden">
+                          <p className="text-[11px] font-bold text-slate-800 dark:text-slate-100 truncate">
+                            Hide My Email (Private Relay)
+                          </p>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">
+                            apple.user@privaterelay.appleid.com
+                          </p>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
+                    </button>
+                  </>
+                )}
+              </div>
+
+              {/* Custom Email Input Option */}
+              <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+                {!isCustomEmailMode ? (
+                  <button
+                    type="button"
+                    onClick={() => setIsCustomEmailMode(true)}
+                    className="w-full py-2 px-3 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-semibold hover:border-orange-400 hover:text-orange-600 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>ระบุอีเมลอื่น...</span>
+                  </button>
+                ) : (
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleCompleteSocialLogin(customSocialEmail);
+                    }}
+                    className="space-y-2 text-xs"
+                  >
+                    <label className="block font-bold text-slate-700 dark:text-slate-300">
+                      กรอกอีเมล {socialProvider === "google" ? "Google" : "Apple ID"}:
+                    </label>
+                    <div className="flex gap-1.5">
+                      <input
+                        type="email"
+                        required
+                        value={customSocialEmail}
+                        onChange={(e) => setCustomSocialEmail(e.target.value)}
+                        placeholder={socialProvider === "google" ? "your.email@gmail.com" : "your.email@icloud.com"}
+                        className="flex-1 p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-orange-400"
+                      />
+                      <button
+                        type="submit"
+                        className="px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl text-xs shadow-sm active:scale-95 transition-transform shrink-0 cursor-pointer"
+                      >
+                        ตกลง
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
+
+              {/* Cancel Button */}
+              <div className="pt-0.5">
+                <button
+                  type="button"
+                  onClick={() => setShowSocialModal(false)}
+                  className="w-full py-1 text-slate-500 hover:text-slate-700 text-xs font-medium text-center cursor-pointer"
+                >
+                  ยกเลิก
+                </button>
+              </div>
+
+            </div>
+          </div>
+        )}
       </div>
     </MobileFrame>
   );
