@@ -438,15 +438,14 @@ export default function HomePage() {
                 ปรึกษาแพทย์ส่วนตัว 24 ชม. และส่วนลดค่ายาพิเศษ
               </p>
 
-              {/* CTA Button: กดแล้วสมัครสมาชิกพรีเมียมทันที */}
+              {/* CTA Button: กดแล้วไปหน้าเลือกแผนรายเดือน/รายปี */}
               <div>
-                <button
-                  type="button"
-                  onClick={handleInstantUpgrade}
+                <Link
+                  href="/premium/pricing"
                   className="block w-full text-center bg-[#00A877] hover:bg-[#009166] active:scale-[0.98] text-white font-bold text-[15px] py-2.5 px-6 rounded-full shadow-[0_6px_16px_rgba(0,168,119,0.3)] transition-all duration-200 font-kanit cursor-pointer"
                 >
                   สมัครเลย
-                </button>
+                </Link>
               </div>
             </div>
           )}

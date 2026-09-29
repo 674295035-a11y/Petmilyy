@@ -208,7 +208,7 @@ export default function GuestLandingPage() {
             {/* CTA Button */}
             <div>
               <Link
-                href="/register/user"
+                href="/premium/pricing"
                 className="block w-full text-center bg-[#00A877] hover:bg-[#009166] active:scale-[0.98] text-white font-medium text-[15px] py-2.5 px-6 rounded-full shadow-[0_6px_16px_rgba(0,168,119,0.3)] transition-all duration-200 font-kanit"
               >
                 สมัครเลย
