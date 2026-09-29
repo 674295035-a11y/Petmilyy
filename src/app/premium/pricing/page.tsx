@@ -1,56 +1,18 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ShieldCheck, Crown, LogIn, UserPlus, X, CheckCircle2 } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import MobileFrame from "@/components/MobileFrame";
 import AppHeader from "@/components/AppHeader";
 import BottomNav from "@/components/BottomNav";
-import { usePetContext } from "@/lib/petContext";
-import { supabase } from "@/lib/supabaseClient";
 
 export default function PricingPage() {
   const router = useRouter();
-  const { currentUser } = usePetContext();
   const [selectedPlan, setSelectedPlan] = useState<"monthly" | "yearly">("monthly");
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [isClientLoggedIn, setIsClientLoggedIn] = useState(false);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const savedUserStr = localStorage.getItem("petmily_current_user");
-        let hasLocalUser = false;
-        if (savedUserStr) {
-          const parsed = JSON.parse(savedUserStr);
-          if (parsed && (parsed.email || parsed.fullName || parsed.id)) {
-            hasLocalUser = true;
-          }
-        }
-        if (currentUser?.email || currentUser?.fullName || currentUser?.id || hasLocalUser) {
-          setIsClientLoggedIn(true);
-          return;
-        }
-
-        const { data: sessionData } = await supabase.auth.getSession();
-        if (sessionData?.session?.user) {
-          setIsClientLoggedIn(true);
-        } else {
-          setIsClientLoggedIn(false);
-        }
-      } catch (e) {
-        setIsClientLoggedIn(false);
-      }
-    };
-    checkAuth();
-  }, [currentUser]);
 
   const handleConfirm = () => {
-    if (!isClientLoggedIn) {
-      setShowAuthModal(true);
-      return;
-    }
     router.push(`/payment?plan=${selectedPlan}`);
   };
 
@@ -174,75 +136,13 @@ export default function PricingPage() {
             <button
               type="button"
               onClick={handleConfirm}
-              className="w-full py-3.5 bg-[#00A877] hover:bg-[#009166] active:scale-[0.98] text-white font-semibold text-[17px] rounded-full shadow-[0_8px_20px_rgba(0,168,119,0.35)] transition-all font-kanit cursor-pointer"
+              className="w-full py-3.5 bg-[#00A877] hover:bg-[#009166] active:scale-[0.98] text-white font-semibold text-[17px] rounded-full shadow-[0_8px_20px_rgba(0,168,119,0.35)] transition-all font-kanit"
             >
               ยืนยันการสมัคร
             </button>
           </div>
 
         </div>
-
-        {/* Modal: กรุณาเข้าสู่ระบบก่อนชำระเงิน */}
-        {showAuthModal && (
-          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-slate-800 w-full max-w-xs rounded-3xl p-5 text-center space-y-4 shadow-2xl border border-purple-200 dark:border-slate-700 animate-in fade-in zoom-in-95 duration-200 relative">
-              <button
-                type="button"
-                onClick={() => setShowAuthModal(false)}
-                className="absolute top-3.5 right-3.5 w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200"
-              >
-                <X className="w-4 h-4" />
-              </button>
-
-              <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 text-white mx-auto flex items-center justify-center shadow-lg shadow-teal-500/30">
-                <Crown className="w-9 h-9 fill-white text-white drop-shadow-sm" />
-              </div>
-
-              <div className="space-y-1.5">
-                <h3 className="text-[18px] font-black text-slate-900 dark:text-white font-kanit">
-                  กรุณาเข้าสู่ระบบก่อน
-                </h3>
-                <p className="text-[12px] text-slate-600 dark:text-slate-300 leading-relaxed">
-                  ต้องเข้าสู่ระบบหรือสมัครสมาชิกก่อน เพื่อผูกสิทธิประโยชน์พรีเมียมและเชื่อมต่อกับบัญชีของคุณบน Supabase
-                </p>
-              </div>
-
-              <div className="space-y-2 pt-1">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowAuthModal(false);
-                    router.push(`/login?redirect=/payment?plan=${selectedPlan}`);
-                  }}
-                  className="w-full py-3 bg-[#00A877] hover:bg-[#009166] active:scale-95 text-white font-bold text-[14px] rounded-full shadow-md shadow-emerald-500/25 transition-all font-kanit flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  <LogIn className="w-4 h-4" />
-                  <span>เข้าสู่ระบบ</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowAuthModal(false);
-                    router.push(`/register/user?redirect=/payment?plan=${selectedPlan}`);
-                  }}
-                  className="w-full py-2.5 bg-white dark:bg-slate-700 hover:bg-emerald-50 dark:hover:bg-slate-600 border border-emerald-300 dark:border-slate-600 active:scale-95 text-emerald-700 dark:text-emerald-300 font-bold text-[13px] rounded-full shadow-xs transition-all font-kanit flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  <UserPlus className="w-4 h-4" />
-                  <span>สมัครสมาชิกใหม่</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setShowAuthModal(false)}
-                  className="w-full py-1 text-slate-400 dark:text-slate-500 hover:text-slate-600 text-[11px]"
-                >
-                  ไว้ภายหลัง
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Bottom Nav */}
         <BottomNav />

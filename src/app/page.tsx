@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -8,12 +8,8 @@ import {
   Crown,
   LogIn,
   UserPlus,
-  ShieldCheck,
-  Sparkles,
   X,
-  CheckCircle2,
-  ArrowRight,
-  User,
+  Sparkles,
 } from "lucide-react";
 import MobileFrame from "@/components/MobileFrame";
 import PetmilyLogo from "@/components/PetmilyLogo";
@@ -27,52 +23,67 @@ export default function GuestLandingPage() {
   const [showSplash, setShowSplash] = useState(true);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [isClientLoggedIn, setIsClientLoggedIn] = useState(false);
-
-  // Check if user is logged in
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const savedUserStr = localStorage.getItem("petmily_current_user");
-        let hasLocalUser = false;
-        if (savedUserStr) {
-          const parsed = JSON.parse(savedUserStr);
-          if (parsed && (parsed.email || parsed.fullName || parsed.id)) {
-            hasLocalUser = true;
-          }
-        }
-        if (currentUser?.email || currentUser?.fullName || currentUser?.id || hasLocalUser) {
-          setIsClientLoggedIn(true);
-          return;
-        }
-
-        // Check Supabase session
-        const { data: sessionData } = await supabase.auth.getSession();
-        if (sessionData?.session?.user) {
-          setIsClientLoggedIn(true);
-        } else {
-          setIsClientLoggedIn(false);
-        }
-      } catch (e) {
-        setIsClientLoggedIn(false);
-      }
-    };
-    checkAuth();
-  }, [currentUser]);
+  const [checkingAuth, setCheckingAuth] = useState(false);
 
   const isAccountPremium =
     isPremium ||
     (currentUser as any)?.isPremium === true ||
     (typeof window !== "undefined" && localStorage.getItem("petmily_is_premium") === "true");
 
-  const handlePremiumClick = (e: React.MouseEvent) => {
+  // Check if user is logged in via Supabase or local state
+  const checkIsUserLoggedIn = async (): Promise<boolean> => {
+    // 1. Check PetContext state
+    if (currentUser?.email || currentUser?.id) {
+      return true;
+    }
+
+    // 2. Check localStorage saved user
+    if (typeof window !== "undefined") {
+      try {
+        const savedUserStr = localStorage.getItem("petmily_current_user");
+        if (savedUserStr) {
+          const parsed = JSON.parse(savedUserStr);
+          if (parsed && (parsed.email || parsed.id || (parsed.fullName && parsed.fullName !== "ผู้ใช้งาน"))) {
+            return true;
+          }
+        }
+      } catch (e) {
+        console.error("Local storage parse error:", e);
+      }
+    }
+
+    // 3. Check Supabase Auth live session/user
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        return true;
+      }
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        return true;
+      }
+    } catch (e) {
+      console.warn("Supabase auth check:", e);
+    }
+
+    return false;
+  };
+
+  const handlePremiumClick = async (e: React.MouseEvent) => {
     e.preventDefault();
-    if (isClientLoggedIn) {
-      // User is already logged in -> proceed to premium pricing page
-      router.push("/premium/pricing");
-    } else {
-      // User is not logged in -> show modal to ask for login or register first
+    setCheckingAuth(true);
+
+    try {
+      const isLoggedIn = await checkIsUserLoggedIn();
+      if (isLoggedIn) {
+        router.push("/premium/pricing");
+      } else {
+        setShowAuthModal(true);
+      }
+    } catch (err) {
       setShowAuthModal(true);
+    } finally {
+      setCheckingAuth(false);
     }
   };
 
@@ -101,34 +112,22 @@ export default function GuestLandingPage() {
             </span>
           </div>
 
-          {/* Action Buttons */}
+          {/* Action Buttons: เข้าสู่ระบบ / สมัครสมาชิก */}
           <div className="flex items-center gap-1.5 shrink-0">
-            {isClientLoggedIn ? (
-              <Link
-                href="/home"
-                className="px-3.5 py-1.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 active:scale-95 text-white text-[12px] font-semibold tracking-tight shadow-md shadow-orange-500/25 transition-all font-kanit flex items-center gap-1.5 cursor-pointer"
-              >
-                <User className="w-3.5 h-3.5" />
-                <span>เข้าสู่แอป ({currentUser?.fullName || "ผู้ใช้"})</span>
-              </Link>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  className="px-3 py-1.5 rounded-full bg-white hover:bg-orange-50 active:scale-95 text-orange-600 border border-orange-300 text-[12px] font-semibold tracking-tight shadow-xs transition-all font-kanit flex items-center gap-1 cursor-pointer"
-                >
-                  <LogIn className="w-3.5 h-3.5 text-orange-500" />
-                  <span>เข้าสู่ระบบ</span>
-                </Link>
-                <Link
-                  href="/register/user"
-                  className="px-3 py-1.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 active:scale-95 text-white text-[12px] font-semibold tracking-tight shadow-md shadow-orange-500/25 transition-all font-kanit flex items-center gap-1 cursor-pointer"
-                >
-                  <UserPlus className="w-3.5 h-3.5" />
-                  <span>สมัครสมาชิก</span>
-                </Link>
-              </>
-            )}
+            <Link
+              href="/login"
+              className="px-3 py-1.5 rounded-full bg-white hover:bg-orange-50 active:scale-95 text-orange-600 border border-orange-300 text-[12px] font-semibold tracking-tight shadow-xs transition-all font-kanit flex items-center gap-1 cursor-pointer"
+            >
+              <LogIn className="w-3.5 h-3.5 text-orange-500" />
+              <span>เข้าสู่ระบบ</span>
+            </Link>
+            <Link
+              href="/register/user"
+              className="px-3 py-1.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 active:scale-95 text-white text-[12px] font-semibold tracking-tight shadow-md shadow-orange-500/25 transition-all font-kanit flex items-center gap-1 cursor-pointer"
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              <span>สมัครสมาชิก</span>
+            </Link>
           </div>
         </header>
 
@@ -296,93 +295,75 @@ export default function GuestLandingPage() {
               <button
                 type="button"
                 onClick={handlePremiumClick}
-                className="block w-full text-center bg-white hover:bg-slate-50 active:scale-95 text-purple-700 font-extrabold text-[15px] py-2.5 px-6 rounded-full shadow-lg shadow-black/10 hover:scale-[1.03] transition-all duration-200 font-kanit cursor-pointer"
+                disabled={checkingAuth}
+                className="block w-full text-center bg-white hover:bg-slate-50 active:scale-95 text-purple-700 font-extrabold text-[15px] py-2.5 px-6 rounded-full shadow-lg shadow-black/10 hover:scale-[1.03] transition-all duration-200 font-kanit cursor-pointer disabled:opacity-80"
               >
-                {isAccountPremium ? "คุณเป็นสมาชิก Premium แล้ว ⭐" : "สมัครเลย"}
+                {checkingAuth ? "กำลังตรวจสอบ..." : "สมัครเลย"}
               </button>
             </div>
           </div>
 
         </div>
 
-        {/* Modal: กรุณาเข้าสู่ระบบก่อนสมัครพรีเมียม */}
+        {/* Auth Required Modal */}
         {showAuthModal && (
-          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-slate-800 w-full max-w-xs rounded-3xl p-5 text-center space-y-4 shadow-2xl border border-purple-200 dark:border-slate-700 animate-in fade-in zoom-in-95 duration-200 relative">
-              {/* Close Icon */}
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-white dark:bg-slate-900 rounded-[28px] p-6 max-w-sm w-full shadow-2xl border border-orange-100 dark:border-slate-800 text-center relative overflow-hidden animate-in zoom-in-95 duration-200">
+              
+              {/* Decorative top accent */}
+              <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600" />
+              
+              {/* Close button */}
               <button
                 type="button"
                 onClick={() => setShowAuthModal(false)}
-                className="absolute top-3.5 right-3.5 w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200"
+                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center justify-center transition-colors"
+                aria-label="ปิด"
               >
                 <X className="w-4 h-4" />
               </button>
 
-              {/* Crown Icon Header */}
-              <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-amber-400 via-orange-400 to-pink-500 text-white mx-auto flex items-center justify-center shadow-lg shadow-orange-500/30">
-                <Crown className="w-9 h-9 fill-white text-white drop-shadow-sm animate-pulse" />
+              {/* Icon */}
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 via-orange-500 to-pink-500 text-white flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
+                <Crown className="w-8 h-8 text-white fill-white" />
               </div>
 
-              {/* Heading & Subtitle */}
-              <div className="space-y-1.5">
-                <h3 className="text-[18px] font-black text-slate-900 dark:text-white font-kanit">
-                  กรุณาเข้าสู่ระบบก่อน
-                </h3>
-                <p className="text-[12px] text-slate-600 dark:text-slate-300 leading-relaxed">
-                  ต้องเข้าสู่ระบบหรือสมัครสมาชิกก่อน ถึงจะสามารถสมัคร <span className="font-bold text-purple-600 dark:text-purple-400">PetCare Premium</span> เพื่อเชื่อมต่อและบันทึกสิทธิ์ลงในบัญชีของคุณบน Supabase ได้
-                </p>
-              </div>
+              {/* Title */}
+              <h3 className="text-[18px] font-bold text-slate-900 dark:text-white font-kanit">
+                เข้าสู่ระบบเพื่อสมัครพรีเมียม
+              </h3>
 
-              {/* VIP Benefits Mini List */}
-              <div className="bg-purple-50/80 dark:bg-purple-950/40 border border-purple-100 dark:border-purple-900/50 rounded-2xl p-3 text-left space-y-1.5 text-[11px] text-purple-900 dark:text-purple-200">
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
-                  <span>ปรึกษาสัตวแพทย์ส่วนตัวได้ 24 ชั่วโมง</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
-                  <span>ส่วนลดค่ายาและค่ารักษาพยาบาล 20%</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
-                  <span>บันทึกประวัติสัตว์เลี้ยงและซิงค์ข้อมูลบน Supabase</span>
-                </div>
-              </div>
+              {/* Description */}
+              <p className="text-[13px] text-slate-600 dark:text-slate-300 mt-2 leading-relaxed font-normal">
+                กรุณาเข้าสู่ระบบหรือสมัครสมาชิกก่อน เพื่อเริ่มต้นใช้งานสิทธิประโยชน์ <span className="font-bold text-purple-600 dark:text-purple-400">PetCare Premium</span>
+              </p>
 
-              {/* Action Buttons: เข้าสู่ระบบ / สมัครสมาชิก */}
-              <div className="space-y-2 pt-1">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowAuthModal(false);
-                    router.push("/login?redirect=/premium/pricing");
-                  }}
-                  className="w-full py-3 bg-gradient-to-r from-orange-500 via-amber-500 to-amber-400 hover:from-orange-600 hover:to-amber-600 active:scale-95 text-white font-bold text-[14px] rounded-full shadow-md shadow-orange-500/25 transition-all font-kanit flex items-center justify-center gap-1.5 cursor-pointer"
+              {/* Action Buttons */}
+              <div className="space-y-2.5 mt-5">
+                <Link
+                  href="/login"
+                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-[14px] shadow-md shadow-orange-500/25 flex items-center justify-center gap-2 font-kanit active:scale-[0.98] transition-all"
                 >
                   <LogIn className="w-4 h-4" />
-                  <span>เข้าสู่ระบบเพื่อสมัครพรีเมียม</span>
-                </button>
+                  <span>เข้าสู่ระบบ</span>
+                </Link>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowAuthModal(false);
-                    router.push("/register/user?redirect=/premium/pricing");
-                  }}
-                  className="w-full py-2.5 bg-white dark:bg-slate-700 hover:bg-orange-50 dark:hover:bg-slate-600 border border-orange-300 dark:border-slate-600 active:scale-95 text-orange-600 dark:text-orange-300 font-bold text-[13px] rounded-full shadow-xs transition-all font-kanit flex items-center justify-center gap-1.5 cursor-pointer"
+                <Link
+                  href="/register/user"
+                  className="w-full py-3 px-4 rounded-xl bg-orange-50 dark:bg-slate-800 hover:bg-orange-100 dark:hover:bg-slate-700 text-orange-600 dark:text-orange-300 font-bold text-[14px] border border-orange-200 dark:border-slate-700 flex items-center justify-center gap-2 font-kanit active:scale-[0.98] transition-all"
                 >
                   <UserPlus className="w-4 h-4" />
-                  <span>สมัครสมาชิกใหม่</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setShowAuthModal(false)}
-                  className="w-full py-1 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 text-[11px]"
-                >
-                  ไว้ภายหลัง
-                </button>
+                  <span>สมัครสมาชิก</span>
+                </Link>
               </div>
+
+              <button
+                type="button"
+                onClick={() => setShowAuthModal(false)}
+                className="mt-4 text-[12px] font-medium text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+              >
+                ไว้คราวหลัง
+              </button>
 
             </div>
           </div>
@@ -393,3 +374,4 @@ export default function GuestLandingPage() {
     </>
   );
 }
+
