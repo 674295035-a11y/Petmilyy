@@ -1,16 +1,18 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Eye, EyeOff, CheckCircle2, User } from "lucide-react";
 import MobileFrame from "@/components/MobileFrame";
 import PetmilyLogo from "@/components/PetmilyLogo";
 import { supabase } from "@/lib/supabaseClient";
 import { usePetContext } from "@/lib/petContext";
 
-export default function UserRegisterPage() {
+function UserRegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTarget = searchParams.get("redirect");
   const { resetForNewUser } = usePetContext();
   const [formData, setFormData] = useState({
     fullname: "",
@@ -92,7 +94,11 @@ export default function UserRegisterPage() {
 
       setIsSuccess(true);
       setTimeout(() => {
-        router.push("/pets/new");
+        if (redirectTarget) {
+          router.push(redirectTarget);
+        } else {
+          router.push("/pets/new");
+        }
       }, 900);
     } catch (err: any) {
       console.error("Supabase Save Error:", err);
@@ -294,7 +300,11 @@ export default function UserRegisterPage() {
                   phone: "08X-XXX-XXXX",
                   role: "user",
                 });
-                router.push("/pets/new");
+                if (redirectTarget) {
+                  router.push(redirectTarget);
+                } else {
+                  router.push("/pets/new");
+                }
               }}
               className="w-12 h-12 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-95 flex items-center justify-center shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-all cursor-pointer"
               title="สมัครด้วย Google"
@@ -328,7 +338,11 @@ export default function UserRegisterPage() {
                   phone: "08X-XXX-XXXX",
                   role: "user",
                 });
-                router.push("/pets/new");
+                if (redirectTarget) {
+                  router.push(redirectTarget);
+                } else {
+                  router.push("/pets/new");
+                }
               }}
               className="w-12 h-12 rounded-full bg-slate-200 hover:bg-slate-300 active:scale-95 flex items-center justify-center shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-all text-black cursor-pointer"
               title="สมัครด้วย Apple"
@@ -341,5 +355,13 @@ export default function UserRegisterPage() {
         </form>
       </div>
     </MobileFrame>
+  );
+}
+
+export default function UserRegisterPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-slate-500">กำลังโหลด...</div>}>
+      <UserRegisterForm />
+    </Suspense>
   );
 }

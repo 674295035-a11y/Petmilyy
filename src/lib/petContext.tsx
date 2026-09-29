@@ -563,16 +563,30 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         localStorage.setItem("petmily_chat_threads", JSON.stringify(initialChats));
       } catch (e) {}
 
-      // Sync to Supabase profiles
+      // Sync to Supabase profiles with is_premium
       await supabase.from("profiles").upsert(
         {
+          id: currentUser.id || undefined,
           full_name: currentUser.fullName || "ผู้ใช้งาน",
           email: currentUser.email || "user@petmily.app",
           role: userRole,
+          is_premium: true,
           updated_at: new Date().toISOString(),
         },
         { onConflict: "email" }
       );
+
+      // Attempt to save subscription record in Supabase
+      try {
+        await supabase.from("subscriptions").insert({
+          user_id: currentUser.id || null,
+          user_email: currentUser.email || "user@petmily.app",
+          status: "active",
+          created_at: new Date().toISOString(),
+        });
+      } catch (subErr) {
+        // Table might not exist, safe fallback
+      }
 
       // Persist recommended doctor chat threads to Supabase
       for (const chat of initialChats) {
@@ -1109,6 +1123,25 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       const user = targetUser || currentUser;
       if (user && (user.fullName?.trim() || user.email?.trim() || user.id || user.phone?.trim())) {
+        // Check profile premium status from Supabase
+        if (user.email?.trim() || user.id) {
+          try {
+            let profQuery = supabase.from("profiles").select("is_premium, full_name, role");
+            if (user.id) {
+              profQuery = profQuery.eq("id", user.id);
+            } else if (user.email?.trim()) {
+              profQuery = profQuery.eq("email", user.email.trim());
+            }
+            const { data: prof } = await profQuery.maybeSingle();
+            if (prof?.is_premium) {
+              setIsPremium(true);
+              try {
+                localStorage.setItem("petmily_is_premium", "true");
+              } catch {}
+            }
+          } catch (e) {}
+        }
+
         await fetchPets(user);
         await fetchAppointments(user);
         await fetchExpenses(user);

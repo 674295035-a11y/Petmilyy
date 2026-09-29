@@ -1,27 +1,80 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Heart,
   Crown,
   LogIn,
   UserPlus,
+  ShieldCheck,
+  Sparkles,
+  X,
+  CheckCircle2,
+  ArrowRight,
+  User,
 } from "lucide-react";
 import MobileFrame from "@/components/MobileFrame";
 import PetmilyLogo from "@/components/PetmilyLogo";
 import SplashScreen from "@/components/SplashScreen";
 import { usePetContext } from "@/lib/petContext";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function GuestLandingPage() {
+  const router = useRouter();
   const { isPremium, currentUser } = usePetContext();
   const [showSplash, setShowSplash] = useState(true);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [isClientLoggedIn, setIsClientLoggedIn] = useState(false);
+
+  // Check if user is logged in
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const savedUserStr = localStorage.getItem("petmily_current_user");
+        let hasLocalUser = false;
+        if (savedUserStr) {
+          const parsed = JSON.parse(savedUserStr);
+          if (parsed && (parsed.email || parsed.fullName || parsed.id)) {
+            hasLocalUser = true;
+          }
+        }
+        if (currentUser?.email || currentUser?.fullName || currentUser?.id || hasLocalUser) {
+          setIsClientLoggedIn(true);
+          return;
+        }
+
+        // Check Supabase session
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (sessionData?.session?.user) {
+          setIsClientLoggedIn(true);
+        } else {
+          setIsClientLoggedIn(false);
+        }
+      } catch (e) {
+        setIsClientLoggedIn(false);
+      }
+    };
+    checkAuth();
+  }, [currentUser]);
 
   const isAccountPremium =
     isPremium ||
     (currentUser as any)?.isPremium === true ||
     (typeof window !== "undefined" && localStorage.getItem("petmily_is_premium") === "true");
+
+  const handlePremiumClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (isClientLoggedIn) {
+      // User is already logged in -> proceed to premium pricing page
+      router.push("/premium/pricing");
+    } else {
+      // User is not logged in -> show modal to ask for login or register first
+      setShowAuthModal(true);
+    }
+  };
 
   return (
     <>
@@ -48,22 +101,34 @@ export default function GuestLandingPage() {
             </span>
           </div>
 
-          {/* Action Buttons: เข้าสู่ระบบ / สมัครสมาชิก */}
+          {/* Action Buttons */}
           <div className="flex items-center gap-1.5 shrink-0">
-            <Link
-              href="/login"
-              className="px-3 py-1.5 rounded-full bg-white hover:bg-orange-50 active:scale-95 text-orange-600 border border-orange-300 text-[12px] font-semibold tracking-tight shadow-xs transition-all font-kanit flex items-center gap-1 cursor-pointer"
-            >
-              <LogIn className="w-3.5 h-3.5 text-orange-500" />
-              <span>เข้าสู่ระบบ</span>
-            </Link>
-            <Link
-              href="/register/user"
-              className="px-3 py-1.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 active:scale-95 text-white text-[12px] font-semibold tracking-tight shadow-md shadow-orange-500/25 transition-all font-kanit flex items-center gap-1 cursor-pointer"
-            >
-              <UserPlus className="w-3.5 h-3.5" />
-              <span>สมัครสมาชิก</span>
-            </Link>
+            {isClientLoggedIn ? (
+              <Link
+                href="/home"
+                className="px-3.5 py-1.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 active:scale-95 text-white text-[12px] font-semibold tracking-tight shadow-md shadow-orange-500/25 transition-all font-kanit flex items-center gap-1.5 cursor-pointer"
+              >
+                <User className="w-3.5 h-3.5" />
+                <span>เข้าสู่แอป ({currentUser?.fullName || "ผู้ใช้"})</span>
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="px-3 py-1.5 rounded-full bg-white hover:bg-orange-50 active:scale-95 text-orange-600 border border-orange-300 text-[12px] font-semibold tracking-tight shadow-xs transition-all font-kanit flex items-center gap-1 cursor-pointer"
+                >
+                  <LogIn className="w-3.5 h-3.5 text-orange-500" />
+                  <span>เข้าสู่ระบบ</span>
+                </Link>
+                <Link
+                  href="/register/user"
+                  className="px-3 py-1.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 active:scale-95 text-white text-[12px] font-semibold tracking-tight shadow-md shadow-orange-500/25 transition-all font-kanit flex items-center gap-1 cursor-pointer"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>สมัครสมาชิก</span>
+                </Link>
+              </>
+            )}
           </div>
         </header>
 
@@ -226,18 +291,102 @@ export default function GuestLandingPage() {
               ปรึกษาแพทย์ส่วนตัว 24 ชม. และส่วนลดค่ายาพิเศษ 20% สำหรับสมาชิก
             </p>
 
-            {/* CTA Button: กดแล้วไปหน้าเลือกแผนรายเดือน/รายปี */}
+            {/* CTA Button: ตรวจสอบสถานะการเข้าสู่ระบบก่อนสมัคร */}
             <div className="pt-1 relative z-10">
-              <Link
-                href="/premium/pricing"
+              <button
+                type="button"
+                onClick={handlePremiumClick}
                 className="block w-full text-center bg-white hover:bg-slate-50 active:scale-95 text-purple-700 font-extrabold text-[15px] py-2.5 px-6 rounded-full shadow-lg shadow-black/10 hover:scale-[1.03] transition-all duration-200 font-kanit cursor-pointer"
               >
-                สมัครเลย
-              </Link>
+                {isAccountPremium ? "คุณเป็นสมาชิก Premium แล้ว ⭐" : "สมัครเลย"}
+              </button>
             </div>
           </div>
 
         </div>
+
+        {/* Modal: กรุณาเข้าสู่ระบบก่อนสมัครพรีเมียม */}
+        {showAuthModal && (
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-slate-800 w-full max-w-xs rounded-3xl p-5 text-center space-y-4 shadow-2xl border border-purple-200 dark:border-slate-700 animate-in fade-in zoom-in-95 duration-200 relative">
+              {/* Close Icon */}
+              <button
+                type="button"
+                onClick={() => setShowAuthModal(false)}
+                className="absolute top-3.5 right-3.5 w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              {/* Crown Icon Header */}
+              <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-amber-400 via-orange-400 to-pink-500 text-white mx-auto flex items-center justify-center shadow-lg shadow-orange-500/30">
+                <Crown className="w-9 h-9 fill-white text-white drop-shadow-sm animate-pulse" />
+              </div>
+
+              {/* Heading & Subtitle */}
+              <div className="space-y-1.5">
+                <h3 className="text-[18px] font-black text-slate-900 dark:text-white font-kanit">
+                  กรุณาเข้าสู่ระบบก่อน
+                </h3>
+                <p className="text-[12px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                  ต้องเข้าสู่ระบบหรือสมัครสมาชิกก่อน ถึงจะสามารถสมัคร <span className="font-bold text-purple-600 dark:text-purple-400">PetCare Premium</span> เพื่อเชื่อมต่อและบันทึกสิทธิ์ลงในบัญชีของคุณบน Supabase ได้
+                </p>
+              </div>
+
+              {/* VIP Benefits Mini List */}
+              <div className="bg-purple-50/80 dark:bg-purple-950/40 border border-purple-100 dark:border-purple-900/50 rounded-2xl p-3 text-left space-y-1.5 text-[11px] text-purple-900 dark:text-purple-200">
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
+                  <span>ปรึกษาสัตวแพทย์ส่วนตัวได้ 24 ชั่วโมง</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
+                  <span>ส่วนลดค่ายาและค่ารักษาพยาบาล 20%</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
+                  <span>บันทึกประวัติสัตว์เลี้ยงและซิงค์ข้อมูลบน Supabase</span>
+                </div>
+              </div>
+
+              {/* Action Buttons: เข้าสู่ระบบ / สมัครสมาชิก */}
+              <div className="space-y-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAuthModal(false);
+                    router.push("/login?redirect=/premium/pricing");
+                  }}
+                  className="w-full py-3 bg-gradient-to-r from-orange-500 via-amber-500 to-amber-400 hover:from-orange-600 hover:to-amber-600 active:scale-95 text-white font-bold text-[14px] rounded-full shadow-md shadow-orange-500/25 transition-all font-kanit flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <LogIn className="w-4 h-4" />
+                  <span>เข้าสู่ระบบเพื่อสมัครพรีเมียม</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAuthModal(false);
+                    router.push("/register/user?redirect=/premium/pricing");
+                  }}
+                  className="w-full py-2.5 bg-white dark:bg-slate-700 hover:bg-orange-50 dark:hover:bg-slate-600 border border-orange-300 dark:border-slate-600 active:scale-95 text-orange-600 dark:text-orange-300 font-bold text-[13px] rounded-full shadow-xs transition-all font-kanit flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  <span>สมัครสมาชิกใหม่</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowAuthModal(false)}
+                  className="w-full py-1 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 text-[11px]"
+                >
+                  ไว้ภายหลัง
+                </button>
+              </div>
+
+            </div>
+          </div>
+        )}
 
       </div>
     </MobileFrame>

@@ -96,6 +96,7 @@ function LoginForm() {
       const userEmail = profileData?.email || (identifier.includes("@") ? identifier.trim() : "");
       const userRole2 = profileData?.role || (isVet ? "vet" : "user");
       const userClinic = profileData?.clinic_name || "";
+      const userIsPremium = Boolean(profileData?.is_premium);
 
       const newUser = {
         id: userId,
@@ -109,15 +110,19 @@ function LoginForm() {
       setUserRole(userRole2 as "user" | "vet");
       try {
         localStorage.setItem("petmily_current_user", JSON.stringify(newUser));
-        localStorage.setItem("petmily_is_premium", JSON.stringify(false));
+        localStorage.setItem("petmily_is_premium", JSON.stringify(userIsPremium));
       } catch {}
 
       // Sync data specifically for this user
       await syncWithSupabase(newUser);
 
+      const redirectTarget = searchParams.get("redirect");
+
       setIsSuccess(true);
       setTimeout(() => {
-        if (isVet || userRole2 === "vet") {
+        if (redirectTarget) {
+          router.push(redirectTarget);
+        } else if (isVet || userRole2 === "vet") {
           router.push("/vet/home");
         } else {
           router.push("/home");
@@ -135,9 +140,14 @@ function LoginForm() {
       };
       setCurrentUser(fallbackUser);
       await syncWithSupabase(fallbackUser);
+      const redirectTarget = searchParams.get("redirect");
       setIsSuccess(true);
       setTimeout(() => {
-        router.push(isVet ? "/vet/home" : "/home");
+        if (redirectTarget) {
+          router.push(redirectTarget);
+        } else {
+          router.push(isVet ? "/vet/home" : "/home");
+        }
       }, 700);
     } finally {
       setIsLoading(false);
@@ -188,25 +198,43 @@ function LoginForm() {
     ];
     keysToReset.forEach(k => { try { localStorage.removeItem(k); } catch {} });
 
+    // Check if user already exists in profiles
+    let existingProfile: any = null;
+    try {
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("email", trimmedEmail)
+        .maybeSingle();
+      existingProfile = prof;
+    } catch (e) {}
+
     const socialUser = {
-      fullName: displayName,
+      fullName: existingProfile?.full_name || displayName,
       email: trimmedEmail,
-      phone: "08X-XXX-XXXX",
+      phone: existingProfile?.phone || "08X-XXX-XXXX",
       role: (isVet ? "vet" : "user") as "user" | "vet",
     };
 
     setCurrentUser(socialUser);
     setUserRole(isVet ? "vet" : "user");
+    const isSocialUserPremium = Boolean(existingProfile?.is_premium);
     try {
       localStorage.setItem("petmily_current_user", JSON.stringify(socialUser));
-      localStorage.setItem("petmily_is_premium", JSON.stringify(false));
+      localStorage.setItem("petmily_is_premium", JSON.stringify(isSocialUserPremium));
     } catch {}
 
     await syncWithSupabase(socialUser);
 
+    const redirectTarget = searchParams.get("redirect");
+
     setToastMessage(`เข้าสู่ระบบด้วย ${providerName} (${trimmedEmail}) สำเร็จ!`);
     setTimeout(() => {
-      router.push(isVet ? "/vet/home" : "/home");
+      if (redirectTarget) {
+        router.push(redirectTarget);
+      } else {
+        router.push(isVet ? "/vet/home" : "/home");
+      }
     }, 700);
   };
 
