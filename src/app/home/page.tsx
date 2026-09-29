@@ -374,35 +374,35 @@ export default function HomePage() {
           </div>
 
           {/* Health Info Card ("ข้อมูลสุขภาพ") */}
-          <div className="bg-white dark:bg-slate-800 rounded-3xl p-4 border border-slate-100 dark:border-slate-700 shadow-[0_4px_20px_rgba(0,0,0,0.04)] text-left">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-4 border border-orange-100/80 dark:border-slate-700 shadow-sm text-left">
             {/* Header */}
-            <div className="flex items-center justify-between pb-2.5">
+            <div className="flex items-center justify-between pb-2.5 border-b border-slate-100 dark:border-slate-700">
               <div className="flex items-center gap-2">
-                <Heart className="w-5 h-5 fill-slate-900 text-slate-900 dark:fill-white dark:text-white" />
+                <Heart className="w-5 h-5 text-rose-500 fill-rose-500" />
                 <span className="text-[16px] font-bold text-slate-900 dark:text-white font-kanit">
                   ข้อมูลสุขภาพ
                 </span>
               </div>
-              <span className="text-[11px] font-medium px-2.5 py-1 bg-slate-200/80 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-full">
-                บันทึกโดยสัตวแพทย์
+              <span className="text-[11px] font-semibold px-2.5 py-0.5 bg-emerald-100/90 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 rounded-full border border-emerald-200/80 flex items-center gap-1">
+                ✓ บันทึกโดยสัตวแพทย์
               </span>
             </div>
 
             {/* Health Info Rows */}
-            <div className="space-y-2 text-[14px]">
+            <div className="space-y-2 text-[14px] pt-2">
               <div className="flex items-center justify-between py-1.5 border-b border-slate-100 dark:border-slate-700">
-                <span className="text-slate-700 dark:text-slate-300 font-normal">
+                <span className="text-slate-700 dark:text-slate-300 font-medium">
                   วัคซีนรวม (เข็มล่าสุด)
                 </span>
-                <span className={`font-semibold ${selectedPet.latestVaccine ? "text-slate-900 dark:text-white" : "text-slate-400 dark:text-slate-500 text-[13px]"}`}>
+                <span className={`font-semibold ${selectedPet.latestVaccine ? "text-slate-900 dark:text-white" : "px-3 py-1 rounded-full bg-orange-100/80 dark:bg-orange-950/60 text-orange-700 dark:text-orange-300 text-[12px] font-semibold border border-orange-200/60 inline-block"}`}>
                   {selectedPet.latestVaccine || "ยังไม่มีข้อมูล (รอแพทย์บันทึก)"}
                 </span>
               </div>
               <div className="flex items-center justify-between pt-1">
-                <span className="text-slate-700 dark:text-slate-300 font-normal">
+                <span className="text-slate-700 dark:text-slate-300 font-medium">
                   น้ำหนักล่าสุด
                 </span>
-                <span className={`font-semibold ${selectedPet.weight && selectedPet.weight !== "-" ? "text-slate-900 dark:text-white" : "text-slate-400 dark:text-slate-500 text-[13px]"}`}>
+                <span className={`font-semibold ${selectedPet.weight && selectedPet.weight !== "-" ? "text-slate-900 dark:text-white" : "px-3 py-1 rounded-full bg-orange-100/80 dark:bg-orange-950/60 text-orange-700 dark:text-orange-300 text-[12px] font-semibold border border-orange-200/60 inline-block"}`}>
                   {selectedPet.weight && selectedPet.weight !== "-"
                     ? `${selectedPet.weight} กก. ปกติ`
                     : "ยังไม่มีข้อมูล"}
@@ -411,38 +411,52 @@ export default function HomePage() {
             </div>
 
             {!selectedPet.latestVaccine && (
-              <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-700 text-[11px] text-slate-400 dark:text-slate-500 text-center">
-                * ข้อมูลสุขภาพจะบันทึกโดยสัตวแพทย์เมื่อนำสัตว์เลี้ยงเข้ารับการตรวจ
+              <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-700 text-[11px] text-slate-400 dark:text-slate-500 flex items-center justify-center gap-1">
+                <span>ℹ️</span>
+                <span>* ข้อมูลสุขภาพจะบันทึกโดยสัตวแพทย์เมื่อนำสัตว์เลี้ยงเข้ารับการตรวจ</span>
               </div>
             )}
           </div>
 
           {/* PetCare Premium Banner Card (แสดงเฉพาะเมื่อยังไม่ได้สมัครสมาชิกพรีเมียม) */}
           {!isAccountPremium && (
-            <div className="bg-white dark:bg-slate-800 rounded-3xl p-4 border border-slate-100 dark:border-slate-700 shadow-[0_4px_20px_rgba(0,0,0,0.04)] text-left space-y-3 animate-fade-in">
-              {/* Header with Crown & Price */}
-              <div className="flex items-center justify-between">
+            <div className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white rounded-3xl p-5 border border-white/20 shadow-lg shadow-pink-500/20 text-left space-y-3.5 relative overflow-hidden animate-fade-in">
+              {/* Special Offer Badge & Crown */}
+              <div className="flex items-center justify-between relative z-10">
                 <div className="flex items-center gap-2">
-                  <Crown className="w-5 h-5 fill-slate-900 text-slate-900 dark:fill-white dark:text-white" />
-                  <span className="text-[16px] font-bold text-slate-900 dark:text-white tracking-tight font-kanit">
+                  <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center">
+                    <Crown className="w-5 h-5 text-amber-300 fill-amber-300" />
+                  </div>
+                  <span className="text-[17px] font-extrabold text-white tracking-tight font-kanit drop-shadow-xs">
                     PetCare Premium
                   </span>
                 </div>
-                <span className="text-[12px] font-semibold px-2.5 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-full">
-                  ฿499/เดือน
+                
+                <span className="px-3 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white text-[11px] font-bold border border-white/30 inline-flex items-center gap-1 shadow-xs">
+                  ✨ ข้อเสนอพิเศษ
+                </span>
+              </div>
+
+              {/* Price Display */}
+              <div className="flex items-baseline gap-1 relative z-10">
+                <span className="text-3xl font-black text-white tracking-tight drop-shadow-xs">
+                  ฿499
+                </span>
+                <span className="text-sm font-semibold text-white/90">
+                  / เดือน
                 </span>
               </div>
 
               {/* Subtext Benefits */}
-              <p className="text-[13px] text-slate-600 dark:text-slate-300 leading-snug">
-                ปรึกษาแพทย์ส่วนตัว 24 ชม. และส่วนลดค่ายาพิเศษ
+              <p className="text-[13px] text-white/95 leading-relaxed relative z-10 font-normal">
+                ปรึกษาแพทย์ส่วนตัว 24 ชม. และส่วนลดค่ายาพิเศษ 20% สำหรับสมาชิก
               </p>
 
-              {/* CTA Button: กดแล้วไปหน้าเลือกแผนรายเดือน/รายปี */}
-              <div>
+              {/* CTA Button */}
+              <div className="pt-1 relative z-10">
                 <Link
                   href="/premium/pricing"
-                  className="block w-full text-center bg-[#00A877] hover:bg-[#009166] active:scale-[0.98] text-white font-bold text-[15px] py-2.5 px-6 rounded-full shadow-[0_6px_16px_rgba(0,168,119,0.3)] transition-all duration-200 font-kanit cursor-pointer"
+                  className="block w-full text-center bg-white hover:bg-slate-50 active:scale-95 text-purple-700 font-extrabold text-[15px] py-2.5 px-6 rounded-full shadow-lg shadow-black/10 hover:scale-[1.03] transition-all duration-200 font-kanit cursor-pointer"
                 >
                   สมัครเลย
                 </Link>

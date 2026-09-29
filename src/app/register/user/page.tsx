@@ -133,11 +133,11 @@ export default function UserRegisterPage() {
           </p>
         </div>
 
-        {/* Register Form */}
-        <form onSubmit={handleSubmit} className="w-full max-w-sm mx-auto space-y-3.5 mt-2 text-left">
+        {/* Register Form Container - Extra rounded corners & soft orange shadow */}
+        <form onSubmit={handleSubmit} className="w-full max-w-sm mx-auto space-y-3.5 bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl shadow-orange-500/10 border border-orange-100/80 dark:border-slate-800 text-left">
           {/* Full Name */}
           <div className="space-y-1">
-            <label className="block text-[14px] font-medium text-slate-800">
+            <label className="block text-[14px] font-semibold text-slate-800 dark:text-slate-200">
               ชื่อ - นามสกุล
             </label>
             <input
@@ -146,13 +146,13 @@ export default function UserRegisterPage() {
               placeholder="กรอกชื่อและนามสกุล"
               value={formData.fullname}
               onChange={(e) => setFormData({ ...formData, fullname: e.target.value })}
-              className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-[14px] text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent shadow-[0_2px_8px_rgba(0,0,0,0.03)] transition-all"
+              className="w-full px-4 py-3 bg-slate-50/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl text-[14px] text-slate-800 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:border-orange-400 focus:ring-2 focus:ring-orange-200/80 transition-all shadow-xs"
             />
           </div>
 
           {/* Email */}
           <div className="space-y-1">
-            <label className="block text-[14px] font-medium text-slate-800">
+            <label className="block text-[14px] font-semibold text-slate-800 dark:text-slate-200">
               อีเมล
             </label>
             <input
@@ -161,13 +161,13 @@ export default function UserRegisterPage() {
               placeholder="example@email.com"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-[14px] text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent shadow-[0_2px_8px_rgba(0,0,0,0.03)] transition-all"
+              className="w-full px-4 py-3 bg-slate-50/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl text-[14px] text-slate-800 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:border-orange-400 focus:ring-2 focus:ring-orange-200/80 transition-all shadow-xs"
             />
           </div>
 
           {/* Phone Number */}
           <div className="space-y-1">
-            <label className="block text-[14px] font-medium text-slate-800">
+            <label className="block text-[14px] font-semibold text-slate-800 dark:text-slate-200">
               เบอร์โทรศัพท์
             </label>
             <input
@@ -176,13 +176,13 @@ export default function UserRegisterPage() {
               placeholder="08X-XXX-XXXX"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-[14px] text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent shadow-[0_2px_8px_rgba(0,0,0,0.03)] transition-all"
+              className="w-full px-4 py-3 bg-slate-50/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl text-[14px] text-slate-800 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:border-orange-400 focus:ring-2 focus:ring-orange-200/80 transition-all shadow-xs"
             />
           </div>
 
           {/* Password */}
           <div className="space-y-1">
-            <label className="block text-[14px] font-medium text-slate-800">
+            <label className="block text-[14px] font-semibold text-slate-800 dark:text-slate-200">
               รหัสผ่าน
             </label>
             <div className="relative">
@@ -192,12 +192,12 @@ export default function UserRegisterPage() {
                 placeholder="อย่างน้อย 6 ตัวอักษร"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full pl-4 pr-12 py-3 bg-white border border-slate-200 rounded-2xl text-[14px] text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent shadow-[0_2px_8px_rgba(0,0,0,0.03)] transition-all"
+                className="w-full pl-4 pr-12 py-3 bg-slate-50/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl text-[14px] text-slate-800 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:border-orange-400 focus:ring-2 focus:ring-orange-200/80 transition-all shadow-xs"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-slate-600 hover:text-slate-900"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-slate-500 hover:text-slate-800 dark:text-slate-400"
                 aria-label={showPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"}
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -207,7 +207,7 @@ export default function UserRegisterPage() {
 
           {/* Confirm Password */}
           <div className="space-y-1">
-            <label className="block text-[14px] font-medium text-slate-800">
+            <label className="block text-[14px] font-semibold text-slate-800 dark:text-slate-200">
               ยืนยันรหัสผ่าน
             </label>
             <div className="relative">
@@ -219,12 +219,12 @@ export default function UserRegisterPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, confirmPassword: e.target.value })
                 }
-                className="w-full pl-4 pr-12 py-3 bg-white border border-slate-200 rounded-2xl text-[14px] text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent shadow-[0_2px_8px_rgba(0,0,0,0.03)] transition-all"
+                className="w-full pl-4 pr-12 py-3 bg-slate-50/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl text-[14px] text-slate-800 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:border-orange-400 focus:ring-2 focus:ring-orange-200/80 transition-all shadow-xs"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-slate-600 hover:text-slate-900"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-slate-500 hover:text-slate-800 dark:text-slate-400"
                 aria-label={showConfirmPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"}
               >
                 {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -252,7 +252,7 @@ export default function UserRegisterPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-[#00A877] hover:bg-[#009166] active:scale-[0.98] text-white font-medium text-[16px] py-3.5 px-6 rounded-full shadow-[0_8px_20px_rgba(0,168,119,0.35)] transition-all duration-200 disabled:opacity-70 flex items-center justify-center gap-2"
+              className="w-full bg-gradient-to-r from-orange-500 via-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 active:scale-[0.98] text-white font-extrabold text-[16px] py-3.5 px-6 rounded-full shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all duration-200 disabled:opacity-70 flex items-center justify-center gap-2 font-kanit cursor-pointer"
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -265,10 +265,10 @@ export default function UserRegisterPage() {
           {/* Switch to Vet Register / Back to Login */}
           <div className="text-center pt-2 space-y-1.5">
             <div>
-              <span className="text-[13px] text-slate-600">มีบัญชีผู้ใช้อยู่แล้ว? </span>
+              <span className="text-[13px] text-slate-600 dark:text-slate-400">มีบัญชีผู้ใช้อยู่แล้ว? </span>
               <Link
                 href="/login?role=user"
-                className="text-[13px] text-slate-900 font-semibold hover:text-teal-600 underline"
+                className="text-[13px] text-orange-600 font-bold hover:text-orange-700 underline"
               >
                 เข้าสู่ระบบ
               </Link>
@@ -276,7 +276,7 @@ export default function UserRegisterPage() {
             <div>
               <Link
                 href="/register/vet"
-                className="text-[12px] text-teal-700 hover:text-teal-800 font-medium underline"
+                className="text-[12px] text-orange-600 hover:text-orange-700 font-medium underline"
               >
                 ต้องการสมัครสำหรับสัตวแพทย์? คลิกที่นี่
               </Link>

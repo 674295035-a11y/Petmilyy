@@ -322,13 +322,13 @@ function LoginForm() {
           </div>
         )}
 
-        {/* Login Form */}
-        <form onSubmit={handleSubmit} className="w-full max-w-sm mx-auto space-y-4">
+        {/* Login Form Container - Soft Orange Shadow & Rounded Curves */}
+        <form onSubmit={handleSubmit} className="w-full max-w-sm mx-auto space-y-4 bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl shadow-orange-500/10 border border-orange-100/80 dark:border-slate-800">
           {/* Email / Phone Field */}
           <div className="space-y-1.5 text-left">
             <label
               htmlFor="identifier"
-              className="block text-[15px] font-medium text-slate-800"
+              className="block text-[14px] font-semibold text-slate-800 dark:text-slate-200"
             >
               อีเมล/เบอร์
             </label>
@@ -340,7 +340,7 @@ function LoginForm() {
                 onChange={(e) => setIdentifier(e.target.value)}
                 placeholder="กรอกอีเมลหรือเบอร์โทรศัพท์"
                 required
-                className="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-2xl text-[15px] text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all"
+                className="w-full px-4 py-3.5 bg-slate-50/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl text-[15px] text-slate-800 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:border-orange-400 focus:ring-2 focus:ring-orange-200/80 transition-all shadow-xs"
               />
             </div>
           </div>
@@ -349,7 +349,7 @@ function LoginForm() {
           <div className="space-y-1.5 text-left">
             <label
               htmlFor="password"
-              className="block text-[15px] font-medium text-slate-800"
+              className="block text-[14px] font-semibold text-slate-800 dark:text-slate-200"
             >
               รหัสผ่าน
             </label>
@@ -361,18 +361,18 @@ function LoginForm() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="กรอกรหัสผ่าน"
                 required
-                className="w-full pl-4 pr-12 py-3.5 bg-white border border-slate-200 rounded-2xl text-[15px] text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all"
+                className="w-full pl-4 pr-12 py-3.5 bg-slate-50/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl text-[15px] text-slate-800 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:border-orange-400 focus:ring-2 focus:ring-orange-200/80 transition-all shadow-xs"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1.5 text-slate-700 hover:text-slate-900 focus:outline-none transition-colors"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1.5 text-slate-500 hover:text-slate-800 dark:text-slate-400 focus:outline-none transition-colors"
                 aria-label={showPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"}
               >
                 {showPassword ? (
-                  <EyeOff className="w-5 h-5 text-slate-700" />
+                  <EyeOff className="w-5 h-5" />
                 ) : (
-                  <Eye className="w-5 h-5 text-slate-700" />
+                  <Eye className="w-5 h-5" />
                 )}
               </button>
             </div>
@@ -383,7 +383,7 @@ function LoginForm() {
             <button
               type="button"
               onClick={() => setShowForgotModal(true)}
-              className="text-[14px] text-slate-700 hover:text-teal-600 font-normal transition-colors cursor-pointer"
+              className="text-[14px] text-orange-600 hover:text-orange-700 font-medium transition-colors cursor-pointer"
             >
               ลืมรหัสผ่าน
             </button>
@@ -397,12 +397,12 @@ function LoginForm() {
             </div>
           )}
 
-          {/* Primary Submit Button */}
+          {/* Primary Submit Button - Orange Gradient */}
           <div className="pt-2">
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-[#00A877] hover:bg-[#009166] active:scale-[0.98] text-white font-medium text-[17px] py-3.5 px-6 rounded-full shadow-[0_8px_20px_rgba(0,168,119,0.35)] hover:shadow-[0_10px_25px_rgba(0,168,119,0.45)] transition-all duration-200 disabled:opacity-70 flex items-center justify-center gap-2"
+              className="w-full bg-gradient-to-r from-orange-500 via-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 active:scale-[0.98] text-white font-extrabold text-[17px] py-3.5 px-6 rounded-full shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all duration-200 disabled:opacity-70 flex items-center justify-center gap-2 font-kanit cursor-pointer"
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -414,10 +414,10 @@ function LoginForm() {
 
           {/* Register Link */}
           <div className="text-center pt-2">
-            <span className="text-[14px] text-slate-700">ยังไม่มีบัญชี? </span>
+            <span className="text-[14px] text-slate-600 dark:text-slate-400">ยังไม่มีบัญชี? </span>
             <Link
               href={isVet ? "/register/vet" : "/register/user"}
-              className="text-[14px] text-slate-900 font-semibold hover:text-teal-600 transition-colors underline-offset-2 hover:underline"
+              className="text-[14px] text-orange-600 font-bold hover:text-orange-700 transition-colors underline-offset-2 hover:underline"
             >
               สมัครสมาชิก
             </Link>

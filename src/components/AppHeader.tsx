@@ -68,7 +68,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
   return (
     <>
-      <header className={`w-full bg-[#62C0C6] py-2.5 px-3 flex items-center justify-between shadow-sm select-none z-30 shrink-0 ${className}`}>
+      <header className={`sticky top-0 z-40 w-full bg-white/85 dark:bg-slate-900/85 backdrop-blur-md py-2.5 px-3.5 flex items-center justify-between border-b border-orange-100/80 dark:border-slate-800 shadow-xs select-none shrink-0 transition-colors duration-200 ${className}`}>
         {/* Left Action / Back Button */}
         {leftElement ? (
           leftElement
@@ -76,7 +76,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           <button
             type="button"
             onClick={handleBack}
-            className="w-9 h-9 -ml-1 rounded-full flex items-center justify-center text-slate-900 hover:bg-black/10 active:scale-95 transition-all cursor-pointer"
+            className="w-9 h-9 -ml-1 rounded-full flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-orange-50 dark:hover:bg-slate-800 active:scale-95 transition-all cursor-pointer"
             aria-label="ย้อนกลับ"
             title="ย้อนกลับ"
           >
@@ -90,15 +90,15 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
         <div className="flex items-center justify-center gap-2">
           {showLogo ? (
             <>
-              <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center bg-white shadow-sm border border-white/60">
+              <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center bg-white shadow-sm border border-orange-200/60">
                 <PetmilyLogo size={32} />
               </div>
-              <span className="text-[20px] font-bold text-slate-900 tracking-wider font-kanit">
+              <span className="text-[20px] font-extrabold bg-gradient-to-r from-orange-500 via-amber-500 to-amber-400 bg-clip-text text-transparent tracking-wider font-kanit drop-shadow-xs">
                 PETMILY
               </span>
             </>
           ) : (
-            <h1 className="text-[20px] font-bold text-slate-900 tracking-tight font-kanit">
+            <h1 className="text-[20px] font-bold text-slate-900 dark:text-white tracking-tight font-kanit">
               {title}
             </h1>
           )}
@@ -113,14 +113,14 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               <button
                 type="button"
                 onClick={toggleTheme}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-900 hover:bg-black/10 active:scale-90 hover:scale-105 transition-all"
+                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-orange-50 dark:hover:bg-slate-800 active:scale-90 hover:scale-105 transition-all"
                 title={themeMode === "dark" ? "เปลี่ยนเป็นโหมดสว่าง" : "เปลี่ยนเป็นโหมดมืด"}
                 aria-label="สลับโหมดมืด/สว่าง"
               >
                 {themeMode === "dark" ? (
-                  <Sun className="w-5 h-5 text-amber-900 stroke-[2.2]" />
+                  <Sun className="w-5 h-5 text-amber-400 stroke-[2.2]" />
                 ) : (
-                  <Moon className="w-5 h-5 text-slate-900 stroke-[2.2]" />
+                  <Moon className="w-5 h-5 text-slate-700 stroke-[2.2]" />
                 )}
               </button>
             )}
@@ -129,13 +129,13 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               <button
                 type="button"
                 onClick={handleBellClick}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-900 hover:bg-black/10 active:scale-90 hover:scale-105 transition-all relative cursor-pointer"
+                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-orange-50 dark:hover:bg-slate-800 active:scale-90 hover:scale-105 transition-all relative cursor-pointer"
                 aria-label="การแจ้งเตือน"
                 title="การแจ้งเตือน"
               >
-                <Bell className="w-5 h-5 fill-slate-900 text-slate-900 stroke-[1.5]" />
+                <Bell className="w-5 h-5 text-slate-700 dark:text-slate-200 stroke-[2]" />
                 {effectiveBellCount > 0 && (
-                  <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white animate-pulse" />
+                  <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-orange-500 rounded-full border-2 border-white animate-pulse" />
                 )}
               </button>
             ) : (

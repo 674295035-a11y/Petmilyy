@@ -73,14 +73,20 @@ export default function HistoryPage() {
                 {appointments.map((item) => (
                   <div
                     key={item.id}
-                    className="bg-white dark:bg-slate-800 rounded-3xl p-4 border border-slate-100 dark:border-slate-700 shadow-[0_4px_16px_rgba(0,0,0,0.03)] space-y-2.5 hover:shadow-md transition-all hover:scale-[1.01]"
+                    className="bg-white dark:bg-slate-800 rounded-3xl p-4 border border-orange-100/80 dark:border-slate-700 shadow-sm shadow-orange-100/60 space-y-2.5 hover:shadow-md hover:border-orange-200 transition-all hover:scale-[1.01]"
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-[16px] font-bold text-slate-900 dark:text-white font-kanit">
                         {item.date}
                       </span>
-                      <span className="text-[13px] font-semibold text-[#539E18] dark:text-emerald-400">
-                        {item.status || "ยืนยันแล้ว"}
+                      <span
+                        className={`text-[12px] font-bold px-3 py-0.5 rounded-full border ${
+                          item.status === "เสร็จสิ้น" || item.status === "เสร็จสิ้นแล้ว"
+                            ? "bg-emerald-100/90 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200/80"
+                            : "bg-orange-100/90 dark:bg-orange-950/60 text-orange-700 dark:text-orange-300 border-orange-200/80"
+                        }`}
+                      >
+                        {item.status || "รอดำเนินการ"}
                       </span>
                     </div>
 
@@ -98,7 +104,7 @@ export default function HistoryPage() {
                       <button
                         type="button"
                         onClick={() => setSelectedItem(item)}
-                        className="w-full py-2 bg-[#00A877] hover:bg-[#009166] active:scale-[0.98] text-white font-medium text-[14px] rounded-full shadow-[0_4px_12px_rgba(0,168,119,0.3)] transition-all font-kanit text-center cursor-pointer"
+                        className="w-full py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 active:scale-[0.98] text-white font-bold text-[14px] rounded-full shadow-md shadow-orange-500/20 transition-all font-kanit text-center cursor-pointer"
                       >
                         ดูรายละเอียด
                       </button>
