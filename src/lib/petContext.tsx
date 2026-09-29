@@ -126,6 +126,7 @@ interface PetContextType {
   logActivity: (type: string, title: string, emoji?: string, note?: string) => void;
   removeActivityLog: (id: string) => void;
   chatThreads: ChatThread[];
+  setChatThreads: React.Dispatch<React.SetStateAction<ChatThread[]>>;
   sendChatMessage: (threadId: string, text: string) => void;
   clearUnread: (threadId: string) => void;
   vetPatients: VetPatient[];
@@ -156,7 +157,7 @@ const defaultActivityButtons: ActivityButton[] = [
   { id: "bath", name: "อาบน้ำ", emoji: "🛁", type: "bath" },
 ];
 
-const createInitialChats = (userName: string): ChatThread[] => [
+export const createInitialChats = (userName: string): ChatThread[] => [
   {
     id: "vet-1",
     doctorName: "แพทย์หญิงด้า",
@@ -210,7 +211,7 @@ const createInitialChats = (userName: string): ChatThread[] => [
   },
 ];
 
-const DOCTOR_UUID_MAP: Record<string, string> = {
+export const DOCTOR_UUID_MAP: Record<string, string> = {
   "vet-1": "a0000000-0000-0000-0000-000000000001",
   "vet-2": "a0000000-0000-0000-0000-000000000002",
   "vet-3": "a0000000-0000-0000-0000-000000000003",
@@ -552,6 +553,13 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setCurrentUser(updatedUser);
       localStorage.setItem("petmily_current_user", JSON.stringify(updatedUser));
 
+      // Populate and persist recommended doctor consultation chats
+      const initialChats = createInitialChats(currentUser.fullName || "ผู้ใช้งาน");
+      setChatThreads(initialChats);
+      try {
+        localStorage.setItem("petmily_chat_threads", JSON.stringify(initialChats));
+      } catch (e) {}
+
       // Sync to Supabase profiles
       await supabase.from("profiles").upsert(
         {
@@ -562,6 +570,25 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         },
         { onConflict: "email" }
       );
+
+      // Persist recommended doctor chat threads to Supabase
+      for (const chat of initialChats) {
+        const dbThreadId = DOCTOR_UUID_MAP[chat.id];
+        if (dbThreadId) {
+          await supabase.from("chat_threads").upsert(
+            {
+              id: dbThreadId,
+              doctor_name: chat.doctorName,
+              clinic_name: chat.clinicName,
+              avatar_type: chat.avatarType,
+              last_message: chat.lastMessage,
+              online: true,
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: "id" }
+          );
+        }
+      }
 
       // Add Notification to Supabase and Local
       await addNotification({
@@ -1078,6 +1105,7 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         logActivity,
         removeActivityLog,
         chatThreads,
+        setChatThreads,
         sendChatMessage,
         clearUnread,
         vetPatients,

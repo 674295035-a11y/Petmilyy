@@ -1,6 +1,5 @@
 "use client";
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -20,11 +19,11 @@ import MobileFrame from "@/components/MobileFrame";
 import AppHeader from "@/components/AppHeader";
 import BottomNav from "@/components/BottomNav";
 import { FloralCatAvatar, VetDoctorAvatar } from "@/components/PetAvatars";
-import { usePetContext } from "@/lib/petContext";
+import { usePetContext, createInitialChats } from "@/lib/petContext";
 
 export default function ChatListPage() {
   const router = useRouter();
-  const { currentUser, isPremium, chatThreads, clearUnread, sendChatMessage, notifications } =
+  const { currentUser, isPremium, chatThreads, setChatThreads, clearUnread, sendChatMessage, notifications } =
     usePetContext();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -34,6 +33,17 @@ export default function ChatListPage() {
   const [selectedDoctorId, setSelectedDoctorId] = useState("vet-1");
   const [composeText, setComposeText] = useState("");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Auto-populate recommended doctor consultation chats when user has PetCare Premium
+  useEffect(() => {
+    if (isPremium && chatThreads.length === 0) {
+      const initialChats = createInitialChats(currentUser.fullName || "คุณผู้ใช้งาน");
+      setChatThreads(initialChats);
+      try {
+        localStorage.setItem("petmily_chat_threads", JSON.stringify(initialChats));
+      } catch (e) {}
+    }
+  }, [isPremium, chatThreads.length, currentUser.fullName, setChatThreads]);
 
   const unreadNotifs = notifications.filter((n) => n.unread).length;
 

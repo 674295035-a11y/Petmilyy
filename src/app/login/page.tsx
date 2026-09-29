@@ -175,28 +175,48 @@ function LoginForm() {
     try {
       // 1. Try Supabase OAuth
       if (supabase && typeof supabase.auth?.signInWithOAuth === "function") {
-        await supabase.auth.signInWithOAuth({
+        const { data, error } = await supabase.auth.signInWithOAuth({
           provider: "google",
           options: {
-            redirectTo: window.location.origin + "/home",
+            redirectTo: typeof window !== "undefined" ? window.location.origin + "/home" : undefined,
           },
         });
+        if (!error && data?.url) {
+          window.location.href = data.url;
+          return;
+        }
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn("Google OAuth error:", e);
+    }
+
+    // Clear previous user localStorage data
+    const keysToReset = [
+      "petmily_pets", "petmily_activity_logs", "petmily_appointments",
+      "petmily_expenses", "petmily_chat_threads", "petmily_notifications",
+      "petmily_is_premium", "petmily_activity_buttons",
+    ];
+    keysToReset.forEach(k => { try { localStorage.removeItem(k); } catch {} });
 
     // Seamless sign in fallback
-    setCurrentUser({
+    const googleUser = {
       fullName: "ผู้ใช้งาน (Google)",
-      email: identifier || "google.user@gmail.com",
+      email: identifier.includes("@") ? identifier : "google.user@gmail.com",
       phone: "08X-XXX-XXXX",
-      role: isVet ? "vet" : "user",
-    });
+      role: (isVet ? "vet" : "user") as "user" | "vet",
+    };
+    setCurrentUser(googleUser);
     setUserRole(isVet ? "vet" : "user");
+    try {
+      localStorage.setItem("petmily_current_user", JSON.stringify(googleUser));
+      localStorage.setItem("petmily_is_premium", JSON.stringify(false));
+    } catch {}
+    await fetchAppointments(googleUser);
 
     setToastMessage("เข้าสู่ระบบด้วย Google สำเร็จ! กำลังเข้าสู่ระบบ...");
     setTimeout(() => {
       router.push(isVet ? "/vet/home" : "/home");
-    }, 900);
+    }, 700);
   };
 
   // Apple Sign-In Handler
@@ -204,28 +224,48 @@ function LoginForm() {
     setIsLoading(true);
     try {
       if (supabase && typeof supabase.auth?.signInWithOAuth === "function") {
-        await supabase.auth.signInWithOAuth({
+        const { data, error } = await supabase.auth.signInWithOAuth({
           provider: "apple",
           options: {
-            redirectTo: window.location.origin + "/home",
+            redirectTo: typeof window !== "undefined" ? window.location.origin + "/home" : undefined,
           },
         });
+        if (!error && data?.url) {
+          window.location.href = data.url;
+          return;
+        }
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn("Apple OAuth error:", e);
+    }
+
+    // Clear previous user localStorage data
+    const keysToReset = [
+      "petmily_pets", "petmily_activity_logs", "petmily_appointments",
+      "petmily_expenses", "petmily_chat_threads", "petmily_notifications",
+      "petmily_is_premium", "petmily_activity_buttons",
+    ];
+    keysToReset.forEach(k => { try { localStorage.removeItem(k); } catch {} });
 
     // Seamless sign in fallback
-    setCurrentUser({
+    const appleUser = {
       fullName: "ผู้ใช้งาน (Apple ID)",
-      email: identifier || "apple.user@icloud.com",
+      email: identifier.includes("@") ? identifier : "apple.user@icloud.com",
       phone: "08X-XXX-XXXX",
-      role: isVet ? "vet" : "user",
-    });
+      role: (isVet ? "vet" : "user") as "user" | "vet",
+    };
+    setCurrentUser(appleUser);
     setUserRole(isVet ? "vet" : "user");
+    try {
+      localStorage.setItem("petmily_current_user", JSON.stringify(appleUser));
+      localStorage.setItem("petmily_is_premium", JSON.stringify(false));
+    } catch {}
+    await fetchAppointments(appleUser);
 
-    setToastMessage("เข้าสู่ระบบด้วย Apple สำเร็จ! กำลังเข้าสู่ระบบ...");
+    setToastMessage("เข้าสู่ระบบด้วย Apple ID สำเร็จ! กำลังเข้าสู่ระบบ...");
     setTimeout(() => {
       router.push(isVet ? "/vet/home" : "/home");
-    }, 900);
+    }, 700);
   };
 
   // Forgot Password Submit Handler
