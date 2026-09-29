@@ -16,7 +16,7 @@ function LoginForm() {
   const isVet = role === "vet";
 
   const router = useRouter();
-  const { setUserRole, setCurrentUser, fetchAppointments } = usePetContext();
+  const { setUserRole, setCurrentUser, syncWithSupabase } = usePetContext();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -106,40 +106,8 @@ function LoginForm() {
         localStorage.setItem("petmily_is_premium", JSON.stringify(false));
       } catch {}
 
-      // Fetch this specific user's appointments
-      await fetchAppointments(newUser);
-
-      // Load pets from Supabase for this user
-      if (authUser || profileData) {
-        if (userId) {
-          const { data: petsData } = await supabase
-            .from("pets")
-            .select("*")
-            .eq("user_id", userId)
-            .order("created_at", { ascending: true });
-
-          if (petsData && petsData.length > 0) {
-            const mappedPets = petsData.map((p: any) => ({
-              id: p.id,
-              name: p.name,
-              type: p.type,
-              breed: p.breed || "",
-              birthdate: p.birthdate || "",
-              age: p.age || "",
-              weight: p.weight || "-",
-              height: p.height || "-",
-              drugAllergy: p.drug_allergy || "ไม่มีประวัติแพ้ยา",
-              avatar: p.avatar || "cat",
-              photoUrl: p.photo_url || undefined,
-              ownerName: p.owner_name || userName,
-              latestVaccine: p.latest_vaccine || "",
-            }));
-            try {
-              localStorage.setItem("petmily_pets", JSON.stringify(mappedPets));
-            } catch {}
-          }
-        }
-      }
+      // Sync data specifically for this user
+      await syncWithSupabase(newUser);
 
       setIsSuccess(true);
       setTimeout(() => {
@@ -153,12 +121,14 @@ function LoginForm() {
       console.error(err);
       // Navigate anyway (offline/fallback mode)
       const fallbackName = identifier.includes("@") ? identifier.split("@")[0] : identifier;
-      setCurrentUser({
+      const fallbackUser = {
         fullName: fallbackName,
         email: identifier.includes("@") ? identifier : "",
         phone: "",
-        role: isVet ? "vet" : "user",
-      });
+        role: (isVet ? "vet" : "user") as "user" | "vet",
+      };
+      setCurrentUser(fallbackUser);
+      await syncWithSupabase(fallbackUser);
       setIsSuccess(true);
       setTimeout(() => {
         router.push(isVet ? "/vet/home" : "/home");
@@ -211,7 +181,7 @@ function LoginForm() {
       localStorage.setItem("petmily_current_user", JSON.stringify(googleUser));
       localStorage.setItem("petmily_is_premium", JSON.stringify(false));
     } catch {}
-    await fetchAppointments(googleUser);
+    await syncWithSupabase(googleUser);
 
     setToastMessage("เข้าสู่ระบบด้วย Google สำเร็จ! กำลังเข้าสู่ระบบ...");
     setTimeout(() => {
@@ -260,7 +230,7 @@ function LoginForm() {
       localStorage.setItem("petmily_current_user", JSON.stringify(appleUser));
       localStorage.setItem("petmily_is_premium", JSON.stringify(false));
     } catch {}
-    await fetchAppointments(appleUser);
+    await syncWithSupabase(appleUser);
 
     setToastMessage("เข้าสู่ระบบด้วย Apple ID สำเร็จ! กำลังเข้าสู่ระบบ...");
     setTimeout(() => {
