@@ -12,6 +12,7 @@ import { usePetContext } from "@/lib/petContext";
 function LoginForm() {
   const searchParams = useSearchParams();
   const role = searchParams.get("role") || "user";
+  const redirectUrl = searchParams.get("redirect");
   const isRegistered = searchParams.get("registered") === "true";
   const isVet = role === "vet";
 
@@ -117,7 +118,9 @@ function LoginForm() {
 
       setIsSuccess(true);
       setTimeout(() => {
-        if (isVet || userRole2 === "vet") {
+        if (redirectUrl) {
+          router.push(redirectUrl);
+        } else if (isVet || userRole2 === "vet") {
           router.push("/vet/home");
         } else {
           router.push("/home");
@@ -137,7 +140,11 @@ function LoginForm() {
       await syncWithSupabase(fallbackUser);
       setIsSuccess(true);
       setTimeout(() => {
-        router.push(isVet ? "/vet/home" : "/home");
+        if (redirectUrl) {
+          router.push(redirectUrl);
+        } else {
+          router.push(isVet ? "/vet/home" : "/home");
+        }
       }, 700);
     } finally {
       setIsLoading(false);
@@ -206,7 +213,11 @@ function LoginForm() {
 
     setToastMessage(`เข้าสู่ระบบด้วย ${providerName} (${trimmedEmail}) สำเร็จ!`);
     setTimeout(() => {
-      router.push(isVet ? "/vet/home" : "/home");
+      if (redirectUrl) {
+        router.push(redirectUrl);
+      } else {
+        router.push(isVet ? "/vet/home" : "/home");
+      }
     }, 700);
   };
 
@@ -285,6 +296,19 @@ function LoginForm() {
             <PetmilyLogo size={185} />
           </Link>
         </div>
+
+        {/* Redirecting for Premium Notice Banner */}
+        {redirectUrl?.includes("premium") && (
+          <div className="w-full max-w-sm mx-auto mb-3 p-3.5 bg-gradient-to-r from-purple-50 via-pink-50 to-orange-50 border border-purple-200/80 text-purple-900 rounded-2xl text-xs flex items-center gap-2.5 shadow-sm animate-in fade-in slide-in-from-top-2">
+            <div className="w-7 h-7 rounded-full bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+              <Sparkles className="w-4 h-4 text-amber-300" />
+            </div>
+            <div className="flex-1 text-left">
+              <p className="font-bold text-[13px] text-purple-950 font-kanit">เข้าสู่ระบบเพื่อสมัคร PetCare Premium</p>
+              <p className="text-[11px] text-purple-700 mt-0.5">เข้าสู่ระบบแล้วจะนำทางไปยังขั้นตอนการสมัครทันที</p>
+            </div>
+          </div>
+        )}
 
         {/* Registered Success Banner */}
         {isRegistered && (

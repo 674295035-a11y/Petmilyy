@@ -566,12 +566,14 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       // Sync to Supabase profiles
       await supabase.from("profiles").upsert(
         {
+          id: currentUser.id || undefined,
           full_name: currentUser.fullName || "ผู้ใช้งาน",
           email: currentUser.email || "user@petmily.app",
+          is_premium: true,
           role: userRole,
           updated_at: new Date().toISOString(),
         },
-        { onConflict: "email" }
+        { onConflict: currentUser.id ? "id" : "email" }
       );
 
       // Persist recommended doctor chat threads to Supabase
@@ -1109,6 +1111,27 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       const user = targetUser || currentUser;
       if (user && (user.fullName?.trim() || user.email?.trim() || user.id || user.phone?.trim())) {
+        // Sync is_premium state from Supabase profiles
+        if (user.id || user.email) {
+          try {
+            let profQuery = supabase.from("profiles").select("is_premium");
+            if (user.id) {
+              profQuery = profQuery.eq("id", user.id);
+            } else if (user.email) {
+              profQuery = profQuery.eq("email", user.email);
+            }
+            const { data: prof } = await profQuery.maybeSingle();
+            if (prof?.is_premium === true) {
+              setIsPremium(true);
+              try {
+                localStorage.setItem("petmily_is_premium", "true");
+              } catch {}
+            }
+          } catch (e) {
+            console.warn("Error fetching profile premium state:", e);
+          }
+        }
+
         await fetchPets(user);
         await fetchAppointments(user);
         await fetchExpenses(user);

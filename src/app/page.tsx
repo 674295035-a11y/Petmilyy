@@ -78,10 +78,11 @@ export default function GuestLandingPage() {
       if (isLoggedIn) {
         router.push("/premium/pricing");
       } else {
-        setShowAuthModal(true);
+        // ยังไม่ได้เข้าสู่ระบบ เด้งเข้าหน้าเข้าสู่ระบบทันที
+        router.push("/login?redirect=/premium/pricing");
       }
     } catch (err) {
-      setShowAuthModal(true);
+      router.push("/login?redirect=/premium/pricing");
     } finally {
       setCheckingAuth(false);
     }
