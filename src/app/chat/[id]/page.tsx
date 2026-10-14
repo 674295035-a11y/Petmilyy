@@ -12,13 +12,31 @@ export default function ChatDetailPage() {
   const params = useParams();
   const router = useRouter();
   const threadId = params?.id as string;
-  const { chatThreads, sendChatMessage, clearUnread, fetchChatMessages, notifications, clearNotifications } =
+  const { currentUser, chatThreads, sendChatMessage, clearUnread, fetchChatMessages, notifications, clearNotifications } =
     usePetContext();
   const [inputText, setInputText] = useState("");
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const thread = chatThreads.find((t) => t.id === threadId) || chatThreads[0];
+  const defaultFallbackThread = {
+    id: threadId || "vet-1",
+    doctorName: threadId === "vet-2" ? "แพทย์หญิงโดนัท" : threadId === "vet-3" ? "นพ. วีรพล ธนภูมิ" : "แพทย์หญิงด้า",
+    avatarType: (threadId === "vet-2" ? "donut" : threadId === "vet-3" ? "veerapon" : "da") as "da" | "donut" | "veerapon",
+    lastMessage: "ยินดีต้อนรับสู่ PETMILY ค่ะ",
+    unreadCount: 0,
+    clinicName: threadId === "vet-2" ? "คลินิกรักษ์สัตว์" : threadId === "vet-3" ? "โรงพยาบาลสัตว์ท่าสะอ้าน" : "นีเน่แคร์เซ็นเตอร์",
+    online: true,
+    messages: [
+      {
+        id: "m1",
+        sender: "doctor" as const,
+        text: `สวัสดีค่ะคุณ ${currentUser?.fullName || "ผู้ใช้งาน"} ยินดีต้อนรับสู่ PETMILY ค่ะ มีข้อสงสัยหรือต้องการปรึกษาการดูแลสัตว์เลี้ยง สอบถามหมอได้ตลอดเลยนะคะ`,
+        time: "เมื่อสักครู่",
+      },
+    ],
+  };
+
+  const thread = chatThreads.find((t) => t.id === threadId) || defaultFallbackThread;
   const unreadNotifs = notifications ? notifications.filter((n) => n.unread).length : 0;
 
   useEffect(() => {

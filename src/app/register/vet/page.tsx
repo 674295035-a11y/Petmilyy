@@ -122,6 +122,7 @@ export default function RegisterVetPage() {
 
       // 3. Reset context state for vet
       resetForNewUser({
+        id: userId,
         fullName: fullNameTrimmed,
         email: emailTrimmed,
         phone: "",

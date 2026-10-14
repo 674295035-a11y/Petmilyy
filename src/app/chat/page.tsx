@@ -23,7 +23,7 @@ import { usePetContext, createInitialChats } from "@/lib/petContext";
 
 export default function ChatListPage() {
   const router = useRouter();
-  const { currentUser, isPremium, chatThreads, setChatThreads, clearUnread, sendChatMessage, notifications } =
+  const { currentUser, isPremium, chatThreads, setChatThreads, clearUnread, sendChatMessage, notifications, fetchUserChatThreads } =
     usePetContext();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -37,13 +37,9 @@ export default function ChatListPage() {
   // Auto-populate recommended doctor consultation chats when user has PetCare Premium
   useEffect(() => {
     if (isPremium && chatThreads.length === 0) {
-      const initialChats = createInitialChats(currentUser.fullName || "คุณผู้ใช้งาน");
-      setChatThreads(initialChats);
-      try {
-        localStorage.setItem("petmily_chat_threads", JSON.stringify(initialChats));
-      } catch (e) {}
+      fetchUserChatThreads(currentUser, isPremium);
     }
-  }, [isPremium, chatThreads.length, currentUser.fullName, setChatThreads]);
+  }, [isPremium, chatThreads.length, currentUser, fetchUserChatThreads]);
 
   const unreadNotifs = notifications.filter((n) => n.unread).length;
 
